@@ -1,0 +1,14 @@
+uuid: e7061608-40cb-4b3e-a9d0-6cf93eb5232e
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.conductor
+  module:
+    - user
+id: user_add_role_action.conductor
+label: 'Add the Conductor role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: conductor

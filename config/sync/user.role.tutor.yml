@@ -1,0 +1,16 @@
+uuid: 4575aef8-de78-4e82-a5d9-b2a0f5163ecb
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.pet
+  module:
+    - node
+id: tutor
+label: Tutor
+weight: 5
+is_admin: false
+permissions:
+  - 'create pet content'
+  - 'delete own pet content'
+  - 'edit own pet content'

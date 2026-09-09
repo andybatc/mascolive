@@ -1,0 +1,53 @@
+uuid: cd63a67d-9251-43e6-a839-a597467b5a3e
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.clinic
+    - node.type.page
+    - node.type.pet
+    - taxonomy.vocabulary.tags
+  module:
+    - block
+    - block_content
+    - contextual
+    - file
+    - layout_builder
+    - navigation
+    - node
+    - path
+    - system
+    - taxonomy
+_core:
+  default_config_hash: og55Zu0F-q-X8zG0Ohrls49zws6IrmmosZS-30Es8vw
+id: content_editor
+label: 'Content editor'
+weight: 2
+is_admin: false
+permissions:
+  - 'access administration pages'
+  - 'access content overview'
+  - 'access contextual links'
+  - 'access files overview'
+  - 'access navigation'
+  - 'administer block content'
+  - 'administer blocks'
+  - 'administer url aliases'
+  - 'configure any layout'
+  - 'create clinic content'
+  - 'create page content'
+  - 'create pet content'
+  - 'create terms in tags'
+  - 'create url aliases'
+  - 'delete any clinic content'
+  - 'delete any page content'
+  - 'delete any pet content'
+  - 'delete own files'
+  - 'edit any clinic content'
+  - 'edit any page content'
+  - 'edit any pet content'
+  - 'edit terms in tags'
+  - 'revert all revisions'
+  - 'view all revisions'
+  - 'view own unpublished content'
+  - 'view the administration theme'

@@ -1,0 +1,20 @@
+uuid: 66e7ee53-c807-484d-aaf0-0da0b837057c
+langcode: en
+status: true
+dependencies:
+  theme:
+    - mascolive
+_core:
+  default_config_hash: 6aOgWsNTXjqrDm98TXSAjP6qd2nCijD1xw45MrnbK-Y
+id: mascolive_page_title
+theme: mascolive
+region: header
+weight: -5
+provider: null
+plugin: page_title_block
+settings:
+  id: page_title_block
+  label: 'Page title'
+  label_display: '0'
+  provider: core
+visibility: {  }

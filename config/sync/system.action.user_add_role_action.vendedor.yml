@@ -1,0 +1,14 @@
+uuid: 560cb6d1-059a-4b6d-ba88-9e13a9e7cdcd
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.vendedor
+  module:
+    - user
+id: user_add_role_action.vendedor
+label: 'Add the Vendedor role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: vendedor

@@ -1,0 +1,14 @@
+uuid: def7a7f1-54fa-4043-af89-6969664d44af
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.vendedor
+  module:
+    - user
+id: user_remove_role_action.vendedor
+label: 'Remove the Vendedor role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: vendedor

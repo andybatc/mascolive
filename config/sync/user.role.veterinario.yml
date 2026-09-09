@@ -1,0 +1,20 @@
+uuid: a3fea102-3320-4e06-b060-e460cb0880d3
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.clinic
+    - node.type.pet
+  module:
+    - node
+id: veterinario
+label: Veterinario
+weight: 6
+is_admin: false
+permissions:
+  - 'create clinic content'
+  - 'create pet content'
+  - 'delete any clinic content'
+  - 'delete any pet content'
+  - 'edit any clinic content'
+  - 'edit any pet content'

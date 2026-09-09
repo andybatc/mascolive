@@ -1,0 +1,24 @@
+uuid: 576d632f-4752-4f5a-8ffa-d40c979a22f3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_clinic
+    - node.type.clinic
+    - node.type.pet
+id: node.pet.field_clinic
+field_name: field_clinic
+entity_type: node
+bundle: pet
+label: 'Clínica de referencia'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      clinic: clinic
+field_type: entity_reference

@@ -1,0 +1,5 @@
+name: 'MascoLive Utils'
+type: module
+description: 'Lógica de negocio demo: hook_preprocess_node que marca nodos de mascota con la identidad Bienestar Animal.'
+core_version_requirement: ^10 || ^11
+package: Custom

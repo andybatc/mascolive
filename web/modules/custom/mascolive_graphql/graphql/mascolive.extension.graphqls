@@ -1,0 +1,27 @@
+extend type Query {
+  pet(id: Int!): Pet
+  clinic(id: Int!): Clinic
+  pets: [Pet]
+  clinics: [Clinic]
+}
+
+extend type Mutation {
+  createPet(data: PetInput!): Pet
+  updatePet(id: Int!, data: PetInput!): Pet
+  deletePet(id: Int!): Boolean
+  createClinic(data: ClinicInput!): Clinic
+  updateClinic(id: Int!, data: ClinicInput!): Clinic
+  deleteClinic(id: Int!): Boolean
+}
+
+input PetInput {
+  title: String
+  petType: String
+  clinicId: Int
+}
+
+input ClinicInput {
+  title: String
+  address: String
+  specialty: String
+}

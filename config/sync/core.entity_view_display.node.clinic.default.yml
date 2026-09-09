@@ -1,0 +1,39 @@
+uuid: 9a5bcdfb-927b-4e37-872f-86122f8a1608
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.clinic.field_address
+    - field.field.node.clinic.field_specialty
+    - node.type.clinic
+  module:
+    - user
+id: node.clinic.default
+targetEntityType: node
+bundle: clinic
+mode: default
+content:
+  field_address:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 106
+    region: content
+  field_specialty:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

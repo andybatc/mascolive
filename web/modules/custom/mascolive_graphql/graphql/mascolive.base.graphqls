@@ -1,0 +1,23 @@
+type Query {
+  pet(id: Int!): Pet
+  clinic(id: Int!): Clinic
+  pets: [Pet]
+  clinics: [Clinic]
+}
+
+type Pet {
+  id: Int
+  title: String
+  petType: String
+  clinic: Clinic
+}
+
+type Clinic {
+  id: Int
+  title: String
+  address: String
+  specialty: String
+  pets: [Pet]
+}
+
+type Mutation

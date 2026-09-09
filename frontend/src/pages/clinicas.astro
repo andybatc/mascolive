@@ -1,0 +1,49 @@
+---
+// MascoLive — Directorio de clínicas (SSG).
+import { graphql } from '../lib/api';
+const { clinics, error } = await graphql('{ clinics { id title address specialty } }');
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clínicas MascoLive</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; color: #222; line-height: 1.5; }
+      h1 { margin-top: 0; }
+      nav.roles { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+      nav.roles a { text-decoration: none; padding: .35rem .7rem; border: 1px solid #146a4d; border-radius: 20px; color: #146a4d; font-size: .85rem; }
+      nav.roles a.active { background: #146a4d; color: #fff; }
+      .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+      ul { padding-left: 1.2rem; }
+      li { margin-bottom: .5rem; }
+      .clinic { color: #666; }
+      .error { color: #b00020; border: 1px solid #b00020; padding: 1rem; border-radius: 4px; }
+      a.web { display: inline-block; margin-top: .5rem; color: #146a4d; }
+    </style>
+  </head>
+  <body>
+    <h1>Clínicas MascoLive</h1>
+    <nav class="roles">
+      <a href="/publico">Público</a>
+      <a href="/tutor">Tutor</a>
+      <a href="/veterinario">Veterinario</a>
+      <a href="/admin">Admin</a>
+      <a href="/pets">Mascotas</a>
+      <a class="active" href="/clinicas">Clínicas</a>
+    </nav>
+
+    {error && <p class="error">{error}</p>}
+
+    <h2>Clínicas ({clinics.length})</h2>
+    <ul>
+      {clinics.map((c) => (
+        <li>
+          <a class="web" href={`/clinicas/${c.id}`}><strong>{c.title}</strong></a>
+          <span class="clinic"> — {c.address || 'sin dirección'}{c.specialty ? ` · ${c.specialty}` : ''}</span>
+        </li>
+      ))}
+    </ul>
+  </body>
+</html>

@@ -1,0 +1,119 @@
+<?php
+
+/**
+ * @file
+ * Demo de módulo custom: badge "Bienestar Animal" en nodos de mascota (bundle pet).
+ *
+ * Demuestra hook_node_view (Tarea 4.2 del plan de estudio).
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_field_views_data_alter().
+ *
+ * Expone el filtro entity_reference (widget select) sobre la columna target_id
+ * de campos entity_reference. En core 11.x el ViewsData de esa columna solo
+ * genera el filtro 'numeric' (input de texto) y Views instancia el handler
+ * desde ese ViewsData — no desde el plugin_id de la config de la vista.
+ */
+function mascolive_utils_field_views_data_alter(array &$data, FieldStorageConfig $field_storage) {
+  if ($field_storage->getType() !== 'entity_reference') {
+    return;
+  }
+  $table = $field_storage->getTargetEntityTypeId() . '__' . $field_storage->getName();
+  $col = $field_storage->getName() . '_target_id';
+  if (!isset($data[$table][$col])) {
+    return;
+  }
+  $data[$table][$col]['filter'] = [
+    'id' => 'entity_reference',
+    'field_name' => $field_storage->getName(),
+    'entity_type' => $field_storage->getTargetEntityTypeId(),
+    'entity_field' => $field_storage->getName(),
+    'table' => $table,
+    'field' => $col,
+    'title' => t('@label (select)', ['@label' => $field_storage->getLabel()]),
+    'help' => t('Filter by referenced @label.', ['@label' => $field_storage->getLabel()]),
+  ];
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function mascolive_utils_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  if ($view_mode !== 'full') {
+    return;
+  }
+
+  $bundle = $entity->bundle();
+
+  // Badge "Bienestar Animal" en mascotas (Tarea 4.2 del plan de estudio).
+  if ($bundle === 'pet') {
+    $build['mascolive_badge'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'span',
+      '#value' => '🐾 Bienestar Animal',
+      '#attributes' => [
+        'class' => ['mascolive-badge'],
+      ],
+    ];
+  }
+
+  // Cross-link: clínica -> mascotas de esa clínica.
+  if ($bundle === 'clinic') {
+    $pets = \Drupal::entityTypeManager()
+      ->getStorage('node')
+      ->loadByProperties([
+        'type' => 'pet',
+        'field_clinic' => $entity->id(),
+        'status' => 1,
+      ]);
+
+    if (!empty($pets)) {
+      $links = [];
+      foreach ($pets as $pet) {
+        $links[] = Link::fromTextAndUrl($pet->label(), Url::fromRoute('entity.node.canonical', ['node' => $pet->id()]));
+      }
+
+      $build['mascolive_clinic_pets'] = [
+        '#theme' => 'item_list',
+        '#title' => t('Mascotas en esta clínica'),
+        '#items' => $links,
+        '#attributes' => ['class' => ['mascolive-clinic-pets']],
+        '#wrapper_attributes' => ['class' => ['mascolive-clinic-pets-wrapper']],
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function mascolive_utils_page_attachments_alter(array &$attachments) {
+  // Estilos globales de branding MascoLive en todas las páginas.
+  $attachments['#attached']['library'][] = 'mascolive_utils/mascolive-styles';
+}
+/**
+ * Botón "Crear" en el listado, solo para quien tenga permiso.
+ */
+function mascolive_utils_preprocess_views_view(&$vars) {
+  if ($vars['display_id'] !== 'page_1') {
+    return;
+  }
+  $map = [
+    'pet_directory' => ['create pet content', '/node/add/pet', 'Crear mascota'],
+    'clinic_directory' => ['create clinic content', '/node/add/clinic', 'Crear clínica'],
+  ];
+  if (!isset($map[$vars['view']->id()]) || !\Drupal::currentUser()->hasPermission($map[$vars['view']->id()][0])) {
+    return;
+  }
+  [, $path, $label] = $map[$vars['view']->id()];
+  $vars['header'] = [
+    '#markup' => '<a class="button button--primary" href="' . $path . '">' . $label . '</a>',
+  ];
+}

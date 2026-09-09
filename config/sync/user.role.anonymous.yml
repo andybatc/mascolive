@@ -1,0 +1,20 @@
+uuid: fdd38dcd-7672-45e1-ab88-4cac284aa90a
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.restricted_html
+  module:
+    - filter
+    - graphql
+    - system
+_core:
+  default_config_hash: Tus1ZTNXKIOnrennR1hnTbc7wUPBXHTUm5UdCpEhJSk
+id: anonymous
+label: 'Anonymous user'
+weight: 0
+is_admin: false
+permissions:
+  - 'access content'
+  - 'execute default arbitrary graphql requests'
+  - 'use text format restricted_html'

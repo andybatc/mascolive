@@ -1,0 +1,38 @@
+uuid: 1f5afc6b-c22e-481c-9306-4a3e74a8d31a
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.full
+    - field.field.node.pet.field_clinic
+    - field.field.node.pet.field_pet_type
+    - node.type.pet
+  module:
+    - user
+id: node.pet.full
+targetEntityType: node
+bundle: pet
+mode: full
+content:
+  field_clinic:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  field_pet_type:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: false
+    third_party_settings: {  }
+    weight: 106
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

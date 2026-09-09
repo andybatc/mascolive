@@ -1,0 +1,7 @@
+name: MascoLive GraphQL
+type: module
+description: Demo schema extension (v5 composable) exposing pet/clinic entities via GraphQL.
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - graphql:graphql

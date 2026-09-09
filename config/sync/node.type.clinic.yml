@@ -1,0 +1,11 @@
+uuid: 92e62a58-c8f2-48c3-b4d3-84818f0ac8b2
+langcode: en
+status: true
+dependencies: {  }
+name: Clínica
+type: clinic
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

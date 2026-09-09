@@ -1,0 +1,352 @@
+---
+// MascoLive — Gestión (CRUD demo). Página SSG: los datos de referencia se
+// incrustan en build-time (lectura GraphQL pública); el CRUD corre 100% en el
+// cliente con vanilla JS contra las mutations de Drupal (HTTP Basic) y vuelve
+// a leer los datos públicos tras cada operación, sin recargar la página.
+import { graphql } from '../lib/api';
+
+const { pets, clinics, error: readError } = await graphql(
+  '{ pets { id title petType clinic { id title } } clinics { id title address specialty } }',
+);
+const petTypes = [...new Set(pets.map((p) => p.petType ?? '').filter(Boolean))];
+const embed = JSON.stringify({ pets, clinics, petTypes }).replace(/</g, '\\u003c');
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MascoLive — Gestión (CRUD demo)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; color: #222; line-height: 1.5; }
+      h1 { margin-top: 0; }
+      nav.roles { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+      nav.roles a { text-decoration: none; padding: .35rem .7rem; border: 1px solid #146a4d; border-radius: 20px; color: #146a4d; font-size: .85rem; }
+      nav.roles a.active { background: #146a4d; color: #fff; }
+      .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+      ul { padding-left: 1.2rem; }
+      li { margin-bottom: .5rem; }
+      .clinic { color: #666; }
+      .error { color: #b00020; border: 1px solid #b00020; padding: 1rem; border-radius: 4px; }
+      a.web { color: #146a4d; }
+      table { width: 100%; border-collapse: collapse; margin: .5rem 0 1rem; }
+      th, td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid #eee; vertical-align: middle; }
+      th { border-bottom: 2px solid #146a4d; font-size: .85rem; }
+      button { padding: .35rem .8rem; border: 1px solid #146a4d; border-radius: 4px; background: #fff; color: #146a4d; font-size: .85rem; cursor: pointer; }
+      button[type="submit"] { background: #146a4d; color: #fff; }
+      button:hover:not(:disabled) { opacity: .85; }
+      button:disabled, input:disabled, select:disabled { opacity: .5; cursor: default; }
+      label { display: block; font-weight: 600; font-size: .9rem; margin-top: .75rem; }
+      input, select { width: 100%; box-sizing: border-box; padding: .4rem; margin-top: .25rem; border: 1px solid #ccc; border-radius: 4px; font: inherit; }
+      .inline-form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-top: .75rem; }
+      .inline-form input, .inline-form select { width: auto; flex: 1; min-width: 8rem; }
+    </style>
+  </head>
+  <body>
+    <h1>MascoLive — Gestión (CRUD demo)</h1>
+    <nav class="roles">
+      <a href="/publico">Público</a>
+      <a href="/tutor">Tutor</a>
+      <a href="/veterinario">Veterinario</a>
+      <a href="/admin">Admin</a>
+      <a href="/pets">Mascotas</a>
+      <a href="/clinicas">Clínicas</a>
+      <a class="active" href="/gestion">Gestión</a>
+    </nav>
+
+    <p class="error" id="error" hidden></p>
+    <p class="clinic" id="lock-msg" hidden>Inicia sesión para gestionar.</p>
+
+    <div class="card">
+      <h2>Login (demo)</h2>
+      <p class="clinic">La contraseña de cada rol demo es su mismo usuario: tutor/tutor, veterinario/veterinario, admin/admin.</p>
+      <p class="clinic" id="auth-status">No has iniciado sesión</p>
+      <div class="inline-form">
+        <select id="login-rol">
+          <option value="tutor">tutor</option>
+          <option value="veterinario">veterinario</option>
+          <option value="admin">admin</option>
+        </select>
+        <input type="password" id="login-pass" placeholder="Contraseña" />
+        <button id="btn-login">Entrar</button>
+        <button id="btn-logout" hidden>Salir</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Datos de referencia</h2>
+      {readError && <p class="error">{readError}</p>}
+      <p class="clinic">
+        <strong id="ref-count">{pets.length} mascotas · {clinics.length} clínicas · {petTypes.length} tipos</strong>
+        — incrustados en build-time; tras cada operación se recargan desde el backend.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Mascotas</h2>
+      <table>
+        <thead>
+          <tr><th>Título</th><th>Tipo</th><th>Clínica</th><th>Acciones</th></tr>
+        </thead>
+        <tbody id="pets-tbody"></tbody>
+      </table>
+      <h3 id="pet-form-title">Crear mascota</h3>
+      <form id="pet-form">
+        <label>Título <input type="text" id="pet-title" data-write required /></label>
+        <label>Tipo <select id="pet-type" data-write></select></label>
+        <label>Clínica <select id="pet-clinic" data-write></select></label>
+        <div class="inline-form">
+          <button type="submit" data-write>Guardar</button>
+          <button type="button" id="pet-cancel" hidden>Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Clínicas</h2>
+      <table>
+        <thead>
+          <tr><th>Nombre</th><th>Dirección</th><th>Especialidad</th><th>Acciones</th></tr>
+        </thead>
+        <tbody id="clinics-tbody"></tbody>
+      </table>
+      <h3 id="clinic-form-title">Crear clínica</h3>
+      <form id="clinic-form">
+        <label>Título <input type="text" id="clinic-title" data-write required /></label>
+        <label>Dirección <input type="text" id="clinic-address" data-write /></label>
+        <label>Especialidad <input type="text" id="clinic-specialty" data-write /></label>
+        <div class="inline-form">
+          <button type="submit" data-write>Guardar</button>
+          <button type="button" id="clinic-cancel" hidden>Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <script is:inline type="application/json" id="gestion-data" set:html={embed}></script>
+    <script>
+      import { graphql, getAuth, saveAuth, clearAuth, runMutation } from '../lib/api';
+
+      const D = JSON.parse(document.getElementById('gestion-data').textContent);
+      let pets = D.pets || [];
+      let clinics = D.clinics || [];
+      let petTypes = D.petTypes || [];
+      let auth = getAuth();
+      let petMode = 'create';
+      let petEditId = null;
+      let clinicMode = 'create';
+      let clinicEditId = null;
+
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s ?? '').replace(/[&<>"']/g, (ch) => (
+          { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
+        ));
+      const showError = (msg) => {
+        $('error').textContent = msg || '';
+        $('error').hidden = !msg;
+      };
+
+      function updateAuthUI() {
+        $('auth-status').textContent = auth ? `Conectado como: ${auth.user}` : 'No has iniciado sesión';
+        $('btn-login').hidden = !!auth;
+        $('login-rol').disabled = !!auth;
+        $('login-pass').disabled = !!auth;
+        $('btn-logout').hidden = !auth;
+        $('lock-msg').hidden = !!auth;
+        document.querySelectorAll('[data-write]').forEach((el) => { el.disabled = !auth; });
+      }
+
+      function fillSelect(sel, options, placeholder) {
+        sel.innerHTML =
+          `<option value="">${esc(placeholder)}</option>` +
+          options.map((o) => `<option value="${esc(o.v)}">${esc(o.l)}</option>`).join('');
+      }
+
+      function renderSelects() {
+        fillSelect($('pet-type'), petTypes.map((t) => ({ v: t, l: t })), 'Sin tipo');
+        fillSelect($('pet-clinic'), clinics.map((c) => ({ v: c.id, l: c.title })), 'Sin clínica');
+      }
+
+      function renderPets() {
+        const rows = pets.map(
+          (p) => `
+            <tr>
+              <td><a class="web" href="/pets/${esc(p.id)}">${esc(p.title)}</a></td>
+              <td>${p.petType ? '🐾 ' + esc(p.petType) : '—'}</td>
+              <td class="clinic">${esc(p.clinic?.title || 'sin clínica')}</td>
+              <td>
+                <button data-act="edit-pet" data-id="${esc(p.id)}" data-write>Editar</button>
+                <button data-act="del-pet" data-id="${esc(p.id)}" data-write>Borrar</button>
+              </td>
+            </tr>`,
+        );
+        $('pets-tbody').innerHTML = rows.join('');
+      }
+
+      function renderClinics() {
+        const rows = clinics.map(
+          (c) => `
+            <tr>
+              <td><a class="web" href="/clinicas/${esc(c.id)}">${esc(c.title)}</a></td>
+              <td class="clinic">${esc(c.address || '—')}</td>
+              <td class="clinic">${esc(c.specialty || '—')}</td>
+              <td>
+                <button data-act="edit-clinic" data-id="${esc(c.id)}" data-write>Editar</button>
+                <button data-act="del-clinic" data-id="${esc(c.id)}" data-write>Borrar</button>
+              </td>
+            </tr>`,
+        );
+        $('clinics-tbody').innerHTML = rows.join('');
+      }
+
+      function updateCounts() {
+        $('ref-count').textContent =
+          `${pets.length} mascotas · ${clinics.length} clínicas · ${petTypes.length} tipos`;
+      }
+
+      function renderAll() {
+        renderPets();
+        renderClinics();
+        renderSelects();
+        updateCounts();
+      }
+
+      function resetPetForm() {
+        petMode = 'create';
+        petEditId = null;
+        $('pet-form').reset();
+        $('pet-form-title').textContent = 'Crear mascota';
+        $('pet-cancel').hidden = true;
+      }
+
+      function resetClinicForm() {
+        clinicMode = 'create';
+        clinicEditId = null;
+        $('clinic-form').reset();
+        $('clinic-form-title').textContent = 'Crear clínica';
+        $('clinic-cancel').hidden = true;
+      }
+
+      function startPetEdit(id) {
+        const p = pets.find((x) => String(x.id) === String(id));
+        if (!p) return;
+        petMode = 'edit';
+        petEditId = p.id;
+        $('pet-title').value = p.title ?? '';
+        renderSelects();
+        $('pet-type').value = p.petType ?? '';
+        $('pet-clinic').value = p.clinic?.id ?? '';
+        $('pet-form-title').textContent = 'Editar mascota';
+        $('pet-cancel').hidden = false;
+      }
+
+      function startClinicEdit(id) {
+        const c = clinics.find((x) => String(x.id) === String(id));
+        if (!c) return;
+        clinicMode = 'edit';
+        clinicEditId = c.id;
+        $('clinic-title').value = c.title ?? '';
+        $('clinic-address').value = c.address ?? '';
+        $('clinic-specialty').value = c.specialty ?? '';
+        $('clinic-form-title').textContent = 'Editar clínica';
+        $('clinic-cancel').hidden = false;
+      }
+
+      async function refresh() {
+        const r = await graphql('{ pets { id title petType clinic { id title } } clinics { id title address specialty } }');
+        if (r.error) return showError(`No se pudo conectar con el backend para recargar: ${r.error}`);
+        pets = r.pets;
+        clinics = r.clinics;
+        petTypes = [...new Set(pets.map((p) => p.petType).filter(Boolean))];
+        renderAll();
+      }
+
+      async function deletePet(id) {
+        if (!confirm('¿Borrar esta mascota?')) return;
+        showError('');
+        const res = await runMutation('deletePet', { id: Number(id) });
+        if (res.error) return showError(res.error);
+        if (res.data !== true) return showError('No se pudo borrar la mascota');
+        if (String(petEditId) === String(id)) resetPetForm();
+        await refresh();
+      }
+
+      async function deleteClinic(id) {
+        if (!confirm('¿Borrar esta clínica?')) return;
+        showError('');
+        const res = await runMutation('deleteClinic', { id: Number(id) });
+        if (res.error) return showError(res.error);
+        if (res.data !== true) return showError('No se pudo borrar la clínica');
+        if (String(clinicEditId) === String(id)) resetClinicForm();
+        await refresh();
+      }
+
+      // ---- listeners ----
+      $('btn-login').addEventListener('click', () => {
+        const user = $('login-rol').value;
+        saveAuth(user, $('login-pass').value || user);
+        auth = getAuth();
+        $('login-pass').value = '';
+        updateAuthUI();
+      });
+
+      $('btn-logout').addEventListener('click', () => {
+        clearAuth();
+        auth = null;
+        updateAuthUI();
+      });
+
+      $('pet-cancel').addEventListener('click', resetPetForm);
+      $('clinic-cancel').addEventListener('click', resetClinicForm);
+
+      $('pet-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = $('pet-title').value.trim();
+        if (!title) return showError('El título es obligatorio');
+        const data = {
+          title,
+          petType: $('pet-type').value,
+          clinicId: $('pet-clinic').value ? Number($('pet-clinic').value) : null,
+        };
+        showError('');
+        const res = petMode === 'create'
+          ? await runMutation('createPet', { data })
+          : await runMutation('updatePet', { id: Number(petEditId), data });
+        if (res.error) return showError(res.error);
+        resetPetForm();
+        await refresh();
+      });
+
+      $('clinic-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = $('clinic-title').value.trim();
+        if (!title) return showError('El título es obligatorio');
+        const data = {
+          title,
+          address: $('clinic-address').value.trim(),
+          specialty: $('clinic-specialty').value.trim(),
+        };
+        showError('');
+        const res = clinicMode === 'create'
+          ? await runMutation('createClinic', { data })
+          : await runMutation('updateClinic', { id: Number(clinicEditId), data });
+        if (res.error) return showError(res.error);
+        resetClinicForm();
+        await refresh();
+      });
+
+      document.addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-act]');
+        if (!b) return;
+        const id = b.dataset.id;
+        if (b.dataset.act === 'edit-pet') startPetEdit(id);
+        else if (b.dataset.act === 'del-pet') deletePet(id);
+        else if (b.dataset.act === 'edit-clinic') startClinicEdit(id);
+        else if (b.dataset.act === 'del-clinic') deleteClinic(id);
+      });
+
+      renderAll();
+      updateAuthUI();
+    </script>
+  </body>
+</html>

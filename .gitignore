@@ -1,0 +1,14 @@
+# --- Dependencias regenerables (composer install / npm install) ---
+/vendor/
+/web/modules/contrib/
+/web/themes/contrib/
+/frontend/node_modules/
+/frontend/dist/
+
+# --- Archivos generados por DDEV / locales ---
+/web/sites/default/settings*.php
+/web/sites/default/services*.yml
+/web/sites/default/files/
+
+# --- Junk local de testing ---
+/.playwright-mcp/

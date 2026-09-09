@@ -1,0 +1,128 @@
+---
+// MascoLive — Directorio por rol (SSG).
+// Astro compila una página estática por rol en build-time; todas leen el mismo
+// GraphQL público de Drupal. Los PERMISOS REALES se validan en la web de
+// Drupal (http://mascolive.local:8080); aquí solo se simula el punto de entrada
+// de cada actor del documento.
+import { graphql } from '../lib/api';
+
+// Links de LECTURA → rutas Astro (/pets, /clinicas...). Links de ESCRITURA →
+// Drupal absoluto (http://mascolive.local:8080/...). h ya es el href final:
+// literales relativos o absolutos, sin referenciar consts del frontmatter.
+export const ROLES = [
+  {
+    slug: 'publico', nombre: 'Visitante anónimo', web: '/pets',
+    desc: 'Puede ver el directorio de mascotas y las clínicas.',
+    prueba: [
+      { t: 'Directorio de mascotas con filtros (Clínica / Tipo)', h: '/pets' },
+      { t: 'Listado de clínicas', h: '/clinicas' },
+      { t: 'Ver una mascota (clínica enlazada + badge 🐾)', h: '/pets/12' },
+      { t: 'Ver una clínica con sus mascotas', h: '/clinicas/9' },
+    ],
+  },
+  {
+    slug: 'tutor', nombre: 'Tutor', web: '/pets',
+    desc: 'Puede crear y editar sus propias mascotas.',
+    prueba: [
+      { t: 'Entrar con tutor / tutor', h: 'http://mascolive.local:8080/user/login' },
+      { t: 'Ver el directorio de mascotas', h: '/pets' },
+      { t: 'Crear una mascota (form con Clínica y Tipo)', h: 'http://mascolive.local:8080/node/add/pet' },
+      { t: 'Ver/editar tu mascota ya creada', h: 'http://mascolive.local:8080/node/12/edit' },
+    ],
+  },
+  {
+    slug: 'veterinario', nombre: 'Veterinario', web: '/clinicas',
+    desc: 'Puede crear clínicas y editar cualquier mascota.',
+    prueba: [
+      { t: 'Entrar con veterinario / veterinario', h: 'http://mascolive.local:8080/user/login' },
+      { t: 'Ver clínicas y sus mascotas', h: '/clinicas' },
+      { t: 'Crear una clínica', h: 'http://mascolive.local:8080/node/add/clinic' },
+      { t: 'Ver el directorio de mascotas', h: '/pets' },
+    ],
+  },
+  {
+    slug: 'admin', nombre: 'Administrador', web: 'http://mascolive.local:8080/admin',
+    desc: 'Acceso total: estructura, gente, config, caché.',
+    prueba: [
+      { t: 'Entrar con admin / admin', h: 'http://mascolive.local:8080/user/login' },
+      { t: 'Panel de administración', h: 'http://mascolive.local:8080/admin' },
+      { t: 'Gestionar contenido', h: 'http://mascolive.local:8080/admin/content' },
+      { t: 'Estructura (tipos de contenido, vistas)', h: 'http://mascolive.local:8080/admin/structure' },
+      { t: 'CRUD demo (Astro)', h: '/gestion' },
+    ],
+  },
+];
+
+export function getStaticPaths() {
+  return ROLES.map((r) => ({ params: { rol: r.slug } }));
+}
+
+const { rol } = Astro.params;
+const role = ROLES.find((r) => r.slug === rol) ?? ROLES[0];
+
+const { pets, clinics, error } = await graphql('{ pets { id title clinic { id title } } clinics { id title } }');
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MascoLive — {role.nombre}</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; color: #222; line-height: 1.5; }
+      h1 { margin-top: 0; }
+      nav.roles { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+      nav.roles a { text-decoration: none; padding: .35rem .7rem; border: 1px solid #146a4d; border-radius: 20px; color: #146a4d; font-size: .85rem; }
+      nav.roles a.active { background: #146a4d; color: #fff; }
+      .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+      ul { padding-left: 1.2rem; }
+      li { margin-bottom: .5rem; }
+      .clinic { color: #666; }
+      .error { color: #b00020; border: 1px solid #b00020; padding: 1rem; border-radius: 4px; }
+      a.web { display: inline-block; margin-top: .5rem; color: #146a4d; }
+    </style>
+  </head>
+  <body>
+    <h1>MascoLive — {role.nombre}</h1>
+    <nav class="roles">
+      {ROLES.map((r) => (
+        <a href={`/${r.slug}`} class:list={[r.slug === role.slug && 'active']}>{r.nombre}</a>
+      ))}
+    </nav>
+
+    <div class="card">
+      <p><strong>Qué puede hacer este rol:</strong> {role.desc}</p>
+      <a class="web" href={role.web}>Probar funcionalidad →</a>
+    </div>
+
+    <div class="card">
+      <p><strong>Cómo probar este rol:</strong></p>
+      <ol>
+        {role.prueba.map((s) => (
+          <li><a class="web" href={s.h}>{s.t}</a></li>
+        ))}
+      </ol>
+    </div>
+
+    {error && <p class="error">{error}</p>}
+    {!error && (
+      <>
+        <h2>Mascotas ({pets.length})</h2>
+        <ul>
+          {pets.map((p) => (
+            <li>
+              <a class="web" href={`/pets/${p.id}`}><strong>{p.title}</strong></a>
+              <span class="clinic"> — {p.clinic?.title ?? 'sin clínica'}</span>
+            </li>
+          ))}
+        </ul>
+        <h2>Clínicas ({clinics.length})</h2>
+        <ul>
+          {clinics.map((c) => (
+            <li><a class="web" href={`/clinicas/${c.id}`}>{c.title}</a></li>
+          ))}
+        </ul>
+      </>
+    )}
+  </body>
+</html>

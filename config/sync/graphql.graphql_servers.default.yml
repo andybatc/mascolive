@@ -1,0 +1,19 @@
+uuid: 4830b7cd-b847-402f-b1b0-c57f78b90ad9
+langcode: en
+status: true
+dependencies: {  }
+name: default
+label: 'MascoLive GraphQL'
+endpoint: /graphql
+debug_flag: 0
+schema: composable
+caching: true
+batching: false
+disable_introspection: false
+query_depth: 0
+query_complexity: 0
+schema_configuration:
+  composable:
+    extensions:
+      mascolive: mascolive
+persisted_queries_settings: {  }

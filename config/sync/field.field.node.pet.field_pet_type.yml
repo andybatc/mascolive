@@ -1,0 +1,24 @@
+uuid: 4d816bc9-5011-4483-96a7-7f1a0f650908
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pet_type
+    - node.type.pet
+    - taxonomy.vocabulary.pet_type
+id: node.pet.field_pet_type
+field_name: field_pet_type
+entity_type: node
+bundle: pet
+label: 'Tipo de mascota'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      pet_type: pet_type
+field_type: entity_reference

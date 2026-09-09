@@ -1,0 +1,12 @@
+uuid: 2ddb8c29-8248-473f-a753-4c9eb9d54e5a
+langcode: en
+status: true
+dependencies:
+  module:
+    - graphql
+id: api_consumer
+label: 'API consumer'
+weight: 4
+is_admin: false
+permissions:
+  - 'execute default arbitrary graphql requests'

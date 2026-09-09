@@ -1,0 +1,14 @@
+uuid: 2a6a9400-f9b8-4bbf-8499-ab2892c5e5bd
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.veterinario
+  module:
+    - user
+id: user_add_role_action.veterinario
+label: 'Add the Veterinario role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: veterinario

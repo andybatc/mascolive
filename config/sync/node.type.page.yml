@@ -1,0 +1,11 @@
+uuid: 5f29e4da-14cb-465a-a73e-6e300dffc65a
+langcode: en
+status: true
+dependencies: {  }
+name: Página
+type: page
+description: 'Page with paragraph components + Layout Builder demo.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

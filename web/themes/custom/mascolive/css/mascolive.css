@@ -1,0 +1,14 @@
+/* MascoLive — identidad Bienestar Animal sobre Olivero */
+.site-header {
+  background: #146a4d;
+}
+.site-branding__name a {
+  color: #f4fbf7;
+}
+.site-header__inner {
+  border-bottom-color: #0e4e38;
+}
+.region--content .block-page-title-block {
+  border-left: 4px solid #146a4d;
+  padding-left: 1rem;
+}

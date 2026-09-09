@@ -1,0 +1,43 @@
+/**
+ * Estilos de pulido visual MascoLive (verde #146a4d).
+ * Selectores acotados al sitio para no tocar el tema Olivero por fuera.
+ */
+
+/* Cards / portada: bloques de componentes y párrafos de texto. */
+.node--type-page .field--name-field-components .field__item,
+.paragraph--type--text_block {
+  background: #fff;
+  border: 1px solid #146a4d;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.node--type-page .field--name-field-components .field__item a,
+.paragraph--type--text_block a {
+  color: #146a4d;
+}
+
+.node--type-page .field--name-field-components .field__item a:hover,
+.paragraph--type--text_block a:hover {
+  color: #0e4d37;
+  text-decoration: underline;
+}
+
+/* Hero de portada: título en verde. */
+.node--type-page h1 {
+  color: #146a4d;
+}
+
+/* Enlaces de nodos clínica y mascota. */
+.node--type-clinic a,
+.node--type-pet a {
+  color: #146a4d;
+}
+
+/* Lista "Mascotas en esta clínica": sutil. */
+.mascolive-clinic-pets {
+  margin-top: 1rem;
+  border-top: 1px solid #eee;
+  padding-top: .5rem;
+}

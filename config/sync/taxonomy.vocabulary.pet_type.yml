@@ -1,0 +1,9 @@
+uuid: e41fb238-42e0-4830-9386-1d5db5d64cbf
+langcode: en
+status: true
+dependencies: {  }
+name: 'Tipo de mascota'
+vid: pet_type
+description: null
+weight: 0
+new_revision: false

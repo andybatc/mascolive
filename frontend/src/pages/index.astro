@@ -1,0 +1,15 @@
+---
+// index.astro — redirige a la página del rol "publico" (visitante anónimo).
+// Meta refresh para mantener el build 100% estático (sin adapter SSR).
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0; url=/publico" />
+    <title>MascoLive</title>
+  </head>
+  <body>
+    <p>MascoLive — <a href="/publico">Entrar al directorio público →</a></p>
+  </body>
+</html>

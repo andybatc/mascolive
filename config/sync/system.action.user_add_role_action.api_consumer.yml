@@ -1,0 +1,14 @@
+uuid: 51405bbd-9d97-4b33-923a-0337a559247f
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.api_consumer
+  module:
+    - user
+id: user_add_role_action.api_consumer
+label: 'Add the API consumer role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: api_consumer

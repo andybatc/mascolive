@@ -1,0 +1,70 @@
+---
+// MascoLive — Detalle de mascota (SSG).
+import { graphql } from '../../lib/api';
+
+export async function getStaticPaths() {
+  const { pets } = await graphql('{ pets { id } }');
+  return pets.map((p) => ({ params: { id: String(p.id) } }));
+}
+
+const { id } = Astro.params;
+const { pets, error } = await graphql('{ pets { id title petType clinic { id title } } }');
+const pet = pets.find((p) => String(p.id) === String(id));
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pet ? `${pet.title} — MascoLive` : 'Mascota no encontrada — MascoLive'}</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; color: #222; line-height: 1.5; }
+      h1 { margin-top: 0; }
+      nav.roles { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+      nav.roles a { text-decoration: none; padding: .35rem .7rem; border: 1px solid #146a4d; border-radius: 20px; color: #146a4d; font-size: .85rem; }
+      nav.roles a.active { background: #146a4d; color: #fff; }
+      .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; }
+      ul { padding-left: 1.2rem; }
+      li { margin-bottom: .5rem; }
+      .clinic { color: #666; }
+      .error { color: #b00020; border: 1px solid #b00020; padding: 1rem; border-radius: 4px; }
+      a.web { display: inline-block; margin-top: .5rem; color: #146a4d; }
+      .badge { display: inline-block; border: 1px solid #146a4d; border-radius: 20px; padding: .1rem .6rem; color: #146a4d; font-size: .85rem; }
+    </style>
+  </head>
+  <body>
+    <h1>MascoLive — Detalle de mascota</h1>
+    <nav class="roles">
+      <a href="/publico">Público</a>
+      <a href="/tutor">Tutor</a>
+      <a href="/veterinario">Veterinario</a>
+      <a href="/admin">Admin</a>
+      <a class="active" href="/pets">Mascotas</a>
+      <a href="/clinicas">Clínicas</a>
+    </nav>
+
+    {error && <p class="error">{error}</p>}
+
+    {!pet && (
+      <div class="card">
+        <p>No se encontró la mascota <strong>{id}</strong>.</p>
+        <a class="web" href="/pets">← Volver al directorio</a>
+      </div>
+    )}
+
+    {pet && (
+      <div class="card">
+        <h2>{pet.title}</h2>
+        <p><span class="badge">🐾 {pet.petType ?? 'Sin tipo'}</span></p>
+        <p>
+          {pet.clinic ? (
+            <>Clínica: <a class="web" href={`/clinicas/${pet.clinic.id}`}>{pet.clinic.title ?? 'Sin nombre'}</a></>
+          ) : (
+            'Sin clínica asignada'
+          )}
+        </p>
+        <a class="web" href="/pets">← Volver al directorio</a>
+      </div>
+    )}
+  </body>
+</html>

@@ -1,0 +1,14 @@
+uuid: 07305223-22b5-49d2-b849-edc5d1857a6f
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.veterinario
+  module:
+    - user
+id: user_remove_role_action.veterinario
+label: 'Remove the Veterinario role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: veterinario

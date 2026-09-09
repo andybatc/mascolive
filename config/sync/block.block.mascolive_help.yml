@@ -1,0 +1,22 @@
+uuid: 89ccd2ee-bb9c-4221-af78-90bb6017f0ca
+langcode: en
+status: true
+dependencies:
+  module:
+    - help
+  theme:
+    - mascolive
+_core:
+  default_config_hash: VfPFqqxfkomud5CO8DUijw85QIl9GIxh_nIxLOYESxg
+id: mascolive_help
+theme: mascolive
+region: header
+weight: 0
+provider: null
+plugin: help_block
+settings:
+  id: help_block
+  label: Help
+  label_display: '0'
+  provider: help
+visibility: {  }
