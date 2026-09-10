@@ -1,0 +1,11 @@
+uuid: a6415f2c-6632-4ce2-90f9-9bd995e9f814
+langcode: en
+status: true
+dependencies: {  }
+name: Billetera
+type: wallet
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

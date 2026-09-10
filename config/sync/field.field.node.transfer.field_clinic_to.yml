@@ -1,0 +1,21 @@
+uuid: 1f3e3f2a-f1d2-4271-91a1-f174796e9c6a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_clinic_to
+    - node.type.transfer
+id: node.transfer.field_clinic_to
+field_name: field_clinic_to
+entity_type: node
+bundle: transfer
+label: 'Clínica destino'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

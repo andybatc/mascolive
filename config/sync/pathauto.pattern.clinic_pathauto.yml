@@ -1,0 +1,23 @@
+uuid: d68256e5-986c-43a7-a89b-dc91b123e95a
+langcode: es
+status: true
+dependencies:
+  config:
+    - node.type.clinic
+  module:
+    - node
+id: clinic_pathauto
+label: Clinics
+type: 'canonical_entities:node'
+pattern: '/clinicas/[node:title]'
+selection_criteria:
+  -
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: node
+    bundles:
+      clinic: clinic
+selection_logic: and
+weight: 10
+relationships: {  }

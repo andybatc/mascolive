@@ -1,11 +1,15 @@
-uuid: 21eb1fb4-5c71-482b-91fe-7bb3ef2a4026
+uuid: 9e2e6df2-8428-4a13-b027-d2b726cf8336
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.node.field_components
     - node.type.page
-    - paragraphs.paragraphs_type._component_text_block
+    - paragraphs.paragraphs_type.clinic_profile
+    - paragraphs.paragraphs_type.hero_section
+    - paragraphs.paragraphs_type.mission_vision
+    - paragraphs.paragraphs_type.service_card
+    - paragraphs.paragraphs_type.text_block
   module:
     - entity_reference_revisions
 id: node.page.field_components
@@ -22,10 +26,14 @@ settings:
   handler: 'default:paragraph'
   handler_settings:
     target_bundles:
-      _component_text_block: _component_text_block
+      text_block: text_block
+      hero_section: hero_section
+      mission_vision: mission_vision
+      clinic_profile: clinic_profile
+      service_card: service_card
     negate: 0
     target_bundles_drag_drop:
-      _component_text_block:
+      text_block:
         weight: 0
         enabled: true
 field_type: entity_reference_revisions

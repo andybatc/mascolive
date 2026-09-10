@@ -1,0 +1,31 @@
+id: node--clinic
+resourceType: node--clinic
+resourceFields:
+  field_address:
+    publicName: field_address
+    fieldName: field_address
+    public: true
+    enhanced: false
+    resourceType: null
+    groupName: ''
+  field_geolocation:
+    publicName: field_geolocation
+    fieldName: field_geolocation
+    public: true
+    enhanced: false
+    resourceType: null
+    groupName: ''
+  field_specialty:
+    publicName: field_specialty
+    fieldName: field_specialty
+    public: true
+    enhanced: false
+    resourceType: null
+    groupName: ''
+  title:
+    publicName: title
+    fieldName: title
+    public: true
+    enhanced: false
+    resourceType: null
+    groupName: ''

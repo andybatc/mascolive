@@ -1,0 +1,14 @@
+uuid: 016f6c9e-aed2-4aea-a597-e19c1bdcf52e
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.nodehive_content_editor
+  module:
+    - user
+id: user_remove_role_action.nodehive_content_editor
+label: 'Remove the NodeHive Content editor role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: nodehive_content_editor

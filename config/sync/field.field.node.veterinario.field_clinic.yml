@@ -1,0 +1,24 @@
+uuid: 26259f5a-1841-4a0a-8fe0-82880a1eb5fa
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_clinic
+    - node.type.clinic
+    - node.type.veterinario
+id: node.veterinario.field_clinic
+field_name: field_clinic
+entity_type: node
+bundle: veterinario
+label: Clínica
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      clinic: clinic
+field_type: entity_reference

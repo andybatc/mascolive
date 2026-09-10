@@ -1,0 +1,21 @@
+uuid: 6e6b93d5-eb63-4d22-b54d-ac8a50268604
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pet
+    - node.type.transfer
+id: node.transfer.field_pet
+field_name: field_pet
+entity_type: node
+bundle: transfer
+label: Mascota
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

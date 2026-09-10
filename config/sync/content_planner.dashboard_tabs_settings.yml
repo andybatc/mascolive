@@ -1,0 +1,11 @@
+_core:
+  default_config_hash: FxmUTFlD6NxarikEqN8SNvbBBSfsv75WYjBtABIPv00
+dashboards:
+  -
+    dashboard_id: master
+    enabled: true
+    weight: -10
+  -
+    dashboard_id: master
+    enabled: true
+    weight: -10

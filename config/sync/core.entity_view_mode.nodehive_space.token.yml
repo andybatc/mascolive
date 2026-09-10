@@ -1,0 +1,11 @@
+uuid: 39357a9b-2169-44a0-a3c8-fad011eecc70
+langcode: en
+status: true
+dependencies:
+  module:
+    - nodehive_core
+id: nodehive_space.token
+label: Token
+description: ''
+targetEntityType: nodehive_space
+cache: true

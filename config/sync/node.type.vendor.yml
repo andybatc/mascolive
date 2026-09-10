@@ -1,0 +1,11 @@
+uuid: eeb1aef5-6e41-4eb6-98b6-ef1bd9c7329f
+langcode: en
+status: true
+dependencies: {  }
+name: Vendedor
+type: vendor
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

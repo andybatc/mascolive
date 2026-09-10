@@ -1,4 +1,4 @@
-uuid: a2bb2e3f-17c7-4f8b-8b66-8191837f79ef
+uuid: 9750791a-fef4-4e68-97ec-d28022d7750a
 langcode: en
 status: true
 dependencies:
@@ -6,6 +6,6 @@ dependencies:
     - block
 id: block.token
 label: Token
-description: null
+description: ''
 targetEntityType: block
 cache: true

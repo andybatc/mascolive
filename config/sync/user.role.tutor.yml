@@ -1,4 +1,4 @@
-uuid: 4575aef8-de78-4e82-a5d9-b2a0f5163ecb
+uuid: cd410286-76d4-4f37-8f04-0adfe3bfffc0
 langcode: en
 status: true
 dependencies:
@@ -8,8 +8,8 @@ dependencies:
     - node
 id: tutor
 label: Tutor
-weight: 5
-is_admin: false
+weight: 7
+is_admin: null
 permissions:
   - 'create pet content'
   - 'delete own pet content'

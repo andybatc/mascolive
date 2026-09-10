@@ -1,0 +1,8 @@
+uuid: 25b6f8e5-202a-4aac-99d2-c2235e51d8e5
+langcode: en
+status: true
+dependencies: {  }
+id: nodehive-editor
+label: 'Nodehive Editor'
+description: 'Nodehive Editor Menu'
+locked: false

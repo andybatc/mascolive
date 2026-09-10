@@ -1,0 +1,8 @@
+uuid: eb8677da-47ce-40b0-b6fe-6331a3940f8b
+langcode: en
+status: true
+dependencies: {  }
+id: nodehive-admin
+label: 'Nodehive Admin'
+description: 'Nodehive Admin Menu'
+locked: false

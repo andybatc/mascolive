@@ -1,20 +1,31 @@
-uuid: a3fea102-3320-4e06-b060-e460cb0880d3
+uuid: 98006afc-cc39-4c8d-8c90-85221607ac4c
 langcode: en
 status: true
 dependencies:
   config:
-    - node.type.clinic
-    - node.type.pet
+    - node.type.appointment
+    - node.type.clinical_history
+    - node.type.service
+    - node.type.wallet
   module:
     - node
+    - system
 id: veterinario
 label: Veterinario
-weight: 6
-is_admin: false
+weight: 8
+is_admin: null
 permissions:
-  - 'create clinic content'
-  - 'create pet content'
-  - 'delete any clinic content'
-  - 'delete any pet content'
-  - 'edit any clinic content'
-  - 'edit any pet content'
+  - 'access administration pages'
+  - 'access content'
+  - 'access content overview'
+  - 'create appointment content'
+  - 'create clinical_history content'
+  - 'create service content'
+  - 'create wallet content'
+  - 'delete own clinical_history content'
+  - 'delete own service content'
+  - 'edit own appointment content'
+  - 'edit own clinical_history content'
+  - 'edit own service content'
+  - 'edit own wallet content'
+  - 'view own unpublished content'

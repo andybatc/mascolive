@@ -1,0 +1,19 @@
+uuid: 8fc95965-2f5e-46c2-80bd-06bee89e3675
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_diagnosis
+    - node.type.clinical_history
+id: node.clinical_history.field_diagnosis
+field_name: field_diagnosis
+entity_type: node
+bundle: clinical_history
+label: Diagnóstico
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

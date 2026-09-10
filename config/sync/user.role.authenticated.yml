@@ -1,4 +1,4 @@
-uuid: 148f0bb8-0b47-41b5-849e-0bee096bca6d
+uuid: 0b313d10-533d-4e5a-bb66-ae37442838bb
 langcode: en
 status: true
 dependencies:
@@ -6,19 +6,35 @@ dependencies:
     - filter.format.basic_html
     - filter.format.webform_default
   module:
+    - comment
+    - commerce_checkout
+    - commerce_order
+    - commerce_product
+    - contact
     - file
     - filter
-    - graphql
+    - media
+    - search
+    - shortcut
     - system
 _core:
-  default_config_hash: wkW7P5A53YhGmsgamrmTbfwpZrqdnPYiJdoAZQtdmJg
+  default_config_hash: cFrlqjtkTfvY3RGccjJkPf1SGIfJ942IrxTLWAO4mgA
 id: authenticated
 label: 'Authenticated user'
 weight: 1
 is_admin: false
 permissions:
+  - 'access checkout'
+  - 'access comments'
   - 'access content'
+  - 'access shortcuts'
+  - 'access site-wide contact form'
   - 'delete own files'
-  - 'execute default arbitrary graphql requests'
+  - 'post comments'
+  - 'search content'
+  - 'skip comment approval'
   - 'use text format basic_html'
   - 'use text format webform_default'
+  - 'view commerce_product'
+  - 'view media'
+  - 'view own commerce_order'

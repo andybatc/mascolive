@@ -1,9 +1,21 @@
-uuid: ea19d8fc-ef3a-44b9-a560-a2b419be6d96
+uuid: 8bc45fef-6fef-48c2-b894-13c1136496a5
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  config:
+    - node.type.transfer
+    - node.type.wallet
+  module:
+    - node
+    - system
 id: conductor
 label: Conductor
-weight: 7
-is_admin: false
-permissions: {  }
+weight: 9
+is_admin: null
+permissions:
+  - 'access content'
+  - 'create transfer content'
+  - 'create wallet content'
+  - 'edit own transfer content'
+  - 'edit own wallet content'
+  - 'view own unpublished content'

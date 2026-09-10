@@ -1,0 +1,8 @@
+uuid: 5f9d173f-20ff-4dee-aff5-a9c7332162aa
+langcode: es
+status: true
+dependencies: {  }
+id: portal_admin
+label: 'Panel de Administración'
+description: 'Menú del Panel de Administración'
+locked: false

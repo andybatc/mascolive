@@ -1,0 +1,19 @@
+uuid: 41f430ca-683b-486b-a439-a693be6c4f6f
+langcode: es
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_duration
+    - node.type.service
+id: node.service.field_duration
+field_name: field_duration
+entity_type: node
+bundle: service
+label: Duración
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

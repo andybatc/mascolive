@@ -1,0 +1,10 @@
+uuid: d1d5e887-a0e6-470b-a8f6-ee8da8a0451c
+langcode: en
+status: true
+dependencies: {  }
+id: pet_product
+label: 'Variante de Producto Mascota'
+traits: {  }
+locked: false
+orderItemType: pet_product
+generateTitle: null

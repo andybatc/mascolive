@@ -1,0 +1,19 @@
+uuid: 1b3821e0-6597-4f99-a375-d89c8b5ec75a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_address
+    - paragraphs.paragraphs_type.clinic_profile
+id: paragraph.clinic_profile.field_address
+field_name: field_address
+entity_type: paragraph
+bundle: clinic_profile
+label: Dirección
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

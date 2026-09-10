@@ -1,0 +1,11 @@
+uuid: 8cd70f18-bd78-49e7-b7f4-914b52049b59
+langcode: en
+status: true
+dependencies: {  }
+name: Veterinario
+type: veterinario
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

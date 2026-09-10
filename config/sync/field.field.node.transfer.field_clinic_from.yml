@@ -1,0 +1,21 @@
+uuid: 7e42036c-7b57-47fe-aea8-48079c6d32a3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_clinic_from
+    - node.type.transfer
+id: node.transfer.field_clinic_from
+field_name: field_clinic_from
+entity_type: node
+bundle: transfer
+label: 'Clínica origen'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

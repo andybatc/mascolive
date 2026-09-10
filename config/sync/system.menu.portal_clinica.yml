@@ -1,0 +1,8 @@
+uuid: df94f878-a772-4bc8-bd45-06fa0670602e
+langcode: es
+status: true
+dependencies: {  }
+id: portal_clinica
+label: 'Portal Admin de Clínica'
+description: 'Menú del Portal Admin de Clínica'
+locked: false

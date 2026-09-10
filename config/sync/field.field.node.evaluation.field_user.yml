@@ -1,0 +1,21 @@
+uuid: 95b11fbd-bf3c-43d4-afe1-ff19d56de3a6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_user
+    - node.type.evaluation
+id: node.evaluation.field_user
+field_name: field_user
+entity_type: node
+bundle: evaluation
+label: Evaluador
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings: {  }
+field_type: entity_reference

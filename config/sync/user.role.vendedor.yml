@@ -1,9 +1,28 @@
-uuid: 3151eabb-b297-49e3-951b-d6076b40137c
+uuid: 5e18ac28-8ecf-4004-9eaa-1a72b0a1de52
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  config:
+    - node.type.vendor
+    - node.type.wallet
+  module:
+    - commerce_product
+    - node
+    - system
 id: vendedor
 label: Vendedor
-weight: 8
-is_admin: false
-permissions: {  }
+weight: 10
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access commerce_product overview'
+  - 'access content'
+  - 'access content overview'
+  - 'create pet_product commerce_product'
+  - 'create wallet content'
+  - 'delete any pet_product commerce_product'
+  - 'edit own vendor content'
+  - 'edit own wallet content'
+  - 'update any pet_product commerce_product'
+  - 'view own unpublished content'
+  - 'view pet_product commerce_product'

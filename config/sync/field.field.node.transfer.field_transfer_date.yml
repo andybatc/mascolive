@@ -1,0 +1,21 @@
+uuid: cd4c36cb-f978-4a54-a443-3347babae169
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_transfer_date
+    - node.type.transfer
+  module:
+    - datetime
+id: node.transfer.field_transfer_date
+field_name: field_transfer_date
+entity_type: node
+bundle: transfer
+label: 'Fecha y hora'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

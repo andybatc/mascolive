@@ -1,0 +1,11 @@
+uuid: b7176c59-cd51-4a88-854a-647838d9a70c
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: rcFDS5cYQrImUmSJ-oArw87gFHam2m-M5XcpfApWwT8
+name: 'NodeHive Space Tags'
+vid: nodehive_space_tags
+description: 'Space tags'
+weight: 0
+new_revision: false

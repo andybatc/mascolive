@@ -1,0 +1,12 @@
+uuid: e5a31a8b-cfdb-4a85-b7a7-088586e9f950
+langcode: en
+status: true
+dependencies: {  }
+id: pet_product
+label: 'Producto de Mascota'
+traits: {  }
+locked: false
+description: 'Productos para mascotas: comida, accesorios, medicinas'
+variationTypes: {  }
+multipleVariations: true
+injectVariationFields: true

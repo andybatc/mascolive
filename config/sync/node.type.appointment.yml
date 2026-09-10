@@ -1,0 +1,11 @@
+uuid: 7d81b0a8-e24a-4337-8046-9d8861c5c783
+langcode: en
+status: true
+dependencies: {  }
+name: Cita
+type: appointment
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

@@ -1,0 +1,21 @@
+uuid: b164ab7c-d34e-4b3c-b585-45685e2bc635
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_province
+    - taxonomy.vocabulary.municipalities
+id: taxonomy_term.municipalities.field_province
+field_name: field_province
+entity_type: taxonomy_term
+bundle: municipalities
+label: Provincia
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings: {  }
+field_type: entity_reference

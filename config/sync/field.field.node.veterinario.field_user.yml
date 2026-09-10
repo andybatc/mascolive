@@ -1,0 +1,21 @@
+uuid: 69a23650-c706-4129-a235-d85c470c4ca4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_user
+    - node.type.veterinario
+id: node.veterinario.field_user
+field_name: field_user
+entity_type: node
+bundle: veterinario
+label: 'Usuario asociado'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings: {  }
+field_type: entity_reference

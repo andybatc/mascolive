@@ -1,0 +1,26 @@
+uuid: e0e9d65c-121d-43ff-ac6c-c1f26b1fd0f2
+langcode: es
+status: true
+dependencies:
+  config:
+    - node.type.clinic
+    - node.type.service
+    - node.type.veterinario
+  module:
+    - content_moderation
+    - node
+    - system
+id: clinica_admin
+label: 'Admin de Clínica'
+weight: 11
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access content'
+  - 'access content overview'
+  - 'create service content'
+  - 'delete any service content'
+  - 'edit any clinic content'
+  - 'edit any service content'
+  - 'edit any veterinario content'
+  - 'view any unpublished content'

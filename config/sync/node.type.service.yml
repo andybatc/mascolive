@@ -1,0 +1,11 @@
+uuid: e112e6e8-8c03-486c-a945-4c8a345b1879
+langcode: es
+status: true
+dependencies: {  }
+name: Servicio
+type: service
+description: 'Servicio que ofrece una clínica o veterinario (nombre, descripción, precio, duración).'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

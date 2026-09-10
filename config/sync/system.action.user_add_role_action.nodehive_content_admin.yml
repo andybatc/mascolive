@@ -1,0 +1,14 @@
+uuid: 6f8a0059-0cdb-42d1-8231-06aad77a2d77
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.nodehive_content_admin
+  module:
+    - user
+id: user_add_role_action.nodehive_content_admin
+label: 'Add the NodeHive Content administrator role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: nodehive_content_admin

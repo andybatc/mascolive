@@ -1,0 +1,19 @@
+uuid: e96208e2-2de6-488f-ba5b-2a839ca5cc90
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_clinic_to
+field_name: field_clinic_to
+entity_type: node
+type: entity_reference
+settings:
+  target_type: node
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

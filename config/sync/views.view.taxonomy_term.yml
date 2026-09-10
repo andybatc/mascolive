@@ -1,16 +1,15 @@
-uuid: 498ffb8a-38d4-4c5f-b0b9-ccc4c1ca02c0
+uuid: fe2f663c-45ba-4818-8350-2274c8f80be0
 langcode: en
 status: true
 dependencies:
   config:
-    - core.entity_view_mode.node.rss
     - core.entity_view_mode.node.teaser
   module:
     - node
     - taxonomy
     - user
 _core:
-  default_config_hash: 3o-ZjKjvMBpgaHiS3k8RvejhwJB4yX81fbjQjWc-tC8
+  default_config_hash: KejdxDJQmx8SaO-t83OVekLw6ar4ldjmsJMGcotGxnQ
 id: taxonomy_term
 label: 'Taxonomy term'
 module: taxonomy
@@ -281,7 +280,7 @@ display:
         type: node_rss
         options:
           relationship: none
-          view_mode: rss
+          view_mode: default
       query:
         type: views_query
         options: {  }

@@ -1,0 +1,8 @@
+uuid: d2c9f4f8-c30d-49ee-ab8f-e3ce330da4db
+langcode: es
+status: true
+dependencies: {  }
+id: portal_veterinario
+label: 'Portal Veterinario'
+description: 'Menú del Portal Veterinario'
+locked: false

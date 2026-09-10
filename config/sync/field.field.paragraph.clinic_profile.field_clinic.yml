@@ -1,0 +1,21 @@
+uuid: e494e5c8-5f62-4f96-aae4-d33234388a3b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_clinic
+    - paragraphs.paragraphs_type.clinic_profile
+id: paragraph.clinic_profile.field_clinic
+field_name: field_clinic
+entity_type: paragraph
+bundle: clinic_profile
+label: Clínica
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

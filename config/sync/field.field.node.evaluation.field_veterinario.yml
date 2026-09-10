@@ -1,0 +1,21 @@
+uuid: 952c15bb-81d8-4dc8-986c-146d78f7049c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_veterinario
+    - node.type.evaluation
+id: node.evaluation.field_veterinario
+field_name: field_veterinario
+entity_type: node
+bundle: evaluation
+label: Veterinario
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

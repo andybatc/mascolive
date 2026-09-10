@@ -1,0 +1,14 @@
+uuid: d7e810a0-6b62-47b8-8ab3-bb20bdbb5b56
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.clinica_admin
+  module:
+    - user
+id: user_remove_role_action.clinica_admin
+label: 'Remove the Admin de Clínica role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: clinica_admin

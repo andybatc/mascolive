@@ -1,0 +1,27 @@
+uuid: 3a45bbfd-0992-4466-b608-7095f90d2be9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_currency
+field_name: field_currency
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: CUP
+      label: 'Peso Cubano (CUP)'
+    -
+      value: USD
+      label: 'Dólar (USD)'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

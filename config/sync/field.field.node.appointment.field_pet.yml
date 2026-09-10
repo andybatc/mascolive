@@ -1,0 +1,21 @@
+uuid: aa63119f-e9f9-4b22-b822-fbcc40e7962d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pet
+    - node.type.appointment
+id: node.appointment.field_pet
+field_name: field_pet
+entity_type: node
+bundle: appointment
+label: Mascota
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

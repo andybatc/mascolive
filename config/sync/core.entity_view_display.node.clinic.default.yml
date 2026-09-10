@@ -1,39 +1,103 @@
-uuid: 9a5bcdfb-927b-4e37-872f-86122f8a1608
-langcode: en
+uuid: ae5350c4-2703-4b08-94dc-d37ff63d21b9
+langcode: es
 status: true
 dependencies:
   config:
     - field.field.node.clinic.field_address
+    - field.field.node.clinic.field_geolocation
     - field.field.node.clinic.field_specialty
     - node.type.clinic
   module:
+    - leaflet
     - user
 id: node.clinic.default
 targetEntityType: node
 bundle: clinic
 mode: default
 content:
-  field_address:
-    type: string
-    label: above
+  field_geolocation:
+    type: leaflet_formatter_default
+    label: hidden
     settings:
-      link_to_entity: false
-      link_rel: canonical
+      multiple_map: false
+      leaflet_map: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+      height: 300
+      height_unit: px
+      hide_empty_map: false
+      gesture_handling: false
+      disable_wheel: false
+      reset_map:
+        control: false
+        position: topright
+      popup: false
+      popup_content: ''
+      map_position:
+        force: false
+        center:
+          lat: 0.0
+          lon: 0.0
+        zoom: 12
+        minZoom: 1
+        maxZoom: 18
+        zoomFiner: 0
+      icon:
+        iconType: marker
+        iconUrl: ''
+        shadowUrl: ''
+        className: ''
+        iconSize:
+          x: null
+          'y': null
+        iconAnchor:
+          x: null
+          'y': null
+        shadowSize:
+          x: null
+          'y': null
+        shadowAnchor:
+          x: null
+          'y': null
+        popupAnchor:
+          x: null
+          'y': null
+        html: '<div></div>'
+        html_class: leaflet-map-divicon
+        circle_marker_options: '{"radius": 100, "color": "red", "fillColor": "#f03", "fillOpacity": 0.5}'
+      leaflet_markercluster:
+        control: false
+        options: '{"spiderfyOnMaxZoom":true,"showCoverageOnHover":true,"removeOutsideVisibleBounds": false}'
+        include_path: false
+      fullscreen:
+        control: false
+        options: '{"position":"topleft","pseudoFullscreen":false}'
+      path: '{"color":"#3388ff","opacity":"1.0","stroke":true,"weight":3,"fill":"depends","fillColor":"*","fillOpacity":"0.2","radius":"6"}'
+      geocoder:
+        control: false
+        settings:
+          position: topright
+          input_size: 25
+          providers: {  }
+          min_terms: 4
+          delay: 800
+          zoom: 16
+          popup: false
+          options: ''
+      weight: null
     third_party_settings: {  }
-    weight: 106
-    region: content
-  field_specialty:
-    type: string
-    label: above
-    settings:
-      link_to_entity: false
-      link_rel: canonical
-    third_party_settings: {  }
-    weight: 105
+    weight: 101
     region: content
   links:
     settings: {  }
     third_party_settings: {  }
     weight: 100
     region: content
-hidden: {  }
+  spaces_iframe:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_address: true
+  field_specialty: true
+  langcode: true
+  nodehive_space: true

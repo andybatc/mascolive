@@ -1,4 +1,4 @@
-uuid: 455a6f92-c7e0-4ec1-90f4-eb12a1231b4c
+uuid: b3d9f7d0-ab0f-49a6-ac1a-f9112085398c
 langcode: en
 status: true
 dependencies:
@@ -6,6 +6,6 @@ dependencies:
     - paragraphs
 id: paragraph.token
 label: Token
-description: null
+description: ''
 targetEntityType: paragraph
 cache: true

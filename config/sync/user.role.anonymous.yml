@@ -1,20 +1,28 @@
-uuid: fdd38dcd-7672-45e1-ab88-4cac284aa90a
+uuid: ebcfc0cb-2026-442d-ae19-45c81eef1768
 langcode: en
 status: true
 dependencies:
   config:
     - filter.format.restricted_html
   module:
+    - comment
+    - commerce_checkout
+    - commerce_product
+    - contact
     - filter
-    - graphql
+    - media
     - system
 _core:
-  default_config_hash: Tus1ZTNXKIOnrennR1hnTbc7wUPBXHTUm5UdCpEhJSk
+  default_config_hash: 6WavjUYXIegP9AAg2zXGx54MWIVoomC3SZhNiqe-Dyk
 id: anonymous
 label: 'Anonymous user'
 weight: 0
 is_admin: false
 permissions:
+  - 'access checkout'
+  - 'access comments'
   - 'access content'
-  - 'execute default arbitrary graphql requests'
+  - 'access site-wide contact form'
   - 'use text format restricted_html'
+  - 'view commerce_product'
+  - 'view media'

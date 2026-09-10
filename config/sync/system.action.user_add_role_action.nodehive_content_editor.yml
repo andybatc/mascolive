@@ -1,0 +1,14 @@
+uuid: a93f8c62-3814-461b-bd00-1348d10442d8
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.nodehive_content_editor
+  module:
+    - user
+id: user_add_role_action.nodehive_content_editor
+label: 'Add the NodeHive Content editor role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: nodehive_content_editor

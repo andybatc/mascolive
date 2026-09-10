@@ -1,0 +1,21 @@
+uuid: 6d04abbd-5171-430f-9379-d58dc617e338
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_currency
+    - node.type.wallet
+  module:
+    - options
+id: node.wallet.field_currency
+field_name: field_currency
+entity_type: node
+bundle: wallet
+label: Moneda
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

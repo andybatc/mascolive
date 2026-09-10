@@ -1,11 +1,13 @@
-uuid: 5f29e4da-14cb-465a-a73e-6e300dffc65a
+uuid: 090394fb-4d4c-400a-bfc3-dedfa5a5e890
 langcode: en
 status: true
 dependencies: {  }
-name: Página
+_core:
+  default_config_hash: i0snV8Wj--OkRW12UdachUiYiz3FbeMwHu_pZYfzKLc
+name: 'Basic page'
 type: page
-description: 'Page with paragraph components + Layout Builder demo.'
+description: "Use <em>basic pages</em> for your static content, such as an 'About us' page."
 help: null
 new_revision: true
 preview_mode: 1
-display_submitted: true
+display_submitted: false

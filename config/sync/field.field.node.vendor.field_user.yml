@@ -1,0 +1,21 @@
+uuid: a6c83b9b-8ae5-4777-81f1-90ff07646dfc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_user
+    - node.type.vendor
+id: node.vendor.field_user
+field_name: field_user
+entity_type: node
+bundle: vendor
+label: 'Usuario asociado'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings: {  }
+field_type: entity_reference

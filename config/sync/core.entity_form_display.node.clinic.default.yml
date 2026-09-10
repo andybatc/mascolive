@@ -1,12 +1,15 @@
-uuid: 6a292ec3-39e1-460c-b476-7f7b170e9d5a
-langcode: en
+uuid: 6d210d65-3426-44b2-bd16-85e782941b78
+langcode: es
 status: true
 dependencies:
   config:
     - field.field.node.clinic.field_address
+    - field.field.node.clinic.field_geolocation
     - field.field.node.clinic.field_specialty
     - node.type.clinic
   module:
+    - content_moderation
+    - leaflet
     - path
 id: node.clinic.default
 targetEntityType: node
@@ -19,21 +22,80 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_address:
-    type: string_textfield
-    weight: 11
+  field_geolocation:
+    type: leaflet_widget_default
+    weight: 20
     region: content
     settings:
-      size: 60
-      placeholder: ''
+      map:
+        leaflet_map: 'OSM Mapnik'
+        height: 400
+        locate: 1
+        auto_center: 1
+        map_position:
+          force: false
+          center:
+            lat: 0.0
+            lon: 0.0
+          zoom: 12
+          minZoom: 1
+          maxZoom: 18
+          zoomFiner: 0
+        scroll_zoom_enabled: 1
+      input:
+        show: true
+        readonly: false
+      toolbar:
+        position: topright
+        marker: defaultMarker
+        drawPolyline: true
+        drawRectangle: true
+        drawPolygon: true
+        drawCircle: false
+        drawText: false
+        editMode: true
+        dragMode: true
+        cutPolygon: false
+        removalMode: true
+        rotateMode: false
+      reset_map:
+        position: topright
+        control: false
+      fullscreen:
+        control: false
+        options: '{"position":"topleft","pseudoFullscreen":false}'
+      path: '{"color":"#3388ff","opacity":"1.0","stroke":true,"weight":3,"fill":"depends","fillColor":"*","fillOpacity":"0.2","radius":"6"}'
+      geocoder:
+        control: false
+        settings:
+          position: topright
+          input_size: 25
+          providers: {  }
+          min_terms: 4
+          delay: 800
+          zoom: 16
+          popup: false
+          options: ''
+      geometry_validation: false
     third_party_settings: {  }
-  field_specialty:
-    type: string_textfield
-    weight: 12
+  langcode:
+    type: language_select
+    weight: 2
     region: content
     settings:
-      size: 60
-      placeholder: ''
+      include_locked: true
+    third_party_settings: {  }
+  moderation_state:
+    type: moderation_state_default
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  nodehive_space:
+    type: options_buttons
+    weight: 5
+    region: content
+    settings: {  }
     third_party_settings: {  }
   path:
     type: path
@@ -41,9 +103,23 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 15
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   status:
     type: boolean_checkbox
     weight: 120
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 16
     region: content
     settings:
       display_label: true
@@ -66,6 +142,13 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  url_redirects:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
 hidden:
-  promote: true
-  sticky: true
+  field_address: true
+  field_specialty: true
+  publish_on: true
+  unpublish_on: true

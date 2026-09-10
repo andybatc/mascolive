@@ -1,0 +1,5 @@
+enabled_entity_types:
+  - node
+  - nodehive_fragment
+  - nodehive_space
+  - media

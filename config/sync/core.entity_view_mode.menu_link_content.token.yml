@@ -1,4 +1,4 @@
-uuid: 603ac345-9018-4431-91b7-0c753a147c2f
+uuid: b1208f0b-115e-4acd-bea6-05dc9d55a149
 langcode: en
 status: true
 dependencies:
@@ -6,6 +6,6 @@ dependencies:
     - menu_link_content
 id: menu_link_content.token
 label: Token
-description: null
+description: ''
 targetEntityType: menu_link_content
 cache: true

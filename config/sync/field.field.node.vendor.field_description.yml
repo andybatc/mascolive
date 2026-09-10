@@ -1,0 +1,22 @@
+uuid: bd601745-3b01-4f82-9fc4-5d35ae9be433
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_description
+    - node.type.vendor
+  module:
+    - text
+id: node.vendor.field_description
+field_name: field_description
+entity_type: node
+bundle: vendor
+label: Descripción
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

@@ -1,5 +1,5 @@
-uuid: 1e0bae67-55d6-4ab8-a74b-8d32919b4408
-langcode: en
+uuid: 3c469ee9-6499-4854-bdf9-91b17fbfd515
+langcode: es
 status: true
 dependencies:
   config:
@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.pet.field_pet_type
     - node.type.pet
   module:
+    - content_moderation
     - path
 id: node.pet.default
 targetEntityType: node
@@ -19,27 +20,70 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_clinic:
-    type: options_select
-    weight: 11
+  field_address:
+    type: string_textfield
+    weight: 3
     region: content
     settings: {  }
     third_party_settings: {  }
+  field_clinic:
+    type: entity_reference_autocomplete
+    weight: 2
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
   field_pet_type:
     type: options_select
-    weight: 12
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 2
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+  moderation_state:
+    type: moderation_state_default
+    weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  nodehive_space:
+    type: options_buttons
+    weight: 5
     region: content
     settings: {  }
     third_party_settings: {  }
   path:
     type: path
-    weight: 30
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 15
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   status:
     type: boolean_checkbox
-    weight: 120
+    weight: 10
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 16
     region: content
     settings:
       display_label: true
@@ -62,6 +106,11 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  url_redirects:
+    weight: 50
+    region: content
+    settings: {  }
+    third_party_settings: {  }
 hidden:
-  promote: true
-  sticky: true
+  publish_on: true
+  unpublish_on: true

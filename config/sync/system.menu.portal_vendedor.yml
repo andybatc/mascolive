@@ -1,0 +1,8 @@
+uuid: aac42d2b-04fa-414d-8a01-5f39222e052a
+langcode: es
+status: true
+dependencies: {  }
+id: portal_vendedor
+label: 'Portal Vendedor'
+description: 'Menú del Portal Vendedor'
+locked: false

@@ -117,3 +117,84 @@ function mascolive_utils_preprocess_views_view(&$vars) {
     '#markup' => '<a class="button button--primary" href="' . $path . '">' . $label . '</a>',
   ];
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Tras el login, redirige siempre al front page (página pública) en vez de
+ * al perfil de usuario o a /admin/content-planner/dashboard.
+ */
+function mascolive_utils_form_user_login_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Corre tras user_login_finalize() (que setea destination o user.page)
+  // y lo sobreescribe: todo login aterriza en la home pública.
+  $form['#submit'][] = 'mascolive_utils_login_redirect';
+}
+
+/**
+ * Submit handler: redirige al <front>.
+ */
+function mascolive_utils_login_redirect(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $form_state->setRedirect('<front>');
+}
+
+/**
+ * Roles que un visitante puede auto-asignarse en el registro (HU-T-01..04).
+ */
+function mascolive_utils_registration_roles() {
+  return [
+    'tutor' => t('Tutor (dueño de mascotas)'),
+    'veterinario' => t('Veterinario'),
+    'conductor' => t('Conductor'),
+    'vendedor' => t('Vendedor'),
+    'clinica_admin' => t('Admin de Clínica'),
+  ];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * HU-T-01..04 (Registro y Autenticación): el formulario de registro público
+ * permite elegir el rol con el que te registras. El rol se asigna en presave.
+ */
+function mascolive_utils_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $roles = mascolive_utils_registration_roles();
+  $form['mascolive_role'] = [
+    '#type' => 'select',
+    '#title' => t('Me registro como'),
+    '#description' => t('Elige el rol con el que usarás la plataforma.'),
+    '#options' => $roles,
+    '#default_value' => 'tutor',
+    '#weight' => -5,
+  ];
+  $form['actions']['submit']['#value'] = t('Crear mi cuenta');
+  $form['#validate'][] = 'mascolive_utils_register_role_validate';
+  // Corre tras user_register_form's submit (que crea y guarda el usuario).
+  $form['actions']['submit']['#submit'][] = 'mascolive_utils_register_role_submit';
+}
+
+/**
+ * Valida que el rol elegido esté entre los permitidos.
+ */
+function mascolive_utils_register_role_validate(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $allowed = array_keys(mascolive_utils_registration_roles());
+  $role = $form_state->getValue('mascolive_role');
+  if (!in_array($role, $allowed, TRUE)) {
+    $form_state->setErrorByName('mascolive_role', t('Rol no permitido.'));
+  }
+}
+
+/**
+ * Submit handler: asigna el rol elegido al usuario recién creado.
+ */
+function mascolive_utils_register_role_submit(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $user = $form_state->getFormObject()->getEntity();
+  if (!$user) {
+    return;
+  }
+  $role = $form_state->getValue('mascolive_role');
+  $allowed = array_keys(mascolive_utils_registration_roles());
+  if (in_array($role, $allowed, TRUE) && in_array($role, $user->getRoles(), TRUE) === FALSE) {
+    $user->addRole($role);
+    $user->save();
+  }
+}

@@ -1,0 +1,23 @@
+uuid: e9ad842c-1d3b-4973-ab38-02a9b5eee7fa
+langcode: es
+status: true
+dependencies:
+  config:
+    - commerce_product.commerce_product_variation_type.pet_product
+    - field.storage.commerce_product_variation.commerce_price
+  module:
+    - commerce_price
+id: commerce_product_variation.pet_product.commerce_price
+field_name: commerce_price
+entity_type: commerce_product_variation
+bundle: pet_product
+label: Precio
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  available_currencies: {  }
+  allow_negative: false
+field_type: commerce_price

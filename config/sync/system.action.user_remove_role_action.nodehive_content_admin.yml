@@ -1,0 +1,14 @@
+uuid: 75520091-ab01-40dc-84f9-561dd9d73ebf
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.nodehive_content_admin
+  module:
+    - user
+id: user_remove_role_action.nodehive_content_admin
+label: 'Remove the NodeHive Content administrator role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: nodehive_content_admin

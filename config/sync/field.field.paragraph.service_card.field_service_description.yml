@@ -1,0 +1,22 @@
+uuid: ac5b628d-3779-4637-8243-4413304442fd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_service_description
+    - paragraphs.paragraphs_type.service_card
+  module:
+    - text
+id: paragraph.service_card.field_service_description
+field_name: field_service_description
+entity_type: paragraph
+bundle: service_card
+label: Descripción
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

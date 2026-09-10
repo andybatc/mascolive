@@ -1,25 +1,22 @@
-uuid: cd63a67d-9251-43e6-a839-a597467b5a3e
+uuid: cd6d68c4-99a2-4ab4-9755-203bbcdf65eb
 langcode: en
 status: true
 dependencies:
   config:
-    - node.type.clinic
+    - node.type.article
     - node.type.page
-    - node.type.pet
     - taxonomy.vocabulary.tags
   module:
-    - block
-    - block_content
+    - comment
     - contextual
     - file
-    - layout_builder
-    - navigation
     - node
     - path
     - system
     - taxonomy
+    - toolbar
 _core:
-  default_config_hash: og55Zu0F-q-X8zG0Ohrls49zws6IrmmosZS-30Es8vw
+  default_config_hash: e_wG1u7SrGaJbY2-Szgbgl-c8T3kdirU3uTNq2c_QJQ
 id: content_editor
 label: 'Content editor'
 weight: 2
@@ -29,23 +26,20 @@ permissions:
   - 'access content overview'
   - 'access contextual links'
   - 'access files overview'
-  - 'access navigation'
-  - 'administer block content'
-  - 'administer blocks'
+  - 'access toolbar'
   - 'administer url aliases'
-  - 'configure any layout'
-  - 'create clinic content'
+  - 'create article content'
   - 'create page content'
-  - 'create pet content'
   - 'create terms in tags'
   - 'create url aliases'
-  - 'delete any clinic content'
-  - 'delete any page content'
-  - 'delete any pet content'
+  - 'delete article revisions'
+  - 'delete own article content'
   - 'delete own files'
-  - 'edit any clinic content'
-  - 'edit any page content'
-  - 'edit any pet content'
+  - 'delete own page content'
+  - 'delete page revisions'
+  - 'edit own article content'
+  - 'edit own comments'
+  - 'edit own page content'
   - 'edit terms in tags'
   - 'revert all revisions'
   - 'view all revisions'

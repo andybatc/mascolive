@@ -1,15 +1,15 @@
 _core:
   default_config_hash: ijfbzDTN4CbE7Sr-6ubWzy_t1vH4OtU1doNCLssVz-4
 langcode: en
-uuid: d24d569b-b739-4044-bbed-f042c4214b9d
-name: MascoLive
-mail: admin@example.com
+uuid: 4f8ef6be-ff6e-4d6b-b109-88d81cec8341
+name: 'NodeHive Headless CMS'
+mail: no-reply@nodehive.app
 slogan: ''
 page:
   403: ''
   404: ''
-  front: /node/20
+  front: /acerca-de-mascolive
 admin_compact_mode: false
 weight_select_max: 100
-default_langcode: en
+default_langcode: es
 mail_notification: null

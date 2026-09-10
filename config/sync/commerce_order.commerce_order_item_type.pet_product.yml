@@ -1,0 +1,10 @@
+uuid: e8ad08e6-8259-4427-895b-b00e8f39b0a2
+langcode: es
+status: true
+dependencies: {  }
+id: pet_product
+label: 'Pet Product'
+traits: {  }
+locked: false
+purchasableEntityType: commerce_product_variation
+orderType: default

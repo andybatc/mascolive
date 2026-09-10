@@ -1,0 +1,19 @@
+uuid: 3d982da9-5cc9-45d6-bc97-9252850ca04c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phone
+    - node.type.vendor
+id: node.vendor.field_phone
+field_name: field_phone
+entity_type: node
+bundle: vendor
+label: Teléfono
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

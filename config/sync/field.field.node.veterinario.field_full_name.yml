@@ -1,0 +1,19 @@
+uuid: c4459342-252c-4d64-ac5a-571ac48cdb0c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_full_name
+    - node.type.veterinario
+id: node.veterinario.field_full_name
+field_name: field_full_name
+entity_type: node
+bundle: veterinario
+label: 'Nombre completo'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,10 @@
+uuid: 41c5932d-2e2e-430d-9aa8-db695f787dae
+langcode: en
+status: true
+dependencies: {  }
+id: mission_vision
+label: 'Misión y Visión'
+icon_uuid: null
+icon_default: null
+description: null
+behavior_plugins: {  }

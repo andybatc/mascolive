@@ -1,0 +1,10 @@
+uuid: 2f38c7d5-9b0c-4227-ac5a-b0edcc33d6a9
+langcode: en
+status: true
+dependencies: {  }
+id: clinic_profile
+label: 'Perfil de Clínica'
+icon_uuid: null
+icon_default: null
+description: null
+behavior_plugins: {  }

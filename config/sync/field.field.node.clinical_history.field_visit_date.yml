@@ -1,0 +1,21 @@
+uuid: cad1179e-5e8c-4a56-896b-ef69c5e139aa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_visit_date
+    - node.type.clinical_history
+  module:
+    - datetime
+id: node.clinical_history.field_visit_date
+field_name: field_visit_date
+entity_type: node
+bundle: clinical_history
+label: 'Fecha de visita'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

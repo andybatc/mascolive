@@ -1,0 +1,14 @@
+uuid: cc413d28-7480-45b3-babe-8c5687141642
+langcode: es
+status: true
+dependencies:
+  config:
+    - user.role.clinica_admin
+  module:
+    - user
+id: user_add_role_action.clinica_admin
+label: 'Add the Admin de Clínica role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: clinica_admin

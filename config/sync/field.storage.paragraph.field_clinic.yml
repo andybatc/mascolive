@@ -1,0 +1,20 @@
+uuid: 0ad1c4a7-b2dd-4d4d-a809-6e68fc81f8a5
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - paragraphs
+id: paragraph.field_clinic
+field_name: field_clinic
+entity_type: paragraph
+type: entity_reference
+settings:
+  target_type: node
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

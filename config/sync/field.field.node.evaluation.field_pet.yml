@@ -1,0 +1,21 @@
+uuid: fbf840a6-439b-470e-b43d-2d65d2d26e28
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pet
+    - node.type.evaluation
+id: node.evaluation.field_pet
+field_name: field_pet
+entity_type: node
+bundle: evaluation
+label: Mascota
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

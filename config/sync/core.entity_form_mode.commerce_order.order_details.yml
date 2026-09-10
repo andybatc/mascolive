@@ -1,0 +1,16 @@
+uuid: 2c4ecf6c-a2f1-4fe4-8009-743e287ed381
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_order
+  enforced:
+    module:
+      - commerce_order
+_core:
+  default_config_hash: pjdsNh9TxWorz9e7-TT0w0u93-TzSxzSeSb5XcCV_Cs
+id: commerce_order.order_details
+label: 'Order details'
+description: ''
+targetEntityType: commerce_order
+cache: true

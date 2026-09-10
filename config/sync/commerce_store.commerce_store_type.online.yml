@@ -1,0 +1,13 @@
+uuid: a682ace8-bd0d-43dc-a97e-3d6fcec1f4ef
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: FGYrs0ZrjxSzRQMODyYqquV1UW5MN7S5wUG0Dp_OxWU
+id: online
+label: Online
+traits: {  }
+locked: false
+description: ''
+checkout_flow_id: default
+order_type_id: default

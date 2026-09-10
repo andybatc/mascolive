@@ -1,0 +1,19 @@
+uuid: 81ac05d5-a7da-46dc-81df-23158493f4ea
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_specialty
+    - paragraphs.paragraphs_type.clinic_profile
+id: paragraph.clinic_profile.field_specialty
+field_name: field_specialty
+entity_type: paragraph
+bundle: clinic_profile
+label: Especialidad
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

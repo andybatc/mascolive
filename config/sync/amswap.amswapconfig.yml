@@ -1,0 +1,12 @@
+_core:
+  default_config_hash: vaRIb4e_4378IzQXF4dy-aSEAZ4O3D9iC7LW89rHPSw
+role_menu_pairs:
+  -
+    role: administrator
+    menu: admin
+  -
+    role: nodehive_content_editor
+    menu: nodehive-editor
+  -
+    role: nodehive_content_admin
+    menu: nodehive-admin

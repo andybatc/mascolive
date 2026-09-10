@@ -1,11 +1,11 @@
-uuid: d5910e6e-adcc-4bdb-9ca9-e86e2eeb2442
+uuid: e933cd3b-f1cb-4276-bb3f-b3e85e8c66ef
 langcode: en
 status: true
 dependencies:
   module:
     - user
 _core:
-  default_config_hash: ls1UO6IE5YEFa6zde68C6HZeKgnFZYmPj4bJW8L_XuQ
+  default_config_hash: suDsVMgawXoQt4rfmdfpr05EVX3z3KyfDDTYgeSM898
 id: who_s_online
 label: "Who's online block"
 module: user
@@ -154,6 +154,8 @@ display:
             multiple: false
             remember_roles:
               authenticated: authenticated
+              anonymous: '0'
+              administrator: '0'
           is_grouped: false
           group_info:
             label: ''

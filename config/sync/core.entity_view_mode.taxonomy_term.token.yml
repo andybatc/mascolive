@@ -1,4 +1,4 @@
-uuid: 7b9ad21c-6a8f-4f35-8094-d6b9b7bc7792
+uuid: 24e21bbb-2f41-41af-9c83-341501737757
 langcode: en
 status: true
 dependencies:
@@ -6,6 +6,6 @@ dependencies:
     - taxonomy
 id: taxonomy_term.token
 label: Token
-description: null
+description: ''
 targetEntityType: taxonomy_term
 cache: true

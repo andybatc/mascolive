@@ -1,0 +1,19 @@
+uuid: 38fe00be-57e2-4f2b-bf7a-ca04fc773066
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_pet
+field_name: field_pet
+entity_type: node
+type: entity_reference
+settings:
+  target_type: node
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

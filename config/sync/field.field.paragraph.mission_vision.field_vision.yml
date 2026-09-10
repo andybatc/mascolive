@@ -1,0 +1,22 @@
+uuid: 5e48568f-e1fa-4b20-b1de-59776180f1ef
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_vision
+    - paragraphs.paragraphs_type.mission_vision
+  module:
+    - text
+id: paragraph.mission_vision.field_vision
+field_name: field_vision
+entity_type: paragraph
+bundle: mission_vision
+label: Visión
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

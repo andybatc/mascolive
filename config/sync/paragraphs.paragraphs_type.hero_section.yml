@@ -1,0 +1,10 @@
+uuid: a0ca0504-f6f9-41bc-80fc-987be41f9c69
+langcode: en
+status: true
+dependencies: {  }
+id: hero_section
+label: 'Hero Section'
+icon_uuid: null
+icon_default: null
+description: null
+behavior_plugins: {  }

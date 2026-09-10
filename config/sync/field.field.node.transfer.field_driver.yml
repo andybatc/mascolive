@@ -1,0 +1,21 @@
+uuid: 0c893243-edfc-40ee-90ec-badb0f7abafb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_driver
+    - node.type.transfer
+id: node.transfer.field_driver
+field_name: field_driver
+entity_type: node
+bundle: transfer
+label: Conductor
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings: {  }
+field_type: entity_reference

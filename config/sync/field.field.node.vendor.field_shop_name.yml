@@ -1,0 +1,19 @@
+uuid: a6f0bbe6-76ce-4d45-908e-b4c781bd843f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_shop_name
+    - node.type.vendor
+id: node.vendor.field_shop_name
+field_name: field_shop_name
+entity_type: node
+bundle: vendor
+label: 'Nombre de tienda'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

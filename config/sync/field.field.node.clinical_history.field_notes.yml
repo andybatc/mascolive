@@ -1,0 +1,22 @@
+uuid: 8eb2d2b2-f581-4ff4-9869-ee963828b660
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_notes
+    - node.type.clinical_history
+  module:
+    - text
+id: node.clinical_history.field_notes
+field_name: field_notes
+entity_type: node
+bundle: clinical_history
+label: 'Notas adicionales'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

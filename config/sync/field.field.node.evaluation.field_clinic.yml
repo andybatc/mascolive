@@ -1,0 +1,21 @@
+uuid: 71509a34-aeff-4c2a-97c2-78b552b7b128
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_clinic
+    - node.type.evaluation
+id: node.evaluation.field_clinic
+field_name: field_clinic
+entity_type: node
+bundle: evaluation
+label: Clínica
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

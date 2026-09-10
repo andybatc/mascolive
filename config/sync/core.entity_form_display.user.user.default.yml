@@ -1,4 +1,4 @@
-uuid: d9dc6f1e-74ad-4b34-a21d-bc800cdb80e3
+uuid: 8236f22d-ea14-4e07-a1d0-32b6761c014b
 langcode: en
 status: true
 dependencies:
@@ -9,7 +9,7 @@ dependencies:
     - image
     - user
 _core:
-  default_config_hash: Yj33guGRXeB-uq182k6bwtAUtKGpO17nkYxn8FnjhBM
+  default_config_hash: FaQ9Ptcpxpg30AtiqRDtl_8zbJArHP1LPfug_s59TOA
 id: user.user.default
 targetEntityType: user
 bundle: user
@@ -17,6 +17,9 @@ mode: default
 content:
   account:
     weight: -10
+    region: content
+  contact:
+    weight: 5
     region: content
   language:
     weight: 0
@@ -32,4 +35,5 @@ content:
       progress_indicator: throbber
       preview_image_style: thumbnail
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  langcode: true

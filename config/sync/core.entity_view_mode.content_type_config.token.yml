@@ -1,0 +1,11 @@
+uuid: c5df27d2-f804-49ef-8935-c6d2c1d48ec4
+langcode: en
+status: true
+dependencies:
+  module:
+    - content_calendar
+id: content_type_config.token
+label: Token
+description: ''
+targetEntityType: content_type_config
+cache: true

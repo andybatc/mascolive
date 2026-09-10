@@ -1,0 +1,11 @@
+uuid: 2804b448-0993-4eb5-8e2c-9b258dbd3199
+langcode: en
+status: true
+dependencies: {  }
+name: 'Historial Clínico'
+type: clinical_history
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

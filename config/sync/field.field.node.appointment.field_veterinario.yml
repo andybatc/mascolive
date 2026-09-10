@@ -1,0 +1,21 @@
+uuid: 11a5ca65-b382-45de-8891-df178f9c57d9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_veterinario
+    - node.type.appointment
+id: node.appointment.field_veterinario
+field_name: field_veterinario
+entity_type: node
+bundle: appointment
+label: Veterinario
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference

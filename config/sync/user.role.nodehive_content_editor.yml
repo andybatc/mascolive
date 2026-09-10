@@ -1,0 +1,102 @@
+uuid: 0cc51c18-e137-4e7f-9cd2-5cade7a62140
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.article
+    - node.type.page
+    - workflows.workflow.editorial
+  module:
+    - content_calendar
+    - content_kanban
+    - content_moderation
+    - content_planner
+    - contextual
+    - file
+    - media
+    - menu_link_attributes
+    - node
+    - nodehive_apidoc
+    - nodehive_area_fragment
+    - nodehive_core
+    - nodehive_visualeditor
+    - path
+    - scheduler
+    - system
+    - taxonomy
+    - toolbar
+    - webform
+id: nodehive_content_editor
+label: 'NodeHive Content editor'
+weight: 4
+is_admin: null
+permissions:
+  - 'access administration pages'
+  - 'access any webform configuration'
+  - 'access content overview'
+  - 'access contextual links'
+  - 'access files overview'
+  - 'access media overview'
+  - 'access own webform configuration'
+  - 'access site reports'
+  - 'access toolbar'
+  - 'access visualeditor'
+  - 'access webform help'
+  - 'access webform overview'
+  - 'access webform submission user'
+  - 'administer media'
+  - 'administer menu'
+  - 'administer nodehive space'
+  - 'administer nodes'
+  - 'administer taxonomy'
+  - 'administer url aliases'
+  - 'administer webform'
+  - 'administer webform element access'
+  - 'administer webform submission'
+  - 'create article content'
+  - 'create page content'
+  - 'create url aliases'
+  - 'create webform'
+  - 'delete any webform'
+  - 'delete any webform submission'
+  - 'delete article revisions'
+  - 'delete own article content'
+  - 'delete own files'
+  - 'delete own page content'
+  - 'delete own webform'
+  - 'delete own webform submission'
+  - 'delete page revisions'
+  - 'edit any webform'
+  - 'edit any webform submission'
+  - 'edit own article content'
+  - 'edit own page content'
+  - 'edit own webform'
+  - 'edit own webform submission'
+  - 'edit webform assets'
+  - 'edit webform source'
+  - 'edit webform twig'
+  - 'edit webform variants'
+  - 'manage any content with content kanban'
+  - 'manage content calendar'
+  - 'revert all revisions'
+  - 'use editorial transition archive'
+  - 'use editorial transition archived_draft'
+  - 'use editorial transition archived_published'
+  - 'use editorial transition create_new_draft'
+  - 'use editorial transition publish'
+  - 'use menu link attributes'
+  - 'view all revisions'
+  - 'view any unpublished content'
+  - 'view any webform submission'
+  - 'view content calendar'
+  - 'view content planner dashboard'
+  - 'view latest version'
+  - 'view nodehive api documentation'
+  - 'view own unpublished content'
+  - 'view own webform submission'
+  - 'view published nodehive area'
+  - 'view published nodehive fragment'
+  - 'view scheduled content'
+  - 'view the administration theme'
+  - 'view unpublished nodehive area'
+  - 'view unpublished nodehive fragment'

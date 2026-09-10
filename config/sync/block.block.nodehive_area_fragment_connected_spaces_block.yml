@@ -1,0 +1,20 @@
+uuid: 98445832-9ade-43bd-9cb9-cd0e00de5ba3
+langcode: en
+status: true
+dependencies:
+  module:
+    - nodehive_area_fragment
+  theme:
+    - gin
+id: nodehive_area_fragment_connected_spaces_block
+theme: gin
+region: highlighted
+weight: 10
+provider: null
+plugin: nodehive_area_fragment_connected_spaces_block
+settings:
+  id: nodehive_area_fragment_connected_spaces_block
+  label: ''
+  label_display: visible
+  provider: nodehive_area_fragment
+visibility: {  }

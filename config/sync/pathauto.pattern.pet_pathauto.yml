@@ -1,0 +1,23 @@
+uuid: 99ebb986-1b53-44ce-9968-6937d5d37fd7
+langcode: es
+status: true
+dependencies:
+  config:
+    - node.type.pet
+  module:
+    - node
+id: pet_pathauto
+label: Pets
+type: 'canonical_entities:node'
+pattern: '/mascotas/[node:title]'
+selection_criteria:
+  -
+    id: 'entity_bundle:node'
+    negate: false
+    context_mapping:
+      node: node
+    bundles:
+      pet: pet
+selection_logic: and
+weight: 11
+relationships: {  }

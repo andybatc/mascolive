@@ -1,0 +1,21 @@
+uuid: e37c04c7-dc27-465f-bf82-68aa038078b0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pet
+    - node.type.clinical_history
+id: node.clinical_history.field_pet
+field_name: field_pet
+entity_type: node
+bundle: clinical_history
+label: Mascota
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings: {  }
+field_type: entity_reference
