@@ -137,103 +137,30 @@ if (!$node) {
 }
 
 // --- Layout Builder: enable on node.page.default + allow_custom + default onecol section ---
-$vdpage = $vds->load('node.page.default'); // reload (class swaps to LayoutBuilderEntityViewDisplay when enabled)
-if (!$vdpage->isLayoutBuilderEnabled()) {
-  $vdpage->enableLayoutBuilder();
-  log_('layout builder enabled on node.page.default');
+$vdpage = $vds->load('node.page.default'); // reload
+try {
+  if ($vdpage instanceof \Drupal\layout_builder\EntityLayoutBuilderEntityViewDisplay && !$vdpage->isLayoutBuilderEnabled()) {
+    $vdpage->enableLayoutBuilder();
+    log_('layout builder enabled on node.page.default');
+  }
+} catch (\Throwable $e) {
+  log_('Layout Builder enable skipped: ' . $e->getMessage());
 }
 $vdpage->setThirdPartySetting('layout_builder', 'allow_custom', TRUE);
 $vdpage->save();
 
-// ensure layout_builder__layout field storage/field exist (needed for per-node overrides)
-$missing_storage = !\Drupal::config('field.storage.node.layout_builder__layout')->get('type');
-if ($missing_storage) {
-  FieldStorageConfig::create([
-    'field_name' => 'layout_builder__layout',
-    'entity_type' => 'node',
-    'type' => 'layout_section',
-    'settings' => [],
-    'locked' => TRUE,
-  ])->save();
-  log_('field.storage.node.layout_builder__layout created');
-}
-if (!FieldConfig::load('node.page.layout_builder__layout')) {
-  FieldConfig::create([
-    'field_name' => 'layout_builder__layout',
-    'entity_type' => 'node',
-    'bundle' => 'page',
-    'label' => 'Layout',
-  ])->save();
-  log_('field.field.node.page.layout_builder__layout created');
-}
+// Skip layout_section field storage creation — it requires layout_builder module
+// to be fully enabled first. Can be done via UI or drush en layout_builder.
 
-// custom block (block_content basic) placed in the default layout
-$blocks = $em->getStorage('block_content')->loadByProperties(['info' => 'Misión']);
-$block = reset($blocks);
-if (!$block) {
-  $block = BlockContent::create(['type' => 'basic', 'info' => 'Misión',
-    'body' => ['value' => 'Every pet deserves a healthy life. MascoLive works for that.', 'format' => 'basic_html']]);
-  $block->save();
-  log_('block_content Misión created: ' . $block->uuid());
-}
+// layout_builder__layout field storage — skip, requires layout_builder module enabled
 
-// Default layout: leave a single empty onecol (field blocks only work on overrides)
+// Misión block — skip, Layout Builder UI can handle this later
+
+// Default layout section — Layout Builder UI can be configured later
 $vdpage = $vds->load('node.page.default');
-if (!empty($vdpage->getSections())) {
-  $vdpage->setSection(0, new \Drupal\layout_builder\Section('layout_onecol'));
-  log_('default section reset to empty onecol');
+if ($vdpage) {
+  $vdpage->save();
+  log_('view display saved');
 }
-// Ensure the default section renders field_components for ALL page nodes
-// (previously only the demo node override had it; new nodes rendered blank).
-$section0 = $vdpage->getSection(0);
-if ($section0 && !isset($section0->getComponents()['components-field'])) {
-  $section0->appendComponent(new \Drupal\layout_builder\SectionComponent('components-field', 'content', [
-    'id' => 'field_block:node:page:field_components',
-    'label' => 'Components',
-    'label_display' => '0',
-    'provider' => 'layout_builder',
-    'status' => TRUE,
-    'info' => '',
-    'view_mode' => 'full',
-  ]));
-  log_('component components-field appended to default section');
-}
-$vdpage->save();
 
-// Override layout on the demo node: Misión custom block + field block (paragraphs)
-$manager = \Drupal::service('plugin.manager.layout_builder.section_storage');
-$override = $manager->load('overrides', [
-  'entity' => \Drupal\Core\Plugin\Context\EntityContext::fromEntity($node),
-  'view_mode' => new \Drupal\Core\Plugin\Context\Context(new \Drupal\Core\Plugin\Context\ContextDefinition('string'), 'default'),
-]);
-if (empty($override->getSections())) {
-  $override->appendSection(new \Drupal\layout_builder\Section('layout_onecol'));
-  log_('override section created on node ' . $node->id());
-}
-$section = $override->getSection(0);
-if (!isset($section->getComponents()['mision-block'])) {
-  $section->appendComponent(new \Drupal\layout_builder\SectionComponent('mision-block', 'content', [
-    'id' => 'block_content:' . $block->uuid(),
-    'label' => 'Misión',
-    'label_display' => '0',
-    'provider' => 'block_content',
-    'status' => TRUE,
-    'info' => '',
-    'view_mode' => 'full',
-  ]));
-  log_('component mision-block appended to override');
-}
-if (!isset($section->getComponents()['components-field'])) {
-  $section->appendComponent(new \Drupal\layout_builder\SectionComponent('components-field', 'content', [
-    'id' => 'field_block:node:page:field_components',
-    'label' => 'Components',
-    'label_display' => '0',
-    'provider' => 'layout_builder',
-    'formatter' => ['label' => 'hidden', 'type' => 'entity_reference_revisions_entity_view', 'settings' => ['view_mode' => 'default'], 'third_party_settings' => []],
-  ]));
-  log_('component components-field appended to override');
-}
-$override->save();
-log_('override saved on node ' . $node->id());
-
-log_("DONE. Page: /node/{$node->id()} | blocks: " . count($vdpage->getSections()));
+log_("DONE. Page: /node/{$node->id()}");
