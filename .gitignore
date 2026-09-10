@@ -11,5 +11,8 @@
 /web/sites/default/files/
 /web/sites/default/private/
 
+# --- Clave JWT (simple_oauth) ---
+/private/
+
 # --- Junk local de testing ---
 /.playwright-mcp/
