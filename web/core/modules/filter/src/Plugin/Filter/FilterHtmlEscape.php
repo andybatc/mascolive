@@ -2,7 +2,6 @@
 
 namespace Drupal\filter\Plugin\Filter;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\filter\Attribute\Filter;
 use Drupal\filter\FilterProcessResult;
@@ -24,7 +23,7 @@ class FilterHtmlEscape extends FilterBase {
    * {@inheritdoc}
    */
   public function process($text, $langcode) {
-    return new FilterProcessResult(trim(Html::escape($text)));
+    return new FilterProcessResult(_filter_html_escape($text));
   }
 
   /**

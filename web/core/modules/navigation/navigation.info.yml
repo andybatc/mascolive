@@ -1,6 +1,7 @@
 name: Navigation
-description: 'Provides a sidebar navigation for site administration.'
-package: Core
+description: New administration navigation
+package: Core (Experimental)
+lifecycle: experimental
 version: VERSION
 configure: navigation.settings
 type: module

@@ -343,13 +343,10 @@ abstract class QueryBase implements QueryInterface {
   }
 
   /**
-   * Makes sure that condition objects are cloned as well.
+   * Makes sure that the Condition object is cloned as well.
    */
   public function __clone() {
     $this->condition = clone $this->condition;
-    if (isset($this->conditionAggregate)) {
-      $this->conditionAggregate = clone $this->conditionAggregate;
-    }
   }
 
   /**
@@ -476,7 +473,7 @@ abstract class QueryBase implements QueryInterface {
    * is useful for locating classes in a hierarchy of namespaces, such as when
    * searching for the appropriate query class for an entity type.
    *
-   * @param object $object
+   * @param $object
    *   An object within a namespace.
    *
    * @return array
@@ -501,7 +498,7 @@ abstract class QueryBase implements QueryInterface {
    * @param string $short_class_name
    *   A class name without namespace.
    *
-   * @return string|null
+   * @return string
    *   The fully qualified name of the class.
    */
   public static function getClass(array $namespaces, $short_class_name) {
@@ -511,7 +508,6 @@ abstract class QueryBase implements QueryInterface {
         return $class;
       }
     }
-    return NULL;
   }
 
   /**

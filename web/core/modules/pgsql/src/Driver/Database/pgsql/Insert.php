@@ -20,6 +20,13 @@ class Insert extends QueryInsert {
   /**
    * {@inheritdoc}
    */
+  public function __construct(Connection $connection, string $table, array $options = []) {
+    // @todo Remove the __construct in Drupal 11.
+    // @see https://www.drupal.org/project/drupal/issues/3256524
+    parent::__construct($connection, $table, $options);
+    unset($this->queryOptions['return']);
+  }
+
   public function execute() {
     if (!$this->preExecute()) {
       return NULL;
@@ -86,9 +93,7 @@ class Insert extends QueryInsert {
     // mimic MySQL and SQLite transactions which don't fail if a single query
     // fails. This is important for tables that are created on demand. For
     // example, \Drupal\Core\Cache\DatabaseBackend.
-    if ($this->connection->inTransaction()) {
-      $savepoint = $this->connection->startTransaction('mimic_implicit_commit');
-    }
+    $this->connection->addSavepoint();
     try {
       $stmt->execute(NULL, $this->queryOptions);
       if (isset($table_information->serial_fields[0])) {
@@ -106,14 +111,10 @@ class Insert extends QueryInsert {
         }
       }
 
-      if (isset($savepoint)) {
-        $savepoint->commitOrRelease();
-      }
+      $this->connection->releaseSavepoint();
     }
     catch (\Exception $e) {
-      if (isset($savepoint)) {
-        $savepoint->rollback();
-      }
+      $this->connection->rollbackSavepoint();
       $this->connection->exceptionHandler()->handleExecutionException($e, $stmt, [], $this->queryOptions);
     }
 
@@ -123,9 +124,6 @@ class Insert extends QueryInsert {
     return $last_insert_id ?? NULL;
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function __toString() {
     // Create a sanitized comment string to prepend to the query.
     $comments = $this->connection->makeComment($this->comments);
@@ -158,7 +156,7 @@ class Insert extends QueryInsert {
         $query .= ' RETURNING ' . $table_information->serial_fields[0];
       }
     }
-    catch (DatabaseExceptionWrapper) {
+    catch (DatabaseExceptionWrapper $e) {
       // If we fail to get the table information it is probably because the
       // table does not exist yet so adding the returning statement is pointless
       // because the query will fail. This happens for tables created on demand,

@@ -1,6 +1,3 @@
-parameters:
-  views_ui.skip_procedural_hook_scan: true
-
 services:
   _defaults:
     autoconfigure: true
@@ -9,3 +6,4 @@ services:
     arguments: ['@entity_type.manager', '@tempstore.shared', '@config.factory', '@router.admin_context', '@entity.repository']
     tags:
       - { name: paramconverter, priority: 10 }
+    lazy: true

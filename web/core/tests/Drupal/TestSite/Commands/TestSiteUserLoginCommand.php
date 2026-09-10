@@ -6,7 +6,6 @@ namespace Drupal\TestSite\Commands;
 
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Site\Settings;
-use Drupal\user\OneTimeAuthentication;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -32,7 +31,7 @@ class TestSiteUserLoginCommand extends Command {
   /**
    * {@inheritdoc}
    */
-  protected function configure(): void {
+  protected function configure() {
     $this->setName('user-login')
       ->setDescription('Generate a one time login link for an user.')
       ->addArgument('uid', InputArgument::REQUIRED, 'The ID of the user for whom the link will be generated')
@@ -67,9 +66,7 @@ class TestSiteUserLoginCommand extends Command {
     $userEntity = $container->get('entity_type.manager')
       ->getStorage('user')
       ->load($uid);
-    $url = \Drupal::service(OneTimeAuthentication::class)
-      ->generateOneTimeLoginUrl($userEntity, immediate: TRUE)
-      ->toString();
+    $url = user_pass_reset_url($userEntity) . '/login';
     $output->writeln($url);
 
     return 0;

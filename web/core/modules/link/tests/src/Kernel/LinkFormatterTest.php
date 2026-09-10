@@ -9,19 +9,18 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the Field Formatter for the link field type.
+ *
+ * @group link
  */
-#[Group('link')]
-#[RunTestsInSeparateProcesses]
 class LinkFormatterTest extends EntityKernelTestBase {
 
   /**
-   * {@inheritdoc}
+   * Modules to enable.
+   *
+   * @var array
    */
   protected static $modules = ['link'];
 
@@ -89,10 +88,10 @@ class LinkFormatterTest extends EntityKernelTestBase {
    *
    * @param string $formatter
    *   The name of the link formatter to test.
+   *
+   * @dataProvider providerLinkFormatter
    */
-  #[DataProvider('providerLinkFormatter')]
   public function testLinkFormatter(string $formatter): void {
-    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $this->container->get('entity_type.manager')
       ->getStorage($this->entityType)
       ->create([

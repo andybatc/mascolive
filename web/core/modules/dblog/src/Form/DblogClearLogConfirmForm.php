@@ -3,7 +3,6 @@
 namespace Drupal\dblog\Form;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Form\WorkspaceSafeFormInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Form\ConfirmFormBase;
@@ -14,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @internal
  */
-class DblogClearLogConfirmForm extends ConfirmFormBase implements WorkspaceSafeFormInterface {
+class DblogClearLogConfirmForm extends ConfirmFormBase {
 
   /**
    * The database connection.

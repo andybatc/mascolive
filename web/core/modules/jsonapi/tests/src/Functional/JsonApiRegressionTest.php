@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\jsonapi\Functional;
 
-use Drupal\comment\CommentingStatus;
 use Drupal\comment\Entity\Comment;
+use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -22,17 +22,14 @@ use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\RoleInterface;
 use GuzzleHttp\RequestOptions;
-use Drupal\node\NodeAccessRebuild;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * JSON:API regression tests.
  *
+ * @group jsonapi
+ *
  * @internal
  */
-#[Group('jsonapi')]
-#[RunTestsInSeparateProcesses]
 class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
 
   use CommentTestTrait;
@@ -58,19 +55,19 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
     // Set up data model.
     $this->assertTrue($this->container->get('module_installer')->install(['comment'], TRUE), 'Installed modules.');
     $this->addDefaultCommentField('node', 'article');
-    $this->addDefaultCommentField('taxonomy_term', 'tags', 'comment', CommentingStatus::Open, 'test_comment_type');
+    $this->addDefaultCommentField('taxonomy_term', 'tags', 'comment', CommentItemInterface::OPEN, 'tcomment');
     $this->drupalCreateContentType(['type' => 'page']);
     $this->createEntityReferenceField(
       'node',
       'page',
       'field_comment',
-      'Comment',
+      NULL,
       'comment',
       'default',
       [
         'target_bundles' => [
           'comment' => 'comment',
-          'test_comment_type' => 'test_comment_type',
+          'tcomment' => 'tcomment',
         ],
       ],
       FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED
@@ -157,7 +154,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
   public function testGetNodeCollectionWithHookNodeGrantsImplementationsFromIssue2984964(): void {
     // Set up data model.
     $this->assertTrue($this->container->get('module_installer')->install(['node_access_test'], TRUE), 'Installed modules.');
-    \Drupal::service(NodeAccessRebuild::class)->rebuild();
+    node_access_rebuild();
     $this->rebuildAll();
 
     // Create data.
@@ -194,7 +191,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
       'node',
       'journal_article',
       'field_issue',
-      'Issue',
+      NULL,
       'node',
       'default',
       [
@@ -208,7 +205,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
       'node',
       'journal_article',
       'field_mentioned_in',
-      'Mentioned in',
+      NULL,
       'node',
       'default',
       [
@@ -345,7 +342,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
     $response = $this->request('GET', Url::fromUri('internal:/jsonapi/node/dog'), $request_options);
     $this->assertSame(200, $response->getStatusCode());
 
-    $this->createEntityReferenceField('node', 'dog', 'field_test', '', 'node');
+    $this->createEntityReferenceField('node', 'dog', 'field_test', NULL, 'node');
     \Drupal::service('router.builder')->rebuildIfNeeded();
 
     $dog = Node::create(['type' => 'dog', 'title' => 'retriever']);
@@ -354,7 +351,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
     $response = $this->request('GET', Url::fromUri('internal:/jsonapi/node/dog/' . $dog->uuid() . '/field_test'), $request_options);
     $this->assertSame(200, $response->getStatusCode());
 
-    $this->createEntityReferenceField('node', 'cat', 'field_test', '', 'node');
+    $this->createEntityReferenceField('node', 'cat', 'field_test', NULL, 'node');
     \Drupal::service('router.builder')->rebuildIfNeeded();
 
     $cat = Node::create(['type' => 'cat', 'title' => 'E. Napoleon']);
@@ -383,7 +380,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
    * @see https://www.drupal.org/project/jsonapi_extras/issues/3004582#comment-12817261
    */
   public function testDenormalizeAliasedRelationshipFromIssue2953207(): void {
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     // Since the JSON:API module does not have an explicit mechanism to set up
     // field aliases, create a strange data model so that automatic aliasing
@@ -397,7 +394,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
       'taxonomy_term',
       'tags',
       $internal_relationship_field_name,
-      'Type',
+      NULL,
       'user'
     );
     $this->rebuildAll();
@@ -440,9 +437,9 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
    * @see https://www.drupal.org/project/drupal/issues/3009596
    */
   public function testPageCacheFromIssue3009596(): void {
-    Role::load(RoleInterface::ANONYMOUS_ID)
-      ->grantPermission('access content')
-      ->save();
+    $anonymous_role = Role::load(RoleInterface::ANONYMOUS_ID);
+    $anonymous_role->grantPermission('access content');
+    $anonymous_role->trustData()->save();
 
     NodeType::create([
       'type' => 'emu_fact',
@@ -527,7 +524,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
    * @see https://www.drupal.org/project/drupal/issues/3026030
    */
   public function testPostToIncludeUrlDoesNotReturnIncludeFromIssue3026030(): void {
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     // Set up data model.
     $this->drupalCreateContentType(['type' => 'page']);
@@ -609,7 +606,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
    * Tests that the response still has meaningful error messages.
    */
   public function testRecursionDetectedWhenResponseContainsViolationsFrom3042124(): void {
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     // Set up default request.
     $url = Url::fromUri('internal:/jsonapi/node/article');
@@ -659,7 +656,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
    * @see https://www.drupal.org/project/drupal/issues/3052954
    */
   public function testInvalidDataTriggersUnprocessableEntityErrorFromIssue3052954(): void {
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     // Set up data model.
     $user = $this->drupalCreateUser(['bypass node access']);
@@ -689,7 +686,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
    * Ensure optional `@FieldType=map` fields are denormalized correctly.
    */
   public function testEmptyMapFieldTypeDenormalization(): void {
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     // Set up data model.
     $this->assertTrue($this->container->get('module_installer')->install(['entity_test'], TRUE), 'Installed modules.');
@@ -840,7 +837,7 @@ class JsonApiRegressionTest extends JsonApiFunctionalTestBase {
     $this->container->get('module_installer')->install([
       'jsonapi_test_non_cacheable_methods',
     ], TRUE);
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     $node = Node::create([
       'type' => 'article',

@@ -10,19 +10,9 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 class ConfigEntityNormalizer extends EntityNormalizer {
 
   /**
-   * Normalizes data into a set of arrays/scalars.
-   *
-   * @param object $object
-   *   Data to normalize.
-   * @param string|null $format
-   *   Format the normalization result will be encoded as.
-   * @param array<string, mixed> $context
-   *   Context options for the normalizer.
-   *
-   * @return array
-   *   The normalized data.
+   * {@inheritdoc}
    */
-  public function normalize($object, $format = NULL, array $context = []): array {
+  public function normalize($object, $format = NULL, array $context = []): array|string|int|float|bool|\ArrayObject|NULL {
     return static::getDataWithoutInternals($object->toArray());
   }
 

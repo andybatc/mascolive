@@ -10,15 +10,9 @@ use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\user\EntityOwnerInterface;
 
-/**
- * Service for storing and retrieving comment statistics.
- */
 class CommentStatistics implements CommentStatisticsInterface {
-
-  use StringTranslationTrait;
 
   /**
    * The current database connection.
@@ -66,7 +60,7 @@ class CommentStatistics implements CommentStatisticsInterface {
    *   The entity type manager.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
+   * @param \Drupal\Component\Datetime\TimeInterface|null|\Drupal\Core\Database\Connection $time
    *   The time service.
    * @param \Drupal\Core\Database\Connection|null $database_replica
    *   (Optional) the replica database connection.
@@ -76,13 +70,20 @@ class CommentStatistics implements CommentStatisticsInterface {
     AccountInterface $current_user,
     EntityTypeManagerInterface $entity_type_manager,
     StateInterface $state,
-    protected TimeInterface $time,
+    protected TimeInterface|Connection|null $time = NULL,
     ?Connection $database_replica = NULL,
   ) {
     $this->database = $database;
     $this->currentUser = $current_user;
     $this->entityTypeManager = $entity_type_manager;
     $this->state = $state;
+    if (!$time || $time instanceof Connection) {
+      @trigger_error('Calling ' . __METHOD__ . '() without the $time argument is deprecated in drupal:10.3.0 and it will be the 4th argument in drupal:11.0.0. See https://www.drupal.org/node/3387233', E_USER_DEPRECATED);
+      if ($time instanceof Connection) {
+        $database_replica = $time;
+      }
+      $this->time = \Drupal::service(TimeInterface::class);
+    }
     $this->databaseReplica = $database_replica ?: $database;
   }
 
@@ -179,7 +180,7 @@ class CommentStatistics implements CommentStatisticsInterface {
   public function getRankingInfo() {
     return [
       'comments' => [
-        'title' => $this->t('Number of comments'),
+        'title' => t('Number of comments'),
         'join' => [
           'type' => 'LEFT',
           'table' => 'comment_entity_statistics',
@@ -233,18 +234,19 @@ class CommentStatistics implements CommentStatisticsInterface {
         ->range(0, 1)
         ->execute()
         ->fetchObject();
-      // Use upsert here because entity could be created before comment field.
-      $this->database->upsert('comment_entity_statistics')
-        ->key(['entity_id', 'entity_type', 'field_name'])
+      // Use merge here because entity could be created before comment field.
+      $this->database->merge('comment_entity_statistics')
         ->fields([
-          'entity_id' => $comment->getCommentedEntityId(),
-          'entity_type' => $comment->getCommentedEntityTypeId(),
-          'field_name' => $comment->getFieldName(),
           'cid' => $last_reply->cid,
           'comment_count' => $count,
           'last_comment_timestamp' => $last_reply->changed,
           'last_comment_name' => $last_reply->uid ? '' : $last_reply->name,
           'last_comment_uid' => $last_reply->uid,
+        ])
+        ->keys([
+          'entity_id' => $comment->getCommentedEntityId(),
+          'entity_type' => $comment->getCommentedEntityTypeId(),
+          'field_name' => $comment->getFieldName(),
         ])
         ->execute();
     }

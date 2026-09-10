@@ -40,12 +40,13 @@ class InstallerServiceProvider extends NormalInstallerServiceProvider implements
     $container
       ->register('router.dumper', 'Drupal\Core\Routing\NullMatcherDumper');
 
-    // Prevent the static route builders from core from listening to the event.
+    // Replace the route builder with an empty implementation.
     // @todo Convert installer steps into routes; add an installer.routing.yml.
-    $definition = $container->getDefinition('router.builder.attributes');
-    $definition->clearTag('event_subscriber');
-    $definition = $container->getDefinition('router.builder.yaml');
-    $definition->clearTag('event_subscriber');
+    $definition = $container->getDefinition('router.builder');
+    $definition->setClass('Drupal\Core\Installer\InstallerRouteBuilder')
+      // The core router builder, but there is no reason here to be lazy, so
+      // we don't need to ship with a custom proxy class.
+      ->setLazy(FALSE);
 
     parent::register($container);
   }

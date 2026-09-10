@@ -22,9 +22,5 @@ form_test.object:
       label: 'Which could you not live without: vegetables or fruits?'
       constraints:
         Choice:
-          choices:
-            - fruits
-            - vegetables
-    motivation:
-      type: text_format
-      label: 'Motivation'
+          - fruits
+          - vegetables

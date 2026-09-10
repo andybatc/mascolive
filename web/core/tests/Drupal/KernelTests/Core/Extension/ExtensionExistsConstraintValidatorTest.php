@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace Drupal\KernelTests\Core\Extension;
 
-use Drupal\Core\Extension\Plugin\Validation\Constraint\ExtensionExistsConstraint;
-use Drupal\Core\Extension\Plugin\Validation\Constraint\ExtensionExistsConstraintValidator;
 use Drupal\Core\TypedData\DataDefinition;
 use Drupal\KernelTests\KernelTestBase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the ExtensionExists constraint validator.
+ *
+ * @group Validation
+ *
+ * @covers \Drupal\Core\Extension\Plugin\Validation\Constraint\ExtensionExistsConstraint
+ * @covers \Drupal\Core\Extension\Plugin\Validation\Constraint\ExtensionExistsConstraintValidator
  */
-#[Group('Validation')]
-#[CoversClass(ExtensionExistsConstraint::class)]
-#[CoversClass(ExtensionExistsConstraintValidator::class)]
-#[RunTestsInSeparateProcesses]
 class ExtensionExistsConstraintValidatorTest extends KernelTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $modules = ['system'];
 
   /**
    * Tests the ExtensionExists constraint validator.
@@ -28,7 +29,7 @@ class ExtensionExistsConstraintValidatorTest extends KernelTestBase {
     // Create a data definition that specifies the value must be a string with
     // the name of an installed module.
     $definition = DataDefinition::create('string')
-      ->addConstraint('ExtensionExists', ['type' => 'module']);
+      ->addConstraint('ExtensionExists', 'module');
 
     /** @var \Drupal\Core\TypedData\TypedDataManagerInterface $typed_data */
     $typed_data = $this->container->get('typed_data_manager');
@@ -44,14 +45,13 @@ class ExtensionExistsConstraintValidatorTest extends KernelTestBase {
     $this->assertSame("Module 'user' is not installed.", (string) $violations->get(0)->getMessage());
 
     $this->enableModules(['user']);
-    $data = $typed_data->create($definition, 'core');
     $this->assertCount(0, $data->validate());
 
     // NULL should not trigger a validation error: a value may be nullable.
     $data->setValue(NULL);
     $this->assertCount(0, $data->validate());
 
-    $definition->setConstraints(['ExtensionExists' => ['type' => 'theme']]);
+    $definition->setConstraints(['ExtensionExists' => 'theme']);
     $data = $typed_data->create($definition, 'stark');
 
     $violations = $data->validate();
@@ -79,7 +79,7 @@ class ExtensionExistsConstraintValidatorTest extends KernelTestBase {
     $this->assertCount(0, $data->validate());
 
     // Anything but a module or theme should raise an exception.
-    $definition->setConstraints(['ExtensionExists' => ['type' => 'profile']]);
+    $definition->setConstraints(['ExtensionExists' => 'profile']);
     $this->expectExceptionMessage("Unknown extension type: 'profile'");
     $data->validate();
   }

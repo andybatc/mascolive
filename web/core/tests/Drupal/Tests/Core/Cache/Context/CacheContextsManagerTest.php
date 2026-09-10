@@ -5,41 +5,59 @@ declare(strict_types=1);
 namespace Drupal\Tests\Core\Cache\Context;
 
 use Drupal\Core\Cache\CacheableMetadata;
-use Drupal\Core\Cache\Context\CacheContextInterface;
 use Drupal\Core\Cache\Context\CacheContextsManager;
+use Drupal\Core\Cache\Context\CacheContextInterface;
 use Drupal\Core\Cache\Context\CalculatedCacheContextInterface;
-use Drupal\Core\DependencyInjection\Container as DrupalContainer;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\Stub;
 use Symfony\Component\DependencyInjection\Container;
 
 // cspell:ignore cnenzrgre
+
 /**
- * Tests Drupal\Core\Cache\Context\CacheContextsManager.
+ * @coversDefaultClass \Drupal\Core\Cache\Context\CacheContextsManager
+ * @group Cache
  */
-#[CoversClass(CacheContextsManager::class)]
-#[Group('Cache')]
 class CacheContextsManagerTest extends UnitTestCase {
 
   /**
-   * Tests optimize tokens.
+   * @covers ::optimizeTokens
+   *
+   * @dataProvider providerTestOptimizeTokens
    */
-  #[DataProvider('providerTestOptimizeTokens')]
-  public function testOptimizeTokens(array $context_tokens, array $optimized_context_tokens, int $expected_container_calls): void {
-    $container = $this->createMock(DrupalContainer::class);
-    $container->expects($this->exactly($expected_container_calls))
+  public function testOptimizeTokens(array $context_tokens, array $optimized_context_tokens): void {
+    $container = $this->getMockBuilder('Drupal\Core\DependencyInjection\Container')
+      ->disableOriginalConstructor()
+      ->getMock();
+    $container->expects($this->any())
       ->method('get')
-      ->willReturnCallback(fn($service_id) => match ($service_id) {
-        'cache_context.a' => new FooCacheContext(),
-        'cache_context.a.b' => new FooCacheContext(),
-        'cache_context.a.b.c' => new BazCacheContext(),
-        'cache_context.x' => new BazCacheContext(),
-        'cache_context.a.b.no-optimize' => new NoOptimizeCacheContext(),
-      });
+      ->willReturnMap([
+        [
+          'cache_context.a',
+          Container::EXCEPTION_ON_INVALID_REFERENCE,
+          new FooCacheContext(),
+        ],
+        [
+          'cache_context.a.b',
+          Container::EXCEPTION_ON_INVALID_REFERENCE,
+          new FooCacheContext(),
+        ],
+        [
+          'cache_context.a.b.c',
+          Container::EXCEPTION_ON_INVALID_REFERENCE,
+          new BazCacheContext(),
+        ],
+        [
+          'cache_context.x',
+          Container::EXCEPTION_ON_INVALID_REFERENCE,
+          new BazCacheContext(),
+        ],
+        [
+          'cache_context.a.b.no-optimize',
+          Container::EXCEPTION_ON_INVALID_REFERENCE,
+          new NoOptimizeCacheContext(),
+        ],
+      ]);
     $cache_contexts_manager = new CacheContextsManager($container, $this->getContextsFixture());
 
     $this->assertSame($optimized_context_tokens, $cache_contexts_manager->optimizeTokens($context_tokens));
@@ -48,44 +66,43 @@ class CacheContextsManagerTest extends UnitTestCase {
   /**
    * Provides a list of context token sets.
    */
-  public static function providerTestOptimizeTokens(): array {
+  public static function providerTestOptimizeTokens() {
     return [
-      // No ancestors found, 0 container calls needed.
-      [['a', 'x'], ['a', 'x'], 0],
-      [['a.b', 'x'], ['a.b', 'x'], 0],
+      [['a', 'x'], ['a', 'x']],
+      [['a.b', 'x'], ['a.b', 'x']],
 
-      // Direct ancestor, single-level hierarchy: 1 call to check max-age.
-      [['a', 'a.b'], ['a'], 1],
-      [['a.b', 'a'], ['a'], 1],
+      // Direct ancestor, single-level hierarchy.
+      [['a', 'a.b'], ['a']],
+      [['a.b', 'a'], ['a']],
 
-      // Direct ancestor, multi-level hierarchy: 1 call to check max-age.
-      [['a.b', 'a.b.c'], ['a.b'], 1],
-      [['a.b.c', 'a.b'], ['a.b'], 1],
+      // Direct ancestor, multi-level hierarchy.
+      [['a.b', 'a.b.c'], ['a.b']],
+      [['a.b.c', 'a.b'], ['a.b']],
 
-      // Indirect ancestor: 1 call to check max-age.
-      [['a', 'a.b.c'], ['a'], 1],
-      [['a.b.c', 'a'], ['a'], 1],
+      // Indirect ancestor.
+      [['a', 'a.b.c'], ['a']],
+      [['a.b.c', 'a'], ['a']],
 
-      // Direct & indirect ancestors: 2 calls (one for each descendant).
-      [['a', 'a.b', 'a.b.c'], ['a'], 2],
-      [['a', 'a.b.c', 'a.b'], ['a'], 2],
-      [['a.b', 'a', 'a.b.c'], ['a'], 2],
-      [['a.b', 'a.b.c', 'a'], ['a'], 2],
-      [['a.b.c', 'a.b', 'a'], ['a'], 2],
-      [['a.b.c', 'a', 'a.b'], ['a'], 2],
+      // Direct & indirect ancestors.
+      [['a', 'a.b', 'a.b.c'], ['a']],
+      [['a', 'a.b.c', 'a.b'], ['a']],
+      [['a.b', 'a', 'a.b.c'], ['a']],
+      [['a.b', 'a.b.c', 'a'], ['a']],
+      [['a.b.c', 'a.b', 'a'], ['a']],
+      [['a.b.c', 'a', 'a.b'], ['a']],
 
-      // Using parameters: 1 call to check max-age.
-      [['a', 'a.b.c:foo'], ['a'], 1],
-      [['a.b.c:foo', 'a'], ['a'], 1],
-      [['a.b.c:foo', 'a.b.c'], ['a.b.c'], 1],
+      // Using parameters.
+      [['a', 'a.b.c:foo'], ['a']],
+      [['a.b.c:foo', 'a'], ['a']],
+      [['a.b.c:foo', 'a.b.c'], ['a.b.c']],
 
-      // max-age 0 is treated as non-optimizable: 2 calls (both have ancestors).
-      [['a.b.no-optimize', 'a.b', 'a'], ['a.b.no-optimize', 'a'], 2],
+      // max-age 0 is treated as non-optimizable.
+      [['a.b.no-optimize', 'a.b', 'a'], ['a.b.no-optimize', 'a']],
     ];
   }
 
   /**
-   * Tests convert tokens to keys.
+   * @covers ::convertTokensToKeys
    */
   public function testConvertTokensToKeys(): void {
     $container = $this->getMockContainer();
@@ -106,9 +123,7 @@ class CacheContextsManagerTest extends UnitTestCase {
   }
 
   /**
-   * Tests invalid context.
-   *
-   * @legacy-covers ::convertTokensToKeys
+   * @covers ::convertTokensToKeys
    */
   public function testInvalidContext(): void {
     $container = $this->getMockContainer();
@@ -119,12 +134,11 @@ class CacheContextsManagerTest extends UnitTestCase {
   }
 
   /**
-   * Tests invalid calculated context.
+   * @covers ::convertTokensToKeys
    *
-   * @legacy-covers ::convertTokensToKeys
+   * @dataProvider providerTestInvalidCalculatedContext
    */
-  #[DataProvider('providerTestInvalidCalculatedContext')]
-  public function testInvalidCalculatedContext(string $context_token): void {
+  public function testInvalidCalculatedContext($context_token): void {
     $container = $this->getMockContainer();
     $cache_contexts_manager = new CacheContextsManager($container, $this->getContextsFixture());
 
@@ -135,7 +149,7 @@ class CacheContextsManagerTest extends UnitTestCase {
   /**
    * Provides a list of invalid 'baz' cache contexts: the parameter is missing.
    */
-  public static function providerTestInvalidCalculatedContext(): array {
+  public static function providerTestInvalidCalculatedContext() {
     return [
       ['baz'],
       ['baz:'],
@@ -156,13 +170,15 @@ class CacheContextsManagerTest extends UnitTestCase {
     $this->assertEquals($expected, $labels);
   }
 
-  protected function getContextsFixture(): array {
+  protected function getContextsFixture() {
     return ['foo', 'baz'];
   }
 
-  protected function getMockContainer(): Stub {
-    $container = $this->createStub(DrupalContainer::class);
-    $container
+  protected function getMockContainer() {
+    $container = $this->getMockBuilder('Drupal\Core\DependencyInjection\Container')
+      ->disableOriginalConstructor()
+      ->getMock();
+    $container->expects($this->any())
       ->method('get')
       ->willReturnMap([
         [
@@ -183,9 +199,8 @@ class CacheContextsManagerTest extends UnitTestCase {
    * Provides a list of cache context token arrays.
    *
    * @return array
-   *   An array of cache context token arrays.
    */
-  public static function validateTokensProvider(): array {
+  public static function validateTokensProvider() {
     return [
       [[], FALSE],
       [['foo'], FALSE],
@@ -213,12 +228,11 @@ class CacheContextsManagerTest extends UnitTestCase {
   }
 
   /**
-   * Tests validate contexts.
+   * @covers ::validateTokens
    *
-   * @legacy-covers ::validateTokens
+   * @dataProvider validateTokensProvider
    */
-  #[DataProvider('validateTokensProvider')]
-  public function testValidateContexts(array $contexts, bool|string $expected_exception_message): void {
+  public function testValidateContexts(array $contexts, $expected_exception_message): void {
     $container = new ContainerBuilder();
     $cache_contexts_manager = new CacheContextsManager($container, ['foo', 'foo.bar', 'baz']);
     if ($expected_exception_message !== FALSE) {
@@ -239,21 +253,21 @@ class FooCacheContext implements CacheContextInterface {
   /**
    * {@inheritdoc}
    */
-  public static function getLabel(): string {
+  public static function getLabel() {
     return 'Foo';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getContext(): string {
+  public function getContext() {
     return 'bar';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCacheableMetadata(): CacheableMetadata {
+  public function getCacheableMetadata() {
     return new CacheableMetadata();
   }
 
@@ -267,14 +281,14 @@ class BazCacheContext implements CalculatedCacheContextInterface {
   /**
    * {@inheritdoc}
    */
-  public static function getLabel(): string {
+  public static function getLabel() {
     return 'Baz';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getContext($parameter = NULL): string {
+  public function getContext($parameter = NULL) {
     if (!is_string($parameter) || strlen($parameter) === 0) {
       throw new \Exception();
     }
@@ -284,7 +298,7 @@ class BazCacheContext implements CalculatedCacheContextInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCacheableMetadata($parameter = NULL): CacheableMetadata {
+  public function getCacheableMetadata($parameter = NULL) {
     return new CacheableMetadata();
   }
 
@@ -298,14 +312,14 @@ class NoOptimizeCacheContext implements CacheContextInterface {
   /**
    * {@inheritdoc}
    */
-  public static function getLabel(): string {
+  public static function getLabel() {
     return 'Foo';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getContext(): string {
+  public function getContext() {
     return 'bar';
   }
 

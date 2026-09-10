@@ -3,14 +3,14 @@
  *  Support code for testing JavaScript error handling in functional tests.
  */
 (function () {
-  if (console?.warn) {
+  if (typeof console !== 'undefined' && console.warn) {
     const originalWarnFunction = console.warn;
     console.warn = (warning) => {
       const warnings = JSON.parse(
         sessionStorage.getItem('js_testing_log_test.warnings') ||
           JSON.stringify([]),
       );
-      warnings.push(`${window.location.pathname}|${warning}`);
+      warnings.push(warning);
       sessionStorage.setItem(
         'js_testing_log_test.warnings',
         JSON.stringify(warnings),
@@ -24,7 +24,7 @@
       sessionStorage.getItem('js_testing_log_test.errors') ||
         JSON.stringify([]),
     );
-    errors.push(`${window.location.pathname}|${evt.error.stack}`);
+    errors.push(evt.error.stack);
     sessionStorage.setItem(
       'js_testing_log_test.errors',
       JSON.stringify(errors),

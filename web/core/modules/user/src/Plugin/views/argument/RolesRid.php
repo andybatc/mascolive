@@ -5,6 +5,7 @@ namespace Drupal\user\Plugin\views\argument;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\views\Attribute\ViewsArgument;
 use Drupal\views\Plugin\views\argument\ManyToOne;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Allow role ID(s) as argument.
@@ -39,6 +40,18 @@ class RolesRid extends ManyToOne {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->roleStorage = $entity_type_manager->getStorage('user_role');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager')
+    );
   }
 
   /**

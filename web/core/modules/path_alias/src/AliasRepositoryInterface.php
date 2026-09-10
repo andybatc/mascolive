@@ -27,9 +27,7 @@ interface AliasRepositoryInterface {
    *   that language it will search paths without language.
    *
    * @return string[]
-   *   System paths (keys) to alias (values) mapping. If match to path in
-   *   $preload differs by case, the array will contain an entry for the stored
-   *   path and the provided path. The stored path will be returned first.
+   *   System paths (keys) to alias (values) mapping.
    */
   public function preloadPathAlias($preloaded, $langcode);
 

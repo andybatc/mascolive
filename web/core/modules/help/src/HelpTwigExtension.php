@@ -41,7 +41,7 @@ class HelpTwigExtension extends AbstractExtension {
   /**
    * {@inheritdoc}
    */
-  public function getFunctions(): array {
+  public function getFunctions() {
     return [
       new TwigFunction('help_route_link', [$this, 'getRouteLink']),
       new TwigFunction('help_topic_link', [$this, 'getTopicLink']),
@@ -58,13 +58,14 @@ class HelpTwigExtension extends AbstractExtension {
    * @param array $parameters
    *   (optional) An associative array of route parameter names and values.
    * @param array $options
-   *   (optional) An associative array of additional options.
+   *   (optional) An associative array of additional options. The 'absolute'
+   *   option is forced to be TRUE.
    *
    * @return array
-   *   A render array with a generated link to the given route. If the user does
-   *   not have permission for the route, or an exception occurs, such as a
-   *   missing route or missing parameters, the render array is for the link
-   *   text as a plain string instead.
+   *   A render array with a generated absolute link to the given route. If
+   *   the user does not have permission for the route, or an exception occurs,
+   *   such as a missing route or missing parameters, the render array is for
+   *   the link text as a plain string instead.
    *
    * @see \Drupal\Core\Template\TwigExtension::getUrl()
    */
@@ -79,6 +80,7 @@ class HelpTwigExtension extends AbstractExtension {
       $bubbles->addCacheableDependency($access_object);
 
       if ($access_object->isAllowed()) {
+        $options['absolute'] = TRUE;
         $url = Url::fromRoute($route, $parameters, $options);
         // Generate the URL to check for parameter problems and collect
         // cache metadata.
@@ -95,7 +97,7 @@ class HelpTwigExtension extends AbstractExtension {
         $build = ['#markup' => $text];
       }
     }
-    catch (RouteNotFoundException | MissingMandatoryParametersException | InvalidParameterException) {
+    catch (RouteNotFoundException | MissingMandatoryParametersException | InvalidParameterException $e) {
       // If the route had one of these exceptions, return the link text.
       $build = ['#markup' => $text];
     }
@@ -110,10 +112,10 @@ class HelpTwigExtension extends AbstractExtension {
    *   The help topic ID.
    *
    * @return array
-   *   A render array with a generated link to the given topic. If the user does
-   *   not have permission to view the topic, or an exception occurs, such as
-   *   the topic not being defined due to a module not being installed, a
-   *   default string is returned.
+   *   A render array with a generated absolute link to the given topic. If
+   *   the user does not have permission to view the topic, or an exception
+   *   occurs, such as the topic not being defined due to a module not being
+   *   installed, a default string is returned.
    *
    * @see \Drupal\Core\Template\TwigExtension::getUrl()
    */
@@ -125,7 +127,7 @@ class HelpTwigExtension extends AbstractExtension {
     try {
       $plugin = $this->pluginManager->createInstance($topic_id);
     }
-    catch (PluginNotFoundException) {
+    catch (PluginNotFoundException $e) {
       // Not a topic.
       $plugin = FALSE;
     }

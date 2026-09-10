@@ -5,7 +5,6 @@ namespace Drupal\contextual\Plugin\views\field;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\contextual\ContextualLinksSerializer;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Url;
@@ -22,26 +21,6 @@ use Drupal\views\ResultRow;
 class ContextualLinks extends FieldPluginBase {
 
   use RedirectDestinationTrait;
-
-  /**
-   * The contextual links serializer service.
-   */
-  protected ContextualLinksSerializer $contextualLinksSerializer;
-
-  public function __construct(
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    ?ContextualLinksSerializer $contextual_links_serializer = NULL,
-  ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-
-    if (!$contextual_links_serializer) {
-      @trigger_error('Calling ' . __METHOD__ . ' without the $contextual_links_serializer argument is deprecated in drupal:11.4.0 and it will be required in drupal:12.0.0. See https://www.drupal.org/node/3568088', E_USER_DEPRECATED);
-      $contextual_links_serializer = \Drupal::service(ContextualLinksSerializer::class);
-    }
-    $this->contextualLinksSerializer = $contextual_links_serializer;
-  }
 
   /**
    * {@inheritdoc}
@@ -157,9 +136,9 @@ class ContextualLinks extends FieldPluginBase {
 
       $element = [
         '#type' => 'contextual_links_placeholder',
-        '#id' => $this->contextualLinksSerializer->linksToId($contextual_links),
+        '#id' => _contextual_links_to_id($contextual_links),
       ];
-      return $this->getRenderer()->render($element);
+      return \Drupal::service('renderer')->render($element);
     }
     else {
       return '';

@@ -4,7 +4,6 @@ namespace Drupal\taxonomy\Form;
 
 use Drupal\Core\Entity\EntityConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Form\WorkspaceSafeFormInterface;
 use Drupal\taxonomy\TermStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -13,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @internal
  */
-class VocabularyResetForm extends EntityConfirmFormBase implements WorkspaceSafeFormInterface {
+class VocabularyResetForm extends EntityConfirmFormBase {
 
   /**
    * The term storage.

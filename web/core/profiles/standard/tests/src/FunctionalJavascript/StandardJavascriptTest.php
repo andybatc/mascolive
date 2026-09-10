@@ -6,14 +6,12 @@ namespace Drupal\Tests\standard\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\node\Entity\Node;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests Standard installation profile JavaScript expectations.
+ *
+ * @group standard
  */
-#[Group('standard')]
-#[RunTestsInSeparateProcesses]
 class StandardJavascriptTest extends WebDriverTestBase {
 
   /**
@@ -25,34 +23,27 @@ class StandardJavascriptTest extends WebDriverTestBase {
    * Tests BigPipe accelerates particular Standard installation profile routes.
    */
   public function testBigPipe(): void {
-    // Standard profile does not include a content type by default.
-    $this->drupalCreateContentType(['type' => 'test_content', 'name' => 'Test Content']);
-
     $this->drupalLogin($this->drupalCreateUser([
       'access content',
+      'post comments',
+      'skip comment approval',
     ]));
 
-    $node = Node::create(['type' => 'test_content'])
+    $node = Node::create(['type' => 'article'])
       ->setTitle($this->randomMachineName())
       ->setPromoted(TRUE)
       ->setPublished();
     $node->save();
 
-    // Front page: Five placeholders.
+    // Front page: one placeholder, for messages.
     $this->drupalGet('');
-    $this->assertBigPipePlaceholderReplacementCount(5);
+    $this->assertBigPipePlaceholderReplacementCount(1);
 
-    // Front page with warm render caches: Zero placeholders.
-    $this->drupalGet('');
-    $this->assertBigPipePlaceholderReplacementCount(0);
-
-    // Node page: Four placeholders.
+    // Node page: 2 placeholders:
+    // 1. messages
+    // 2. comment form
     $this->drupalGet($node->toUrl());
-    $this->assertBigPipePlaceholderReplacementCount(4);
-
-    // Node page second request: Zero placeholders.
-    $this->drupalGet($node->toUrl());
-    $this->assertBigPipePlaceholderReplacementCount(0);
+    $this->assertBigPipePlaceholderReplacementCount(2);
   }
 
   /**
@@ -63,17 +54,10 @@ class StandardJavascriptTest extends WebDriverTestBase {
    */
   protected function assertBigPipePlaceholderReplacementCount($expected_count): void {
     $web_assert = $this->assertSession();
-    if ($expected_count > 0) {
-      $web_assert->waitForElement('css', 'script[data-big-pipe-event="stop"]');
-    }
+    $web_assert->waitForElement('css', 'script[data-big-pipe-event="stop"]');
     $page = $this->getSession()->getPage();
     // Settings are removed as soon as they are processed.
-    if ($expected_count === 0) {
-      $this->assertArrayNotHasKey('bigPipePlaceholderIds', $this->getDrupalSettings());
-    }
-    else {
-      $this->assertCount(0, $this->getDrupalSettings()['bigPipePlaceholderIds']);
-    }
+    $this->assertCount(0, $this->getDrupalSettings()['bigPipePlaceholderIds']);
     $this->assertCount($expected_count, $page->findAll('css', 'script[data-big-pipe-replacement-for-placeholder-with-id]'));
   }
 

@@ -21,14 +21,11 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests Drupal\Core\Entity\Entity\Access\EntityFormDisplayAccessControlHandler.
+ * @coversDefaultClass \Drupal\Core\Entity\Entity\Access\EntityFormDisplayAccessControlHandler
+ * @group Entity
  */
-#[CoversClass(EntityFormDisplayAccessControlHandler::class)]
-#[Group('Entity')]
 class EntityFormDisplayAccessControlHandlerTest extends UnitTestCase {
 
   /**
@@ -106,7 +103,6 @@ class EntityFormDisplayAccessControlHandlerTest extends UnitTestCase {
       ->method('hasPermission')
       ->willReturnMap([
         ['administer foobar form display', TRUE],
-        ['Llama', FALSE],
       ]);
     $this->member
       ->expects($this->any())
@@ -119,8 +115,6 @@ class EntityFormDisplayAccessControlHandlerTest extends UnitTestCase {
       ->method('hasPermission')
       ->willReturnMap([
         ['Llama', TRUE],
-        ['administer foobar form display', FALSE],
-        ['administer foobar display', FALSE],
       ]);
     $this->parentMember
       ->expects($this->any())
@@ -218,10 +212,8 @@ class EntityFormDisplayAccessControlHandlerTest extends UnitTestCase {
   }
 
   /**
-   * Tests access.
-   *
-   * @legacy-covers ::access
-   * @legacy-covers ::checkAccess
+   * @covers ::access
+   * @covers ::checkAccess
    */
   public function testAccess(): void {
     $this->assertAllowOperations([], $this->anon);

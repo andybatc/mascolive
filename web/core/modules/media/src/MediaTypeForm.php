@@ -309,8 +309,7 @@ class MediaTypeForm extends EntityForm {
 
     parent::submitForm($form, $form_state);
 
-    $this->entity->setQueueThumbnailDownloadsStatus(
-      (bool) $form_state->getValue(['options', 'queue_thumbnail_downloads']))
+    $this->entity->setQueueThumbnailDownloadsStatus((bool) $form_state->getValue(['options', 'queue_thumbnail_downloads']))
       ->setStatus((bool) $form_state->getValue(['options', 'status']))
       ->setNewRevision((bool) $form_state->getValue(['options', 'new_revision']));
 

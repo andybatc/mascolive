@@ -11,19 +11,9 @@ use Drupal\Core\TypedData\TypedDataInternalPropertiesHelper;
 class ContentEntityNormalizer extends EntityNormalizer {
 
   /**
-   * Normalizes data into a set of arrays/scalars.
-   *
-   * @param object $entity
-   *   Data to normalize.
-   * @param string|null $format
-   *   Format the normalization result will be encoded as.
-   * @param array<string, mixed> $context
-   *   Context options for the normalizer.
-   *
-   * @return array
-   *   The normalized data.
+   * {@inheritdoc}
    */
-  public function normalize($entity, $format = NULL, array $context = []): array {
+  public function normalize($entity, $format = NULL, array $context = []): array|string|int|float|bool|\ArrayObject|NULL {
     $context += [
       'account' => NULL,
     ];

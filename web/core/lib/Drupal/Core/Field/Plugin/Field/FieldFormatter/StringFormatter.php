@@ -12,6 +12,7 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'string' formatter.
@@ -62,11 +63,26 @@ class StringFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('entity_type.manager')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     $options = parent::defaultSettings();
 
     $options['link_to_entity'] = FALSE;
-    $options['link_rel'] = 'canonical';
     return $options;
   }
 
@@ -77,37 +93,12 @@ class StringFormatter extends FormatterBase {
     $form = parent::settingsForm($form, $form_state);
     $entity_type = $this->entityTypeManager->getDefinition($this->fieldDefinition->getTargetEntityTypeId());
 
-    $variables = [
-      '@entity_label' => $entity_type->getLabel(),
-    ];
     if ($entity_type->hasLinkTemplate('canonical')) {
       $form['link_to_entity'] = [
         '#type' => 'checkbox',
-        '#title' => $this->t('Link to the @entity_label', $variables),
+        '#title' => $this->t('Link to the @entity_label', ['@entity_label' => $entity_type->getLabel()]),
         '#default_value' => $this->getSetting('link_to_entity'),
       ];
-
-      $field_name = $this->fieldDefinition->getName();
-      $form['link_rel'] = [
-        '#type' => 'radios',
-        '#title' => $this->t('Link destination'),
-        '#options' => [
-          'canonical' => $this->t('Link to view the @entity_label', $variables),
-        ],
-        // Only show this option when linking to the entity is enabled at all.
-        '#states' => [
-          'visible' => [
-            'input[name="fields[' . $field_name . '][settings_edit_form][settings][link_to_entity]"]' => ['checked' => TRUE],
-          ],
-        ],
-        '#default_value' => $this->getSetting('link_rel'),
-        // No point in showing this option if there's only one link template.
-        '#access' => FALSE,
-      ];
-      if ($entity_type->hasLinkTemplate('edit-form')) {
-        $form['link_rel']['#options']['edit-form'] = $this->t('Link to edit the @entity_label', $variables);
-        $form['link_rel']['#access'] = TRUE;
-      }
     }
 
     return $form;
@@ -119,15 +110,10 @@ class StringFormatter extends FormatterBase {
   public function settingsSummary() {
     $summary = [];
     if ($this->getSetting('link_to_entity')) {
-      $label = $this->entityTypeManager->getDefinition($this->fieldDefinition->getTargetEntityTypeId())
-        ->getSingularLabel();
-      $variables = ['@entity_type' => $label];
-      $link_rel = $this->getSetting('link_rel');
-      $summary[] = match ($link_rel) {
-        'canonical' => $this->t('Link to view the @entity_type', $variables),
-        'edit-form' => $this->t('Link to edit the @entity_type', $variables),
-        default => $this->t('Linked to @link_template', ['@link_template' => $link_rel]),
-      };
+      $entity_type = $this->entityTypeManager->getDefinition($this->fieldDefinition->getTargetEntityTypeId());
+      if ($entity_type->hasLinkTemplate('canonical')) {
+        $summary[] = $this->t('Linked to the @entity_label', ['@entity_label' => $entity_type->getLabel()]);
+      }
     }
     return $summary;
   }
@@ -141,7 +127,7 @@ class StringFormatter extends FormatterBase {
     $entity_type = $entity->getEntityType();
 
     $render_as_link = FALSE;
-    if ($this->getSetting('link_to_entity') && !$entity->isNew() && $entity_type->hasLinkTemplate($this->getSetting('link_rel'))) {
+    if ($this->getSetting('link_to_entity') && !$entity->isNew() && $entity_type->hasLinkTemplate('canonical')) {
       $url = $this->getEntityUrl($entity);
       $access = $url->access(return_as_object: TRUE);
       (new CacheableMetadata())
@@ -198,11 +184,8 @@ class StringFormatter extends FormatterBase {
   protected function getEntityUrl(EntityInterface $entity) {
     // For the default revision, the 'revision' link template falls back to
     // 'canonical'.
-    // @see \Drupal\Core\Entity\EntityBase::toUrl()
-    $rel = $this->getSetting('link_rel');
-    if ($rel === 'canonical' && $entity->getEntityType()->hasLinkTemplate('revision')) {
-      $rel = 'revision';
-    }
+    // @see \Drupal\Core\Entity\Entity::toUrl()
+    $rel = $entity->getEntityType()->hasLinkTemplate('revision') ? 'revision' : 'canonical';
     return $entity->toUrl($rel);
   }
 

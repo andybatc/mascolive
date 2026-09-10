@@ -33,19 +33,9 @@ class EntityReferenceFieldItemNormalizer extends FieldItemNormalizer {
   }
 
   /**
-   * Normalizes data into a set of arrays/scalars.
-   *
-   * @param object $field_item
-   *   Data to normalize.
-   * @param string|null $format
-   *   Format the normalization result will be encoded as.
-   * @param array<string, mixed> $context
-   *   Context options for the normalizer.
-   *
-   * @return array
-   *   The normalized data.
+   * {@inheritdoc}
    */
-  public function normalize($field_item, $format = NULL, array $context = []): array {
+  public function normalize($field_item, $format = NULL, array $context = []): array|string|int|float|bool|\ArrayObject|NULL {
     $values = parent::normalize($field_item, $format, $context);
 
     $this->normalizeRootReferenceValue($values, $field_item);

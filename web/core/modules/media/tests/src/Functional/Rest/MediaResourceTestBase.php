@@ -16,9 +16,6 @@ use Drupal\user\Entity\User;
 use Drupal\user\RoleInterface;
 use GuzzleHttp\RequestOptions;
 
-/**
- * Resource test base for the media entity.
- */
 abstract class MediaResourceTestBase extends EntityResourceTestBase {
 
   /**
@@ -52,7 +49,7 @@ abstract class MediaResourceTestBase extends EntityResourceTestBase {
     \Drupal::configFactory()
       ->getEditable('media.settings')
       ->set('standalone_url', TRUE)
-      ->save();
+      ->save(TRUE);
 
     // Provisioning the Media REST resource without the File REST resource does
     // not make sense.
@@ -326,7 +323,7 @@ abstract class MediaResourceTestBase extends EntityResourceTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function doTestPost(): void {
+  public function testPost(): void {
     $file_storage = $this->container->get('entity_type.manager')->getStorage('file');
 
     // Step 1: upload file, results in File entity marked temporary.
@@ -336,7 +333,7 @@ abstract class MediaResourceTestBase extends EntityResourceTestBase {
     $this->assertFalse($file->isPermanent());
 
     // Step 2: create Media entity using the File, makes File entity permanent.
-    parent::doTestPost();
+    parent::testPost();
     $file = $file_storage->loadUnchanged(3);
     $this->assertFalse($file->isTemporary());
     $this->assertTrue($file->isPermanent());
@@ -398,7 +395,7 @@ abstract class MediaResourceTestBase extends EntityResourceTestBase {
     // must revoke the additional permissions that we granted.
     $role = Role::load(static::$auth ? RoleInterface::AUTHENTICATED_ID : RoleInterface::ANONYMOUS_ID);
     $role->revokePermission('create camelids media');
-    $role->save();
+    $role->trustData()->save();
   }
 
   /**

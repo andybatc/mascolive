@@ -7,18 +7,15 @@ namespace Drupal\Tests\jsonapi\Functional;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Url;
-use Drupal\jsonapi\JsonApiSpec;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\Tests\jsonapi\Traits\CommonCollectionFilterAccessTestPatternsTrait;
 use GuzzleHttp\RequestOptions;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * JSON:API integration test for the "MenuLinkContent" content entity type.
+ *
+ * @group jsonapi
  */
-#[Group('jsonapi')]
-#[RunTestsInSeparateProcesses]
 class MenuLinkContentTest extends ResourceTestBase {
 
   use CommonCollectionFilterAccessTestPatternsTrait;
@@ -65,7 +62,7 @@ class MenuLinkContentTest extends ResourceTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUpAuthorization($method): void {
+  protected function setUpAuthorization($method) {
     $this->grantPermissionsToTestedRole(['administer menu']);
   }
 
@@ -78,7 +75,6 @@ class MenuLinkContentTest extends ResourceTestBase {
       'title' => 'Llama Gabilondo',
       'description' => 'Llama Gabilondo',
       'link' => 'https://nl.wikipedia.org/wiki/Llama',
-      'resolvable_uri' => 'https://nl.wikipedia.org/wiki/Llama',
       'weight' => 0,
       'menu_name' => 'main',
     ]);
@@ -90,7 +86,7 @@ class MenuLinkContentTest extends ResourceTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function getExpectedDocument(): array {
+  protected function getExpectedDocument() {
     $base_url = Url::fromUri('base:/jsonapi/menu_link_content/menu_link_content/' . $this->entity->uuid())->setAbsolute();
     $self_url = clone $base_url;
     $version_identifier = 'id:' . $this->entity->getRevisionId();
@@ -100,10 +96,10 @@ class MenuLinkContentTest extends ResourceTestBase {
       'jsonapi' => [
         'meta' => [
           'links' => [
-            'self' => ['href' => JsonApiSpec::SUPPORTED_SPECIFICATION_PERMALINK],
+            'self' => ['href' => 'http://jsonapi.org/format/1.0/'],
           ],
         ],
-        'version' => JsonApiSpec::SUPPORTED_SPECIFICATION_VERSION,
+        'version' => '1.0',
       ],
       'links' => [
         'self' => ['href' => $base_url->toString()],
@@ -118,7 +114,6 @@ class MenuLinkContentTest extends ResourceTestBase {
           'bundle' => 'menu_link_content',
           'link' => [
             'uri' => 'https://nl.wikipedia.org/wiki/Llama',
-            'resolvable_uri' => 'https://nl.wikipedia.org/wiki/Llama',
             'title' => NULL,
             'options' => [],
           ],
@@ -161,7 +156,7 @@ class MenuLinkContentTest extends ResourceTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function getPostDocument(): array {
+  protected function getPostDocument() {
     return [
       'data' => [
         'type' => 'menu_link_content--menu_link_content',
@@ -201,7 +196,7 @@ class MenuLinkContentTest extends ResourceTestBase {
    * @see https://security.drupal.org/node/161923
    */
   public function testLinkOptionsSerialization(): void {
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     $document = $this->getPostDocument();
     $document['data']['attributes']['link']['options'] = "O:44:\"Symfony\\Component\\Process\\Pipes\\WindowsPipes\":8:{s:51:\"\\Symfony\\Component\\Process\\Pipes\\WindowsPipes\0files\";a:1:{i:0;s:3:\"foo\";}s:57:\"\0Symfony\\Component\\Process\\Pipes\\WindowsPipes\0fileHandles\";a:0:{}s:55:\"\0Symfony\\Component\\Process\\Pipes\\WindowsPipes\0readBytes\";a:2:{i:1;i:0;i:2;i:0;}s:59:\"\0Symfony\\Component\\Process\\Pipes\\WindowsPipes\0disableOutput\";b:0;s:5:\"pipes\";a:0:{}s:58:\"\0Symfony\\Component\\Process\\Pipes\\AbstractPipes\0inputBuffer\";s:0:\"\";s:52:\"\0Symfony\\Component\\Process\\Pipes\\AbstractPipes\0input\";N;s:54:\"\0Symfony\\Component\\Process\\Pipes\\AbstractPipes\0blocked\";b:1;}";

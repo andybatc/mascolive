@@ -65,7 +65,8 @@ abstract class ConditionFundamentals {
   /**
    * {@inheritdoc}
    */
-  public function count(): int {
+  #[\ReturnTypeWillChange]
+  public function count() {
     return count($this->conditions);
   }
 
@@ -87,26 +88,6 @@ abstract class ConditionFundamentals {
         $this->conditions[$key]['field'] = clone($condition['field']);
       }
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setQuery(QueryInterface $query): static {
-    $this->query = $query;
-    foreach ($this->conditions as $condition) {
-      if ($condition['field'] instanceof ConditionInterface) {
-        $condition['field']->setQuery($query);
-      }
-    }
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getQuery(): QueryInterface {
-    return $this->query;
   }
 
 }

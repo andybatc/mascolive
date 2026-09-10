@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Core\DefaultContent;
 
 use Drupal\Component\Graph\Graph;
-use Drupal\Component\Serialization\Json;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\SortArray;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
@@ -20,9 +19,7 @@ use Symfony\Component\Finder\Finder as SymfonyFinder;
 final class Finder {
 
   /**
-   * The content entity data to import.
-   *
-   * The entities are in dependency order, keyed by entity UUID.
+   * The content entity data to import, in dependency order, keyed by entity UUID.
    *
    * @var array<string, array<mixed>>
    */
@@ -30,14 +27,11 @@ final class Finder {
 
   public function __construct(string $path) {
     try {
-      // Scan for all YAML and JSON files in the content directory.
+      // Scan for all YAML files in the content directory.
       $finder = SymfonyFinder::create()
         ->in($path)
         ->files()
-        ->name([
-          '*.' . Yaml::getFileExtension(),
-          '*.' . Json::getFileExtension(),
-        ]);
+        ->name('*.yml');
     }
     catch (DirectoryNotFoundException) {
       $this->data = [];
@@ -48,11 +42,7 @@ final class Finder {
     /** @var \Symfony\Component\Finder\SplFileInfo $file */
     foreach ($finder as $file) {
       /** @var array{_meta: array{uuid: string|null, depends: array<string, string>|null}} $decoded */
-      $decoded = (match ($file->getExtension()) {
-        Yaml::getFileExtension() => Yaml::decode(...),
-        Json::getFileExtension() => Json::decode(...),
-      })($file->getContents());
-
+      $decoded = Yaml::decode($file->getContents());
       $decoded['_meta']['path'] = $file->getPathname();
       $uuid = $decoded['_meta']['uuid'] ?? throw new ImportException($decoded['_meta']['path'] . ' does not have a UUID.');
       $files[$uuid] = $decoded;

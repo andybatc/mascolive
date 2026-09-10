@@ -13,12 +13,10 @@ use Drupal\Core\TypedData\DataDefinition;
  */
 #[FieldType(
   id: "integer",
-  label: new TranslatableMarkup("Integer"),
+  label: new TranslatableMarkup("Number (integer)"),
   description: [
-    new TranslatableMarkup("Number without decimal part or fraction"),
-    new TranslatableMarkup("Values are positive, negative, or zero"),
-    new TranslatableMarkup("Maximum values depend on the system"),
-    new TranslatableMarkup("Examples: 123, -123, 0, 3 (pi)"),
+    new TranslatableMarkup("Number without decimals"),
+    new TranslatableMarkup("For example, 123"),
   ],
   category: "number",
   weight: -50,
@@ -73,15 +71,13 @@ class IntegerItem extends NumericItemBase {
     if ($this->getSetting('unsigned')) {
       $constraint_manager = \Drupal::typedDataManager()->getValidationConstraintManager();
       $constraints[] = $constraint_manager->create('ComplexData', [
-        'properties' => [
-          'value' => [
-            'Range' => [
-              'min' => 0,
-              'minMessage' => $this->t('%name: The integer must be larger or equal to %min.', [
-                '%name' => $this->getFieldDefinition()->getLabel(),
-                '%min' => 0,
-              ]),
-            ],
+        'value' => [
+          'Range' => [
+            'min' => 0,
+            'minMessage' => $this->t('%name: The integer must be larger or equal to %min.', [
+              '%name' => $this->getFieldDefinition()->getLabel(),
+              '%min' => 0,
+            ]),
           ],
         ],
       ]);

@@ -6,15 +6,13 @@ namespace Drupal\Tests\demo_umami_content\Functional;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Tests\BrowserTestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests that uninstalling default content removes created content.
+ *
+ * @group demo_umami_content
+ * @group #slow
  */
-#[Group('demo_umami_content')]
-#[Group('#slow')]
-#[RunTestsInSeparateProcesses]
 class UninstallDefaultContentTest extends BrowserTestBase {
 
   /**
@@ -26,16 +24,17 @@ class UninstallDefaultContentTest extends BrowserTestBase {
    * Tests uninstalling content removes created entities.
    */
   public function testReinstall() {
-    $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
-    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+    $module_installer = $this->container->get('module_installer');
 
     // Test imported blocks on profile install.
+    $block_storage = $this->container->get('entity_type.manager')->getStorage('block_content');
     $this->assertImportedCustomBlock($block_storage);
 
     // Test imported nodes on profile install.
+    $node_storage = $this->container->get('entity_type.manager')->getStorage('node');
     $this->assertRecipesImported($node_storage);
 
-    $count = \Drupal::entityTypeManager()->getStorage('node')->getQuery()
+    $count = $node_storage->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', 'article')
       ->count()
@@ -43,9 +42,11 @@ class UninstallDefaultContentTest extends BrowserTestBase {
     $this->assertGreaterThan(0, $count);
 
     // Uninstall the module.
-    \Drupal::service('module_installer')->uninstall(['demo_umami_content']);
-    $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
-    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+    $module_installer->uninstall(['demo_umami_content']);
+
+    // Reset storage cache.
+    $block_storage->resetCache();
+    $node_storage->resetCache();
 
     // Assert the removal of blocks on uninstall.
     foreach ($this->expectedBlocks() as $block_info) {
@@ -75,9 +76,7 @@ class UninstallDefaultContentTest extends BrowserTestBase {
     $this->assertEquals(0, $count);
 
     // Re-install and assert imported content.
-    \Drupal::service('module_installer')->install(['demo_umami_content']);
-    $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
-    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+    $module_installer->install(['demo_umami_content']);
     $this->assertRecipesImported($node_storage);
     $this->assertArticlesImported($node_storage);
     $this->assertImportedCustomBlock($block_storage);
@@ -118,7 +117,7 @@ class UninstallDefaultContentTest extends BrowserTestBase {
     $nodes = $node_storage->loadByProperties(['title' => 'The umami guide to our favorite mushrooms']);
     $this->assertCount(1, $nodes);
     $node = reset($nodes);
-    $this->assertStringContainsString('One of the best things about mushrooms is their versatility', $node->get('field_body')->value);
+    $this->assertStringContainsString('One of the best things about mushrooms is their versatility', $node->body->value);
   }
 
   /**

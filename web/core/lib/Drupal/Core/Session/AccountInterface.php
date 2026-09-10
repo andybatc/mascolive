@@ -34,8 +34,7 @@ interface AccountInterface {
    * Returns a list of roles.
    *
    * @param bool $exclude_locked_roles
-   *   (optional) If TRUE, locked roles (anonymous/authenticated) are not
-   *   returned.
+   *   (optional) If TRUE, locked roles (anonymous/authenticated) are not returned.
    *
    * @return array
    *   List of role IDs.
@@ -51,18 +50,7 @@ interface AccountInterface {
    * @return bool
    *   TRUE if the user has the permission, FALSE otherwise.
    */
-  public function hasPermission(string $permission);
-
-  /**
-   * Whether a user has a certain role.
-   *
-   * @param string $rid
-   *   The role ID to check.
-   *
-   * @return bool
-   *   Returns TRUE if the user has the role, otherwise FALSE.
-   */
-  public function hasRole(string $rid);
+  public function hasPermission(/* string */$permission);
 
   /**
    * Returns TRUE if the account is authenticated.

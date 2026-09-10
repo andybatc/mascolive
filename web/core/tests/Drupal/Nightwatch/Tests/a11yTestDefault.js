@@ -39,6 +39,18 @@ const testCases = [
       },
     },
   },
+  // @todo remove the heading and duplicate id rules below in
+  //   https://drupal.org/i/3318398.
+  {
+    name: 'Search',
+    path: '/search/node',
+    options: {
+      rules: {
+        'heading-order': { enabled: false },
+        'duplicate-id-aria': { enabled: false },
+      },
+    },
+  },
 ];
 
 testCases.forEach((testCase) => {

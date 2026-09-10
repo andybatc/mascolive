@@ -1,14 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Drupal\config_test;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\image\ImageDerivativeUtilities;
 
 /**
  * Form controller for the test config edit forms.
@@ -53,7 +50,7 @@ class ConfigTestForm extends EntityForm {
     ];
     if ($this->moduleHandler->moduleExists('image')) {
       $form['style']['#access'] = TRUE;
-      $form['style']['#options'] = \Drupal::service(ImageDerivativeUtilities::class)->styleOptions();
+      $form['style']['#options'] = image_style_options();
     }
 
     // The main premise of entity forms is that we get to work with an entity
@@ -82,7 +79,7 @@ class ConfigTestForm extends EntityForm {
     ];
     $form['size_wrapper']['size_submit'] = [
       '#type' => 'submit',
-      '#value' => 'Change size',
+      '#value' => t('Change size'),
       '#attributes' => [
         'class' => ['js-hide'],
       ],
@@ -102,7 +99,7 @@ class ConfigTestForm extends EntityForm {
 
     $form['langcode'] = [
       '#type' => 'language_select',
-      '#title' => 'Language',
+      '#title' => t('Language'),
       '#languages' => LanguageInterface::STATE_ALL,
       '#default_value' => $entity->language()->getId(),
     ];

@@ -27,10 +27,8 @@ layout_twocol:
       label: Top
     first:
       label: First
-      translation context: 'Layout region'
     second:
       label: Second
-      translation context: 'Layout region'
     bottom:
       label: Bottom
 
@@ -79,13 +77,10 @@ layout_threecol_25_50_25:
       label: Top
     first:
       label: First
-      translation context: 'Layout region'
     second:
       label: Second
-      translation context: 'Layout region'
     third:
       label: Third
-      translation context: 'Layout region'
     bottom:
       label: Bottom
 
@@ -105,12 +100,9 @@ layout_threecol_33_34_33:
       label: Top
     first:
       label: First
-      translation context: 'Layout region'
     second:
       label: Second
-      translation context: 'Layout region'
     third:
       label: Third
-      translation context: 'Layout region'
     bottom:
       label: Bottom

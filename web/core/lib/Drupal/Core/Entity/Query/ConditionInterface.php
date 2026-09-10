@@ -79,34 +79,15 @@ interface ConditionInterface {
    * data structure directly and manipulate it before it gets compiled.
    *
    * @return array
-   *   An array of all conditions in this conditional clause.
    */
   public function &conditions();
 
   /**
    * Compiles this conditional clause.
    *
-   * @param \Drupal\Core\Entity\Query\QueryInterface $query
+   * @param $query
    *   The query object this conditional clause belongs to.
    */
   public function compile($query);
-
-  /**
-   * Sets query that is holding this condition.
-   *
-   * @param \Drupal\Core\Entity\Query\QueryInterface $query
-   *   New query to use.
-   *
-   * @return static
-   */
-  public function setQuery(QueryInterface $query): static;
-
-  /**
-   * Gets the query that is holding this condition.
-   *
-   * @return \Drupal\Core\Entity\Query\QueryInterface
-   *   The query object.
-   */
-  public function getQuery(): QueryInterface;
 
 }

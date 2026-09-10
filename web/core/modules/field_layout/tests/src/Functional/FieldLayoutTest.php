@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Drupal\Tests\field_layout\Functional;
 
 use Drupal\Tests\BrowserTestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests using field layout for entity displays.
+ *
+ * @group field_layout
  */
-#[Group('field_layout')]
-#[IgnoreDeprecations]
-#[RunTestsInSeparateProcesses]
 class FieldLayoutTest extends BrowserTestBase {
 
   /**
@@ -68,7 +64,7 @@ class FieldLayoutTest extends BrowserTestBase {
     $this->assertSession()->elementExists('css', '.layout--onecol');
     $this->assertSession()->elementTextContains('css', '.layout__region--content', 'The node body');
 
-    $this->drupalGet('admin/structure/types/manage/article/display/default');
+    $this->drupalGet('admin/structure/types/manage/article/display');
     $this->assertEquals(['Content', 'Disabled'], $this->getRegionTitles());
     $this->assertSession()->optionExists('fields[body][region]', 'content');
   }
@@ -77,14 +73,14 @@ class FieldLayoutTest extends BrowserTestBase {
    * Tests that changes to the regions still leave the fields visible.
    */
   public function testRegionChanges(): void {
-    $this->drupalGet('admin/structure/types/manage/article/display/default');
+    $this->drupalGet('admin/structure/types/manage/article/display');
     $this->assertEquals(['Content', 'Disabled'], $this->getRegionTitles());
     $this->assertSession()->optionExists('fields[body][region]', 'content');
 
     \Drupal::state()->set('field_layout_test.alter_regions', TRUE);
     \Drupal::service('plugin.cache_clearer')->clearCachedDefinitions();
 
-    $this->drupalGet('admin/structure/types/manage/article/display/default');
+    $this->drupalGet('admin/structure/types/manage/article/display');
     $this->assertEquals(['Foo', 'Disabled'], $this->getRegionTitles());
     $this->assertSession()->optionExists('fields[body][region]', 'hidden');
   }
@@ -95,7 +91,7 @@ class FieldLayoutTest extends BrowserTestBase {
    * @return string[]
    *   An array of region titles.
    */
-  protected function getRegionTitles(): array {
+  protected function getRegionTitles() {
     $region_titles = [];
     $region_title_elements = $this->getSession()->getPage()->findAll('css', '.region-title td');
     /** @var \Behat\Mink\Element\NodeElement[] $region_title_elements */

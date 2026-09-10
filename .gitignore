@@ -9,6 +9,7 @@
 /web/sites/default/settings*.php
 /web/sites/default/services*.yml
 /web/sites/default/files/
+/web/sites/default/private/
 
 # --- Junk local de testing ---
 /.playwright-mcp/

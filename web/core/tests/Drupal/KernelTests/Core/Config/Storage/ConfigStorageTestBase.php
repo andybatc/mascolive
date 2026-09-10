@@ -21,15 +21,11 @@ use Drupal\KernelTests\KernelTestBase;
 abstract class ConfigStorageTestBase extends KernelTestBase {
 
   /**
-   * The configuration storage.
-   *
    * @var \Drupal\Core\Config\StorageInterface
    */
   protected $storage;
 
   /**
-   * An invalid configuration storage.
-   *
    * @var \Drupal\Core\Config\StorageInterface
    */
   protected $invalidStorage;
@@ -66,9 +62,9 @@ abstract class ConfigStorageTestBase extends KernelTestBase {
     // Checking whether an existing name exists returns TRUE.
     $this->assertTrue($this->storage->exists($name));
 
-    // Writing and re-reading the identical data again still returns it.
-    $this->storage->write($name, $data);
-    $this->assertSame($data, $this->read($name));
+    // Writing the identical data again still returns TRUE.
+    $result = $this->storage->write($name, $data);
+    $this->assertTrue($result);
 
     // Listing all names returns all.
     $this->storage->write('system.performance', []);
@@ -150,7 +146,7 @@ abstract class ConfigStorageTestBase extends KernelTestBase {
       $this->invalidStorage->delete($name);
       $this->fail('Exception not thrown upon deleting from a non-existing storage bin.');
     }
-    catch (\Exception) {
+    catch (\Exception $e) {
       // An exception occurred as expected; just continue.
     }
 
@@ -278,24 +274,12 @@ abstract class ConfigStorageTestBase extends KernelTestBase {
     $this->assertSame(['collection.sub.another', 'collection.sub.new'], $this->storage->getAllCollectionNames());
   }
 
-  /**
-   * Reads configuration data from the storage.
-   */
   abstract protected function read($name);
 
-  /**
-   * Inserts configuration data in the storage.
-   */
   abstract protected function insert($name, $data);
 
-  /**
-   * Updates configuration data in the storage.
-   */
   abstract protected function update($name, $data);
 
-  /**
-   * Deletes configuration data from the storage.
-   */
   abstract protected function delete($name);
 
 }

@@ -4,7 +4,6 @@ namespace Drupal\Core\StackMiddleware;
 
 use Drupal\Core\DrupalKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -13,28 +12,40 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
  */
 class KernelPreHandle implements HttpKernelInterface {
 
-  public function __construct(
-    protected HttpKernelInterface $httpKernel,
-    protected DrupalKernelInterface $drupalKernel,
-    protected RequestStack $requestStack,
-  ) {}
+  /**
+   * The wrapped HTTP kernel.
+   *
+   * @var \Symfony\Component\HttpKernel\HttpKernelInterface
+   */
+  protected $httpKernel;
+
+  /**
+   * The main Drupal kernel.
+   *
+   * @var \Drupal\Core\DrupalKernelInterface
+   */
+  protected $drupalKernel;
+
+  /**
+   * Constructs a new KernelPreHandle instance.
+   *
+   * @param \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel
+   *   The wrapped HTTP kernel.
+   * @param \Drupal\Core\DrupalKernelInterface $drupal_kernel
+   *   The main Drupal kernel.
+   */
+  public function __construct(HttpKernelInterface $http_kernel, DrupalKernelInterface $drupal_kernel) {
+    $this->httpKernel = $http_kernel;
+    $this->drupalKernel = $drupal_kernel;
+  }
 
   /**
    * {@inheritdoc}
    */
   public function handle(Request $request, $type = self::MAIN_REQUEST, $catch = TRUE): Response {
-    // \Drupal\Core\DrupalKernel::preHandle() pushes requests to the stack.
     $this->drupalKernel->preHandle($request);
 
-    try {
-      return $this->httpKernel->handle($request, $type, $catch);
-    }
-    finally {
-      // Main requests are popped in \Drupal\Core\DrupalKernel::terminate().
-      if ($type !== self::MAIN_REQUEST) {
-        $this->requestStack->pop();
-      }
-    }
+    return $this->httpKernel->handle($request, $type, $catch);
   }
 
 }

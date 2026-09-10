@@ -4,23 +4,20 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\views\Functional\Plugin;
 
-use Drupal\filter\FilterFormatRepositoryInterface;
 use Drupal\node\Entity\Node;
 use Drupal\Tests\content_translation\Traits\ContentTranslationTestTrait;
 use Drupal\Tests\Traits\Core\PathAliasTestTrait;
 use Drupal\Tests\views\Functional\ViewTestBase;
 use Drupal\Tests\WaitTerminateTestTrait;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 // cspell:ignore português
+
 /**
  * Tests the feed display plugin with translated content.
  *
+ * @group views
  * @see \Drupal\views\Plugin\views\display\Feed
  */
-#[Group('views')]
-#[RunTestsInSeparateProcesses]
 class DisplayFeedTranslationTest extends ViewTestBase {
 
   use ContentTranslationTestTrait;
@@ -88,8 +85,8 @@ class DisplayFeedTranslationTest extends ViewTestBase {
     // that hold a list of languages.
     $this->rebuildContainer();
 
-    // The \Drupal\path_alias\AliasPrefixList service performs cache clears
-    // after Drupal has flushed the response to the client. We use
+    // The \Drupal\path_alias\AliasWhitelist service performs cache clears after
+    // Drupal has flushed the response to the client. We use
     // WaitTerminateTestTrait to wait for Drupal to do this before continuing.
     $this->setWaitForTerminate();
   }
@@ -104,7 +101,7 @@ class DisplayFeedTranslationTest extends ViewTestBase {
       'body' => [
         0 => [
           'value' => 'Something in English.',
-          'format' => \Drupal::service(FilterFormatRepositoryInterface::class)->getDefaultFormat()->id(),
+          'format' => filter_default_format(),
         ],
       ],
       'langcode' => 'en',
@@ -143,7 +140,7 @@ class DisplayFeedTranslationTest extends ViewTestBase {
    * @param \Drupal\node\Entity\Node $node
    *   The node entity that's been created.
    */
-  protected function checkFeedResults($link_style, Node $node): void {
+  protected function checkFeedResults($link_style, Node $node) {
     /** @var \Drupal\Core\Language\LanguageManagerInterface $languageManager */
     $language_manager = \Drupal::languageManager()->reset();
 

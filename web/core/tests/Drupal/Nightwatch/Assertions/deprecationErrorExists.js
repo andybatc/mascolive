@@ -12,16 +12,12 @@ module.exports.assertion = function (expected) {
         : [];
 
     return deprecationMessages.map((message) =>
-      message.replace(/.*\[Deprecation\] /, ''),
+      message.replace('[Deprecation] ', ''),
     );
   };
   this.command = (callback) =>
     // eslint-disable-next-line prefer-arrow-callback
-    this.api.execute(
-      function () {
-        return window.sessionStorage.getItem('js_testing_log_test.warnings');
-      },
-      [],
-      callback,
-    );
+    this.api.execute(function () {
+      return window.sessionStorage.getItem('js_testing_log_test.warnings');
+    }, callback);
 };

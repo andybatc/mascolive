@@ -31,7 +31,7 @@ trait AssertBreadcrumbTrait {
    *   (optional) An associative array whose keys are link paths and whose
    *   values are link titles (not sanitized) of an expected active trail in a
    *   menu tree output on the page.
-   * @param bool $last_active
+   * @param $last_active
    *   (optional) Whether the last link in $tree is expected to be active (TRUE)
    *   or just to be in the active trail (FALSE).
    * @param string $active_trail_class
@@ -110,15 +110,9 @@ trait AssertBreadcrumbTrait {
   /**
    * Returns the breadcrumb contents of the current page in the internal browser.
    */
-  protected function getBreadcrumbParts(): array {
+  protected function getBreadcrumbParts() {
     $parts = [];
-    $xpath = '//nav[@aria-labelledby="system-breadcrumb"]//ol/li/a';
-    if (method_exists($this, 'getNodeElementsByXpath')) {
-      $elements = $this->getNodeElementsByXpath('//nav[@aria-labelledby="system-breadcrumb"]//ol/li/a');
-    }
-    else {
-      $elements = $this->xpath($xpath);
-    }
+    $elements = $this->xpath('//nav[@aria-labelledby="system-breadcrumb"]//ol/li/a');
     if (!empty($elements)) {
       foreach ($elements as $element) {
         $parts[] = [

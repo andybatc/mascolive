@@ -3,10 +3,7 @@
 namespace Drupal\views\Routing;
 
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\DependencyInjection\AutowireTrait;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\views\ContextualLinksHelper;
 use Drupal\views\Plugin\views\display\Page;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
 use Drupal\views\Views;
@@ -14,19 +11,13 @@ use Drupal\views\Views;
 /**
  * Defines a page controller to execute and render a view.
  */
-class ViewPageController implements ContainerInjectionInterface {
-
-  use AutowireTrait;
-
-  public function __construct(
-    protected readonly ContextualLinksHelper $contextualLinks,
-  ) {}
+class ViewPageController {
 
   /**
    * Handler a response for a given view and display.
    *
    * @param string $view_id
-   *   The ID of the view.
+   *   The ID of the view
    * @param string $display_id
    *   The ID of the display.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
@@ -69,7 +60,7 @@ class ViewPageController implements ContainerInjectionInterface {
       $build = $class::buildBasicRenderable($view_id, $display_id, $args, $route);
       Page::setPageRenderArray($build);
 
-      $this->contextualLinks->addLinks($build, 'page', $display_id, $build);
+      views_add_contextual_links($build, 'page', $display_id, $build);
 
       return $build;
     }

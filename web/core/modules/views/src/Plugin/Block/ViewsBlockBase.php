@@ -8,7 +8,6 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\views\ContextualLinksHelper;
 use Drupal\views\ViewExecutableFactory;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -48,11 +47,22 @@ abstract class ViewsBlockBase extends BlockBase implements ContainerFactoryPlugi
   protected $user;
 
   /**
-   * The Views contextual links service.
+   * Constructs a \Drupal\views\Plugin\Block\ViewsBlockBase object.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin ID for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\views\ViewExecutableFactory $executable_factory
+   *   The view executable factory.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
+   *   The views storage.
+   * @param \Drupal\Core\Session\AccountInterface $user
+   *   The current user.
    */
-  protected ContextualLinksHelper $contextualLinks;
-
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ViewExecutableFactory $executable_factory, EntityStorageInterface $storage, AccountInterface $user, ?ContextualLinksHelper $contextual_links = NULL) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ViewExecutableFactory $executable_factory, EntityStorageInterface $storage, AccountInterface $user) {
     $this->pluginId = $plugin_id;
     $delta = $this->getDerivativeId();
     [$name, $this->displayID] = explode('-', $delta, 2);
@@ -61,11 +71,6 @@ abstract class ViewsBlockBase extends BlockBase implements ContainerFactoryPlugi
     $this->view = $executable_factory->get($view);
     $this->displaySet = $this->view->setDisplay($this->displayID);
     $this->user = $user;
-    if (!$contextual_links) {
-      @trigger_error('Calling ' . __METHOD__ . '() without the $contextual_links argument is deprecated in drupal:11.4.0 and will be required in drupal:13.0.0. See https://www.drupal.org/node/3382344', E_USER_DEPRECATED);
-      $contextual_links = \Drupal::service(ContextualLinksHelper::class);
-    }
-    $this->contextualLinks = $contextual_links;
 
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -78,8 +83,7 @@ abstract class ViewsBlockBase extends BlockBase implements ContainerFactoryPlugi
       $configuration, $plugin_id, $plugin_definition,
       $container->get('views.executable'),
       $container->get('entity_type.manager')->getStorage('view'),
-      $container->get('current_user'),
-      $container->get(ContextualLinksHelper::class)
+      $container->get('current_user')
     );
   }
 
@@ -188,14 +192,7 @@ abstract class ViewsBlockBase extends BlockBase implements ContainerFactoryPlugi
     ];
 
     if ($this->view->storage->access('edit') && \Drupal::moduleHandler()->moduleExists('views_ui')) {
-      $form['views_label']['#description'] = $this->t('Changing the title here means it cannot be dynamically altered anymore. (Try changing it directly in <a href=":url">@name</a>.)',
-        [
-          ':url' => Url::fromRoute('entity.view.edit_display_form', [
-            'view' => $this->view->storage->id(),
-            'display_id' => $this->displayID,
-          ])->toString(),
-          '@name' => $this->view->storage->label(),
-        ]);
+      $form['views_label']['#description'] = $this->t('Changing the title here means it cannot be dynamically altered anymore. (Try changing it directly in <a href=":url">@name</a>.)', [':url' => Url::fromRoute('entity.view.edit_display_form', ['view' => $this->view->storage->id(), 'display_id' => $this->displayID])->toString(), '@name' => $this->view->storage->label()]);
     }
     else {
       $form['views_label']['#description'] = $this->t('Changing the title here means it cannot be dynamically altered anymore.');
@@ -222,8 +219,8 @@ abstract class ViewsBlockBase extends BlockBase implements ContainerFactoryPlugi
    *
    * @param string|array $output
    *   A string|array representing the block. This will be modified to be a
-   *   renderable array, containing the optional '#contextual_links' property
-   *   (if there are any contextual links associated with the block).
+   *   renderable array, containing the optional '#contextual_links' property (if
+   *   there are any contextual links associated with the block).
    * @param string $block_type
    *   The type of the block. If it's 'block' it's a regular views display,
    *   but 'exposed_filter' exist as well.
@@ -238,12 +235,12 @@ abstract class ViewsBlockBase extends BlockBase implements ContainerFactoryPlugi
         $output = ['#markup' => $output];
       }
 
-      // \Drupal\views\ContextualLinksHelper::addLinks() needs the following
-      // information to be attached to the view.
+      // views_add_contextual_links() needs the following information in
+      // order to be attached to the view.
       $output['#view_id'] = $this->view->storage->id();
       $output['#view_display_show_admin_links'] = $this->view->getShowAdminLinks();
       $output['#view_display_plugin_id'] = $this->view->display_handler->getPluginId();
-      $this->contextualLinks->addLinks($output, $block_type, $this->displayID);
+      views_add_contextual_links($output, $block_type, $this->displayID);
     }
   }
 
@@ -259,13 +256,6 @@ abstract class ViewsBlockBase extends BlockBase implements ContainerFactoryPlugi
    */
   public function getViewExecutable() {
     return $this->view;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function createPlaceholder(): bool {
-    return TRUE;
   }
 
 }

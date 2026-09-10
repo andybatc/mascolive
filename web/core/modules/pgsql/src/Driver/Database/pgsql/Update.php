@@ -13,6 +13,13 @@ class Update extends QueryUpdate {
   /**
    * {@inheritdoc}
    */
+  public function __construct(Connection $connection, string $table, array $options = []) {
+    // @todo Remove the __construct in Drupal 11.
+    // @see https://www.drupal.org/project/drupal/issues/3256524
+    parent::__construct($connection, $table, $options);
+    unset($this->queryOptions['return']);
+  }
+
   public function execute() {
     $max_placeholder = 0;
     $blobs = [];
@@ -71,20 +78,14 @@ class Update extends QueryUpdate {
       }
     }
 
-    if ($this->connection->inTransaction()) {
-      $savepoint = $this->connection->startTransaction('mimic_implicit_commit');
-    }
+    $this->connection->addSavepoint();
     try {
       $stmt->execute(NULL, $this->queryOptions);
-      if (isset($savepoint)) {
-        $savepoint->commitOrRelease();
-      }
+      $this->connection->releaseSavepoint();
       return $stmt->rowCount();
     }
     catch (\Exception $e) {
-      if (isset($savepoint)) {
-        $savepoint->rollback();
-      }
+      $this->connection->rollbackSavepoint();
       $this->connection->exceptionHandler()->handleExecutionException($e, $stmt, [], $this->queryOptions);
     }
   }

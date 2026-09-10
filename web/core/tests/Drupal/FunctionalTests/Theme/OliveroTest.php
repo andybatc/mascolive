@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Drupal\FunctionalTests\Theme;
 
-use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\Tests\BrowserTestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 
 /**
  * Tests the Olivero theme.
+ *
+ * @group olivero
  */
-#[Group('olivero')]
-#[RunTestsInSeparateProcesses]
 class OliveroTest extends BrowserTestBase {
 
   /**
@@ -59,7 +57,7 @@ class OliveroTest extends BrowserTestBase {
 
     // Optional configuration.
     \Drupal::service('module_installer')->install(
-      ['search', 'image', 'help', 'node', 'search_node']
+      ['search', 'image', 'help', 'node']
     );
     $this->rebuildAll();
     $this->drupalLogin(
@@ -86,7 +84,7 @@ class OliveroTest extends BrowserTestBase {
 
     // Enable modules that will exercise preprocess block logic.
     \Drupal::service('module_installer')->install(
-      ['search', 'menu_link_content', 'search_node']
+      ['search', 'menu_link_content']
     );
 
     // Add at least one link to the main menu.
@@ -132,7 +130,6 @@ class OliveroTest extends BrowserTestBase {
     $this->drupalGet('admin/appearance');
     $this->cssSelect('a[title="Install <strong>Test theme</strong> as default theme"]')[0]->click();
     $this->cssSelect('a[title="Uninstall Olivero theme"]')[0]->click();
-    $this->submitForm([], 'Uninstall');
     $this->assertSession()->pageTextContains('The Olivero theme has been uninstalled.');
   }
 
@@ -163,18 +160,6 @@ class OliveroTest extends BrowserTestBase {
       $this->assertTrue($link->hasAttribute('pager-test'), 'Pager item has attribute pager-test');
       $this->assertTrue($link->hasClass('lizards'));
     }
-  }
-
-  /**
-   * Tests slogan of system branding block.
-   */
-  public function testSystemSiteBrandingSlogan(): void {
-    $this->config('system.site')
-      ->set('slogan', 'Community carpentry')
-      ->save();
-
-    $this->drupalGet('<front>');
-    $this->assertSession()->pageTextContains('Community carpentry');
   }
 
 }

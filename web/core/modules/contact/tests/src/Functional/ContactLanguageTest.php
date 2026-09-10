@@ -6,9 +6,6 @@ namespace Drupal\Tests\contact\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\language\Traits\LanguageTestTrait;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests contact messages with language module.
@@ -16,10 +13,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * This is to ensure that a contact form by default does not show the language
  * select, but it does so when it's enabled from the content language settings
  * page.
+ *
+ * @group contact
  */
-#[Group('contact')]
-#[IgnoreDeprecations]
-#[RunTestsInSeparateProcesses]
 class ContactLanguageTest extends BrowserTestBase {
 
   use LanguageTestTrait;

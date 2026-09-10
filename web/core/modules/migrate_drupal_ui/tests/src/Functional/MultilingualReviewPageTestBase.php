@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\migrate_drupal_ui\Functional;
 
+use Drupal\Tests\migrate_drupal\Traits\CreateTestContentEntitiesTrait;
+
 /**
  * Provides a base class for testing the review step of the Upgrade form.
  *
@@ -11,10 +13,12 @@ namespace Drupal\Tests\migrate_drupal_ui\Functional;
  */
 abstract class MultilingualReviewPageTestBase extends MigrateUpgradeTestBase {
 
+  use CreateTestContentEntitiesTrait;
+
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['migrate_drupal_ui', 'shortcut', 'comment'];
+  protected static $modules = ['migrate_drupal_ui'];
 
   /**
    * Tests the migrate upgrade review form.

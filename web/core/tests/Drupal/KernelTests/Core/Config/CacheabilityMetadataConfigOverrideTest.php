@@ -6,14 +6,12 @@ namespace Drupal\KernelTests\Core\Config;
 
 use Drupal\config_override_test\Cache\PirateDayCacheContext;
 use Drupal\KernelTests\KernelTestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests if configuration overrides correctly affect cacheability metadata.
+ *
+ * @group config
  */
-#[Group('config')]
-#[RunTestsInSeparateProcesses]
 class CacheabilityMetadataConfigOverrideTest extends KernelTestBase {
 
   /**
@@ -22,6 +20,7 @@ class CacheabilityMetadataConfigOverrideTest extends KernelTestBase {
   protected static $modules = [
     'block',
     'block_content',
+    'config',
     'config_override_test',
     'path_alias',
     'system',
@@ -35,10 +34,7 @@ class CacheabilityMetadataConfigOverrideTest extends KernelTestBase {
     parent::setUp();
     $this->container->get('theme_installer')->install(['stark']);
     $this->installEntitySchema('block_content');
-    $this->installConfig([
-      'block_content',
-      'config_override_test',
-    ]);
+    $this->installConfig(['config_override_test']);
   }
 
   /**
@@ -80,7 +76,18 @@ class CacheabilityMetadataConfigOverrideTest extends KernelTestBase {
 
     // Check that the cacheability metadata is correct.
     $this->assertEquals(['pirate_day'], $block->getCacheContexts());
-    $this->assertEquals(['config:block_list', 'pirate-day-tag'], $block->getCacheTags());
+    $this->assertEquals(['config:block.block.call_to_action', 'pirate-day-tag'], $block->getCacheTags());
+    $this->assertEquals(PirateDayCacheContext::PIRATE_DAY_MAX_AGE, $block->getCacheMaxAge());
+
+    // Check that duplicating a config entity does not have the original config
+    // entity's cache tag.
+    $this->assertEquals(['config:block.block.', 'pirate-day-tag'], $block->createDuplicate()->getCacheTags());
+
+    // Check that renaming a config entity does not have the original config
+    // entity's cache tag.
+    $block->set('id', 'call_to_looting')->save();
+    $this->assertEquals(['pirate_day'], $block->getCacheContexts());
+    $this->assertEquals(['config:block.block.call_to_looting', 'pirate-day-tag'], $block->getCacheTags());
     $this->assertEquals(PirateDayCacheContext::PIRATE_DAY_MAX_AGE, $block->getCacheMaxAge());
   }
 

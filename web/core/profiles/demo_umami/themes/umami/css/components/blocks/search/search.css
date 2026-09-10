@@ -3,13 +3,17 @@
  * This file is used to style the search block.
  */
 
+.search-block-form {
+  display: none;
+}
+
 @media screen and (min-width: 48em) {
   .search-block-form {
     display: block;
   }
 }
 
-.search-block-form {
+.search-block-form form {
   display: flex;
   margin-top: 1.3rem;
   margin-bottom: 1.2rem;

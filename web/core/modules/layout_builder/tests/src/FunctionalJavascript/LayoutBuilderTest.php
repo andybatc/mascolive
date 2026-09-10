@@ -5,23 +5,19 @@ declare(strict_types=1);
 namespace Drupal\Tests\layout_builder\FunctionalJavascript;
 
 use Drupal\block_content\Entity\BlockContent;
+use Drupal\block_content\Entity\BlockContentType;
 use Drupal\Core\Url;
-use Drupal\filter\FilterFormatRepositoryInterface;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
-use Drupal\Tests\block_content\Traits\BlockContentCreationTrait;
 use Drupal\Tests\contextual\FunctionalJavascript\ContextualLinkClickTrait;
 use Drupal\Tests\system\Traits\OffCanvasTestTrait;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the Layout Builder UI.
+ *
+ * @group layout_builder
  */
-#[Group('layout_builder')]
-#[RunTestsInSeparateProcesses]
 class LayoutBuilderTest extends WebDriverTestBase {
 
-  use BlockContentCreationTrait;
   use ContextualLinkClickTrait;
   use LayoutBuilderSortTrait;
   use OffCanvasTestTrait;
@@ -67,18 +63,19 @@ class LayoutBuilderTest extends WebDriverTestBase {
 
     $this->drupalPlaceBlock('local_tasks_block');
 
-    $this->createBlockContentType([
+    $bundle = BlockContentType::create([
       'id' => 'basic',
       'label' => 'Basic',
-    ], TRUE);
-
+    ]);
+    $bundle->save();
+    block_content_add_body_field($bundle->id());
     BlockContent::create([
       'info' => 'My content block',
       'type' => 'basic',
       'body' => [
         [
           'value' => 'This is the block content',
-          'format' => \Drupal::service(FilterFormatRepositoryInterface::class)->getDefaultFormat()->id(),
+          'format' => filter_default_format(),
         ],
       ],
     ])->save();
@@ -117,7 +114,7 @@ class LayoutBuilderTest extends WebDriverTestBase {
     $assert_session->pageTextNotContains('Powered by Drupal');
     $assert_session->linkNotExists('Layout');
 
-    $this->enableLayoutsForBundle('admin/structure/types/manage/bundle_with_section_field/display/default', TRUE);
+    $this->enableLayoutsForBundle('admin/structure/types/manage/bundle_with_section_field/display', TRUE);
 
     // The existing content is still shown until overridden.
     $this->drupalGet($node_url);
@@ -410,7 +407,7 @@ class LayoutBuilderTest extends WebDriverTestBase {
    *
    * @todo Remove this in https://www.drupal.org/project/drupal/issues/2918718.
    */
-  protected function clickContextualLink($selector, $link_locator, $force_visible = TRUE): void {
+  protected function clickContextualLink($selector, $link_locator, $force_visible = TRUE) {
     /** @var \Drupal\FunctionalJavascriptTests\JSWebAssert $assert_session */
     $assert_session = $this->assertSession();
     /** @var \Behat\Mink\Element\DocumentElement $page */
@@ -453,7 +450,7 @@ class LayoutBuilderTest extends WebDriverTestBase {
    * @param bool $allow_custom
    *   Whether to allow custom layouts.
    */
-  private function enableLayoutsForBundle($path, $allow_custom = FALSE): void {
+  private function enableLayoutsForBundle($path, $allow_custom = FALSE) {
     $assert_session = $this->assertSession();
     $page = $this->getSession()->getPage();
     $this->drupalGet($path);
@@ -473,7 +470,7 @@ class LayoutBuilderTest extends WebDriverTestBase {
    * @param string $block_title
    *   The block title which will be the link text.
    */
-  private function openAddBlockForm($block_title): void {
+  private function openAddBlockForm($block_title) {
     $assert_session = $this->assertSession();
     $assert_session->linkExists('Add block');
     $this->clickLink('Add block');
@@ -506,7 +503,7 @@ class LayoutBuilderTest extends WebDriverTestBase {
    *
    * @todo Remove in https://www.drupal.org/project/drupal/issues/2909782.
    */
-  private function markCurrentPage(): void {
+  private function markCurrentPage() {
     $this->pageReloadMarker = $this->randomMachineName();
     $this->getSession()->executeScript('document.body.appendChild(document.createTextNode("' . $this->pageReloadMarker . '"));');
   }

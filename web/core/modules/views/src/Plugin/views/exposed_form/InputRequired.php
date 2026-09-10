@@ -4,8 +4,8 @@ namespace Drupal\views\Plugin\views\exposed_form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\filter\FilterFormatRepositoryInterface;
 use Drupal\views\Attribute\ViewsExposedForm;
+use Drupal\views\Views;
 
 /**
  * Exposed form plugin that provides an exposed form with required input.
@@ -19,24 +19,6 @@ use Drupal\views\Attribute\ViewsExposedForm;
 )]
 class InputRequired extends ExposedFormPluginBase {
 
-  /**
-   * The filter format repository service.
-   */
-  protected FilterFormatRepositoryInterface $formatRepository;
-
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ?FilterFormatRepositoryInterface $format_repository = NULL) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-
-    if (!$format_repository) {
-      @trigger_error('Calling ' . __METHOD__ . '() without the $format_repository argument is deprecated in drupal:11.4.0 and the $format_repository argument will be required in drupal:12.0.0. See https://www.drupal.org/node/3035368', E_USER_DEPRECATED);
-      $format_repository = \Drupal::service(FilterFormatRepositoryInterface::class);
-    }
-    $this->formatRepository = $format_repository;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function defineOptions() {
     $options = parent::defineOptions();
 
@@ -45,9 +27,6 @@ class InputRequired extends ExposedFormPluginBase {
     return $options;
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
@@ -56,14 +35,11 @@ class InputRequired extends ExposedFormPluginBase {
       '#title' => $this->t('Text on demand'),
       '#description' => $this->t('Text to display instead of results until the user selects and applies an exposed filter.'),
       '#default_value' => $this->options['text_input_required'],
-      '#format' => $this->options['text_input_required_format'] ?? $this->formatRepository->getDefaultFormat()->id(),
+      '#format' => $this->options['text_input_required_format'] ?? filter_default_format(),
       '#editor' => FALSE,
     ];
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function submitOptionsForm(&$form, FormStateInterface $form_state) {
     $exposed_form_options = $form_state->getValue('exposed_form_options');
     $form_state->setValue(['exposed_form_options', 'text_input_required_format'], $exposed_form_options['text_input_required']['format']);
@@ -71,9 +47,6 @@ class InputRequired extends ExposedFormPluginBase {
     parent::submitOptionsForm($form, $form_state);
   }
 
-  /**
-   * Indicates that the exposed filter has been applied.
-   */
   protected function exposedFilterApplied() {
     static $cache = NULL;
     if (!isset($cache)) {
@@ -95,9 +68,6 @@ class InputRequired extends ExposedFormPluginBase {
     return $cache;
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function preRender($values) {
     // Display the "text on demand" if needed. This is a site builder-defined
     // text to display instead of results until the user selects and applies
@@ -120,7 +90,7 @@ class InputRequired extends ExposedFormPluginBase {
           'format' => $this->options['text_input_required_format'],
         ],
       ];
-      $handler = \Drupal::service('plugin.manager.views.area')->getHandler($options);
+      $handler = Views::handlerManager('area')->getHandler($options);
       $handler->init($this->view, $this->displayHandler, $options);
       $this->displayHandler->handlers['empty'] = [
         'area' => $handler,
@@ -130,9 +100,6 @@ class InputRequired extends ExposedFormPluginBase {
     }
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function query() {
     if (!$this->exposedFilterApplied()) {
       // We return with no query; this will force the empty text.

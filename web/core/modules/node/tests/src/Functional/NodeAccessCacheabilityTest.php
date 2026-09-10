@@ -6,17 +6,14 @@ namespace Drupal\Tests\node\Functional;
 
 use Drupal\Core\Url;
 use Drupal\Tests\system\Functional\Cache\AssertPageCacheContextsAndTagsTrait;
-use Drupal\node\NodeAccessRebuild;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the node access automatic cacheability bubbling logic.
+ *
+ * @group node
+ * @group Cache
+ * @group cacheability_safeguards
  */
-#[Group('node')]
-#[Group('Cache')]
-#[Group('cacheability_safeguards')]
-#[RunTestsInSeparateProcesses]
 class NodeAccessCacheabilityTest extends NodeTestBase {
 
   use AssertPageCacheContextsAndTagsTrait;
@@ -40,7 +37,7 @@ class NodeAccessCacheabilityTest extends NodeTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    \Drupal::service(NodeAccessRebuild::class)->rebuild();
+    node_access_rebuild();
 
     // Create some content.
     $this->drupalCreateNode();

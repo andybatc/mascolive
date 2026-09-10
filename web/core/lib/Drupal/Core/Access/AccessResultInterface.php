@@ -79,7 +79,6 @@ interface AccessResultInterface {
    *
    * @return static
    */
-  #[\NoDiscard]
   public function orIf(AccessResultInterface $other);
 
   /**
@@ -104,7 +103,6 @@ interface AccessResultInterface {
    *
    * @return static
    */
-  #[\NoDiscard]
   public function andIf(AccessResultInterface $other);
 
 }

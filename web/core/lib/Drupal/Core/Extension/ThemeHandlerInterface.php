@@ -10,7 +10,7 @@ interface ThemeHandlerInterface {
   /**
    * Returns a list of currently installed themes.
    *
-   * @return \Drupal\Core\Extension\Theme[]
+   * @return \Drupal\Core\Extension\Extension[]
    *   An associative array of the currently installed themes. The keys are the
    *   themes' machine names and the values are Extension objects having the
    *   following properties:
@@ -51,10 +51,10 @@ interface ThemeHandlerInterface {
   /**
    * Adds a theme extension to the internal listing.
    *
-   * @param \Drupal\Core\Extension\Theme $theme
+   * @param \Drupal\Core\Extension\Extension $theme
    *   The theme extension.
    */
-  public function addTheme(Theme $theme);
+  public function addTheme(Extension $theme);
 
   /**
    * Refreshes the theme info data of currently installed themes.
@@ -135,8 +135,6 @@ interface ThemeHandlerInterface {
    * directories.
    *
    * @return array
-   *   An associative array containing the directory path for all installed
-   *   themes. The array is keyed by the theme name.
    */
   public function getThemeDirectories();
 
@@ -157,8 +155,8 @@ interface ThemeHandlerInterface {
    * @param string $name
    *   The name of the theme to return.
    *
-   * @return \Drupal\Core\Extension\Theme
-   *   A theme extension object.
+   * @return \Drupal\Core\Extension\Extension
+   *   An extension object.
    *
    * @throws \Drupal\Core\Extension\Exception\UnknownExtensionException
    *   Thrown when the requested theme does not exist.

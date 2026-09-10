@@ -2,11 +2,13 @@
 
 namespace Drupal\node\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Contains a form for switching the view mode of a node during preview.
@@ -15,9 +17,42 @@ use Drupal\Core\Url;
  */
 class NodePreviewForm extends FormBase {
 
-  public function __construct(
-    protected EntityDisplayRepositoryInterface $entityDisplayRepository,
-  ) {}
+  /**
+   * The entity display repository.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
+  protected $entityDisplayRepository;
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_display.repository'),
+      $container->get('config.factory')
+    );
+  }
+
+  /**
+   * Constructs a new NodePreviewForm.
+   *
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
+   *   The entity display repository.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory.
+   */
+  public function __construct(EntityDisplayRepositoryInterface $entity_display_repository, ConfigFactoryInterface $config_factory) {
+    $this->entityDisplayRepository = $entity_display_repository;
+    $this->configFactory = $config_factory;
+  }
 
   /**
    * {@inheritdoc}
@@ -34,7 +69,7 @@ class NodePreviewForm extends FormBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    * @param \Drupal\Core\Entity\EntityInterface $node
-   *   The node being previews.
+   *   The node being previews
    *
    * @return array
    *   The form structure.
@@ -51,7 +86,7 @@ class NodePreviewForm extends FormBase {
     $form['backlink'] = [
       '#type' => 'link',
       '#title' => $this->t('Back to content editing'),
-      '#url' => $node->isNew() ? Url::fromRoute('entity.node.add_form', ['node_type' => $node->bundle()]) : $node->toUrl('edit-form'),
+      '#url' => $node->isNew() ? Url::fromRoute('node.add', ['node_type' => $node->bundle()]) : $node->toUrl('edit-form'),
       '#options' => ['attributes' => ['class' => ['node-preview-backlink']]] + $query_options,
     ];
 
@@ -61,6 +96,7 @@ class NodePreviewForm extends FormBase {
     // Unset view modes that are not used in the front end.
     unset($view_mode_options['default']);
     unset($view_mode_options['rss']);
+    unset($view_mode_options['search_index']);
 
     $form['uuid'] = [
       '#type' => 'value',

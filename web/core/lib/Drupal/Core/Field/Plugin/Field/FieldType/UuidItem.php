@@ -17,16 +17,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
   label: new TranslatableMarkup("UUID"),
   description: new TranslatableMarkup("An entity field containing a UUID."),
   default_formatter: "string",
-  no_ui: TRUE,
-  constraints: [
-    "ComplexData" => [
-      'properties' => [
-        "value" => [
-          "Uuid" => [],
-        ],
-      ],
-    ],
-  ],
+  no_ui: TRUE
 )]
 class UuidItem extends StringItem {
 

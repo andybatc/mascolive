@@ -5,21 +5,18 @@ declare(strict_types=1);
 namespace Drupal\Tests\search\Functional;
 
 use Drupal\Tests\BrowserTestBase;
-use Drupal\node\NodeAccessRebuild;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests search functionality with diacritics.
+ *
+ * @group search
  */
-#[Group('search')]
-#[RunTestsInSeparateProcesses]
 class SearchNodeDiacriticsTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['node', 'search', 'search_node'];
+  protected static $modules = ['node', 'search'];
 
   /**
    * {@inheritdoc}
@@ -41,7 +38,7 @@ class SearchNodeDiacriticsTest extends BrowserTestBase {
 
     $this->drupalCreateContentType(['type' => 'page', 'name' => 'Basic page']);
 
-    \Drupal::service(NodeAccessRebuild::class)->rebuild();
+    node_access_rebuild();
 
     // Create a test user and log in.
     $this->testUser = $this->drupalCreateUser([

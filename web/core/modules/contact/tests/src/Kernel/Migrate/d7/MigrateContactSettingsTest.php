@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Drupal\Tests\contact\Kernel\Migrate\d7;
 
 use Drupal\Tests\migrate_drupal\Kernel\d7\MigrateDrupal7TestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests migration of Contact settings to configuration.
+ *
+ * @group migrate_drupal_7
  */
-#[Group('migrate_drupal_7')]
-#[IgnoreDeprecations]
-#[RunTestsInSeparateProcesses]
 class MigrateContactSettingsTest extends MigrateDrupal7TestBase {
 
   /**
@@ -29,13 +25,6 @@ class MigrateContactSettingsTest extends MigrateDrupal7TestBase {
     parent::setUp();
     $this->executeMigration('contact_category');
     $this->executeMigration('d7_contact_settings');
-  }
-
-  /**
-   * Gets the path to the fixture file.
-   */
-  protected function getFixtureFilePath():string {
-    return __DIR__ . '/../../../../fixtures/drupal7.php';
   }
 
   /**

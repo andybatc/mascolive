@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Drupal\Tests\system\Kernel\Migrate\d7;
 
 use Drupal\Tests\migrate_drupal\Kernel\d7\MigrateDrupal7TestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Migrates various configuration objects owned by the System module.
+ *
+ * @group migrate_drupal_7
  */
-#[Group('migrate_drupal_7')]
-#[RunTestsInSeparateProcesses]
 class MigrateSystemConfigurationTest extends MigrateDrupal7TestBase {
 
   /**
@@ -20,16 +18,12 @@ class MigrateSystemConfigurationTest extends MigrateDrupal7TestBase {
    */
   protected static $modules = ['file', 'system'];
 
-  /**
-   * The expected configuration after migration.
-   *
-   * @var array
-   */
   protected $expectedConfig = [
     'system.authorize' => [],
     'system.cron' => [
       'threshold' => [
-        // Auto-run is not handled by the migration, so ignore "'autorun' => 0".
+        // Auto-run is not handled by the migration.
+        // 'autorun' => 0,
         'requirements_warning' => 172800,
         'requirements_error' => 1209600,
       ],
@@ -93,7 +87,7 @@ class MigrateSystemConfigurationTest extends MigrateDrupal7TestBase {
       'css' => [
         'preprocess' => TRUE,
         // Gzip is not handled by the migration.
-        'compress' => TRUE,
+        'gzip' => TRUE,
       ],
       // fast_404 is not handled by the migration.
       'fast_404' => [
@@ -105,7 +99,12 @@ class MigrateSystemConfigurationTest extends MigrateDrupal7TestBase {
       'js' => [
         'preprocess' => FALSE,
         // Gzip is not handled by the migration.
-        'compress' => TRUE,
+        'gzip' => TRUE,
+      ],
+    ],
+    'system.rss' => [
+      'items' => [
+        'view_mode' => 'fulltext',
       ],
     ],
     'system.site' => [
@@ -172,6 +171,7 @@ class MigrateSystemConfigurationTest extends MigrateDrupal7TestBase {
       'd7_system_mail',
       'system_maintenance',
       'd7_system_performance',
+      'system_rss',
       'system_site',
     ];
     $this->executeMigrations($migrations);

@@ -8,8 +8,6 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 /**
  * To be used when the primary data is `errors`.
  *
- * @implements \IteratorAggregate<int, \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface>
- *
  * @internal JSON:API maintains no PHP API. The API is the HTTP API. This class
  *   may change at any time and could break any dependencies on it.
  *
@@ -17,23 +15,23 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
  * @see jsonapi.api.php
  *
  * (The spec says the top-level `data` and `errors` members MUST NOT coexist.)
- * @see https://jsonapi.org/format/#document-top-level
+ * @see http://jsonapi.org/format/#document-top-level
  *
- * @see https://jsonapi.org/format/#error-objects
+ * @see http://jsonapi.org/format/#error-objects
  */
 class ErrorCollection implements \IteratorAggregate {
 
   /**
    * The HTTP exceptions.
    *
-   * @var list<\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface>
+   * @var \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface[]
    */
   protected $errors;
 
   /**
    * Instantiates an ErrorCollection object.
    *
-   * @param list<\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface> $errors
+   * @param \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface[] $errors
    *   The errors.
    */
   public function __construct(array $errors) {
@@ -46,10 +44,11 @@ class ErrorCollection implements \IteratorAggregate {
   /**
    * Returns an iterator for errors.
    *
-   * @return \ArrayIterator<int, \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface>
-   *   An \ArrayIterator instance.
+   * @return \ArrayIterator
+   *   An \ArrayIterator instance
    */
-  public function getIterator(): \ArrayIterator {
+  #[\ReturnTypeWillChange]
+  public function getIterator() {
     return new \ArrayIterator($this->errors);
   }
 

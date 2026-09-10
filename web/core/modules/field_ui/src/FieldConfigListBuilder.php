@@ -4,7 +4,6 @@ namespace Drupal\field_ui;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -120,7 +119,11 @@ class FieldConfigListBuilder extends ConfigEntityListBuilder {
    */
   public function buildHeader() {
     $header = [
-      'label' => $this->t('Field'),
+      'label' => $this->t('Label'),
+      'field_name' => [
+        'data' => $this->t('Machine name'),
+        'class' => [RESPONSIVE_PRIORITY_MEDIUM],
+      ],
       'settings_summary' => $this->t('Field type'),
     ];
     return $header + parent::buildHeader();
@@ -137,102 +140,22 @@ class FieldConfigListBuilder extends ConfigEntityListBuilder {
     $instance_summary = $this->fieldTypeManager->getFieldSettingsSummary($field_config);
     $summary_list = [...$storage_summary, ...$instance_summary];
 
-    $secondary_summary_items = [];
-    foreach ($summary_list as $item) {
-      $secondary_summary_items[] = [
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#value' => $item,
-        '#attributes' => [
-          'class' => ['field-ui-secondary-text'],
-        ],
-      ];
-    }
-
     $settings_summary = [
       'data' => [
-        '#type' => 'container',
-        '#attributes' => ['class' => ['field-settings-summary-container']],
-        'field_type' => [
-          '#type' => 'html_tag',
-          '#tag' => 'div',
-          '#value' => $this->fieldTypeManager->getDefinitions()[$field_storage->getType()]['label'],
-          '#attributes' => [
-            'class' => ['field-type-label'],
-          ],
-        ],
-        'summary_items' => [
-          '#type' => 'container',
-          '#attributes' => ['class' => ['field-settings-summary-items']],
-          ...$secondary_summary_items,
+        '#theme' => 'item_list',
+        '#items' => [
+          $this->fieldTypeManager->getDefinitions()[$field_storage->getType()]['label'],
+          ...$summary_list,
         ],
       ],
       'class' => ['field-settings-summary-cell'],
     ];
 
-    $cardinality = $field_storage->getCardinality();
-    if ($cardinality === -1) {
-      $cardinality_text = $this->t('Unlimited');
-    }
-    else {
-      $cardinality_text = $this->formatPlural($cardinality, 'Single', 'Limited to @count');
-    }
-
-    $label_data = [
-      'data' => [
-        '#type' => 'container',
-        '#attributes' => ['class' => ['field-label-container']],
-        'label_wrapper' => [
-          '#type' => 'container',
-          '#attributes' => ['class' => ['field-label-wrapper']],
-          'label' => [
-            '#type' => 'html_tag',
-            '#tag' => 'span',
-            '#plain_text' => $field_config->getLabel(),
-            '#attributes' => [
-              'class' => ['field-label-text'],
-            ],
-          ],
-          'machine_name' => [
-            '#type' => 'html_tag',
-            '#tag' => 'span',
-            '#plain_text' => ' ' . $field_config->getName(),
-            '#attributes' => [
-              'class' => ['field-ui-secondary-text', 'field-machine-name'],
-            ],
-          ],
-        ],
-        'details' => [
-          '#type' => 'container',
-          '#attributes' => ['class' => ['field-details-container']],
-          'cardinality_pill' => [
-            '#type' => 'html_tag',
-            '#tag' => 'span',
-            '#value' => $cardinality_text,
-            '#attributes' => [
-              'class' => ['field-ui-pill'],
-            ],
-          ],
-        ],
-      ],
-    ];
-
-    // Add required pill if field is required.
-    if ($field_config->isRequired()) {
-      $label_data['data']['details']['required_pill'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'span',
-        '#value' => $this->t('Required'),
-        '#attributes' => [
-          'class' => ['field-ui-pill'],
-        ],
-      ];
-    }
-
     $row = [
       'id' => Html::getClass($field_config->getName()),
       'data' => [
-        'label' => $label_data,
+        'label' => $field_config->getLabel(),
+        'field_name' => $field_config->getName(),
         'settings_summary' => $settings_summary,
       ],
     ];
@@ -251,32 +174,21 @@ class FieldConfigListBuilder extends ConfigEntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
-    $args = func_get_args();
-    $cacheability = $args[1] ?? new CacheableMetadata();
+  public function getDefaultOperations(EntityInterface $entity) {
     /** @var \Drupal\field\FieldConfigInterface $entity */
-    $operations = parent::getDefaultOperations($entity, $cacheability);
+    $operations = parent::getDefaultOperations($entity);
 
-    $update_access = $entity->access('update', return_as_object: TRUE);
-    $cacheability->addCacheableDependency($update_access);
-    if ($update_access->isAllowed() && $entity->hasLinkTemplate("{$entity->getTargetEntityTypeId()}-field-edit-form")) {
+    if ($entity->access('update') && $entity->hasLinkTemplate("{$entity->getTargetEntityTypeId()}-field-edit-form")) {
       $operations['edit'] = [
         'title' => $this->t('Edit'),
         'weight' => 10,
         'url' => $entity->toUrl("{$entity->getTargetEntityTypeId()}-field-edit-form"),
         'attributes' => [
           'title' => $this->t('Edit field settings.'),
-          'class' => ['use-ajax'],
-          'data-dialog-type' => 'modal',
-          'data-dialog-options' => Json::encode([
-            'width' => 1100,
-          ]),
         ],
       ];
     }
-    $delete_access = $entity->access('delete', return_as_object: TRUE);
-    $cacheability->addCacheableDependency($delete_access);
-    if ($delete_access->isAllowed() && $entity->hasLinkTemplate("{$entity->getTargetEntityTypeId()}-field-delete-form")) {
+    if ($entity->access('delete') && $entity->hasLinkTemplate("{$entity->getTargetEntityTypeId()}-field-delete-form")) {
       $operations['delete'] = [
         'title' => $this->t('Delete'),
         'weight' => 100,

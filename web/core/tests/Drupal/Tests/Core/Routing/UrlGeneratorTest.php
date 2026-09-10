@@ -14,9 +14,6 @@ use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\Routing\UrlGenerator;
 use Drupal\path_alias\PathProcessor\AliasPathProcessor;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -25,9 +22,10 @@ use Symfony\Component\Routing\RouteCollection;
 
 /**
  * Confirm that the UrlGenerator is functioning properly.
+ *
+ * @coversDefaultClass \Drupal\Core\Routing\UrlGenerator
+ * @group Routing
  */
-#[CoversClass(UrlGenerator::class)]
-#[Group('Routing')]
 class UrlGeneratorTest extends UnitTestCase {
 
   /**
@@ -179,17 +177,15 @@ class UrlGeneratorTest extends UnitTestCase {
     $this->context->fromRequestStack($this->requestStack);
 
     $processor = new AliasPathProcessor($this->aliasManager);
-    $processor_manager = new PathProcessorManager([], [$processor]);
+    $processor_manager = new PathProcessorManager();
+    $processor_manager->addOutbound($processor, 1000);
     $this->processorManager = $processor_manager;
 
     $this->routeProcessorManager = $this->getMockBuilder('Drupal\Core\RouteProcessor\RouteProcessorManager')
       ->disableOriginalConstructor()
       ->getMock();
 
-    $generator = new UrlGenerator($this->provider, $processor_manager, $this->routeProcessorManager, $this->requestStack, [
-      'http',
-      'https',
-    ]);
+    $generator = new UrlGenerator($this->provider, $processor_manager, $this->routeProcessorManager, $this->requestStack, ['http', 'https']);
     $generator->setContext($this->context);
     $this->generator = $generator;
   }
@@ -202,7 +198,6 @@ class UrlGeneratorTest extends UnitTestCase {
    * to return an actual alias.
    *
    * @return string
-   *   The alias for the given path, or the path itself if no alias is defined.
    */
   public function aliasManagerCallback() {
     $args = func_get_args();
@@ -262,18 +257,13 @@ class UrlGeneratorTest extends UnitTestCase {
   }
 
   /**
-   * Tests url generation with disabled path processing.
-   *
-   * @legacy-covers ::generateFromRoute
+   * @covers ::generateFromRoute
    */
   public function testUrlGenerationWithDisabledPathProcessing(): void {
     $path_processor = $this->prophesize(OutboundPathProcessorInterface::class);
     $path_processor->processOutbound(Argument::cetera())->shouldNotBeCalled();
 
-    $generator = new UrlGenerator($this->provider, $path_processor->reveal(), $this->routeProcessorManager, $this->requestStack, [
-      'http',
-      'https',
-    ]);
+    $generator = new UrlGenerator($this->provider, $path_processor->reveal(), $this->routeProcessorManager, $this->requestStack, ['http', 'https']);
     $generator->setContext($this->context);
 
     $url = $this->generator->generateFromRoute('test_1', [], ['path_processing' => FALSE]);
@@ -281,9 +271,7 @@ class UrlGeneratorTest extends UnitTestCase {
   }
 
   /**
-   * Tests url generation with disabled path processing by route.
-   *
-   * @legacy-covers ::generateFromRoute
+   * @covers ::generateFromRoute
    */
   public function testUrlGenerationWithDisabledPathProcessingByRoute(): void {
     $path_processor = $this->prophesize(OutboundPathProcessorInterface::class);
@@ -292,10 +280,7 @@ class UrlGeneratorTest extends UnitTestCase {
     $provider = $this->prophesize(RouteProviderInterface::class);
     $provider->getRouteByName('test_1')->willReturn(new Route('/test/one', [], [], ['default_url_options' => ['path_processing' => FALSE]]));
 
-    $generator = new UrlGenerator($provider->reveal(), $path_processor->reveal(), $this->routeProcessorManager, $this->requestStack, [
-      'http',
-      'https',
-    ]);
+    $generator = new UrlGenerator($provider->reveal(), $path_processor->reveal(), $this->routeProcessorManager, $this->requestStack, ['http', 'https']);
     $generator->setContext($this->context);
 
     $url = $generator->generateFromRoute('test_1', []);
@@ -303,9 +288,7 @@ class UrlGeneratorTest extends UnitTestCase {
   }
 
   /**
-   * Tests url generation with disabled path processing by route and opted in path processing.
-   *
-   * @legacy-covers ::generateFromRoute
+   * @covers ::generateFromRoute
    */
   public function testUrlGenerationWithDisabledPathProcessingByRouteAndOptedInPathProcessing(): void {
     $path_processor = $this->prophesize(OutboundPathProcessorInterface::class);
@@ -314,14 +297,25 @@ class UrlGeneratorTest extends UnitTestCase {
     $provider = $this->prophesize(RouteProviderInterface::class);
     $provider->getRouteByName('test_1')->willReturn(new Route('/test/one', [], [], ['default_url_options' => ['path_processing' => FALSE]]));
 
-    $generator = new UrlGenerator($provider->reveal(), $path_processor->reveal(), $this->routeProcessorManager, $this->requestStack, [
-      'http',
-      'https',
-    ]);
+    $generator = new UrlGenerator($provider->reveal(), $path_processor->reveal(), $this->routeProcessorManager, $this->requestStack, ['http', 'https']);
     $generator->setContext($this->context);
 
     $url = $generator->generateFromRoute('test_1', [], ['path_processing' => TRUE]);
     $this->assertEquals('/hello/world', $url);
+  }
+
+  /**
+   * Tests URL generation deprecations.
+   *
+   * @group legacy
+   */
+  public function testRouteObjectDeprecation(): void {
+    $this->expectDeprecation('Passing a route object to Drupal\Core\Routing\UrlGenerator::getPathFromRoute() is deprecated in drupal:10.1.0 and will not be supported in drupal:11.0.0. Pass the route name instead. See https://www.drupal.org/node/3172280');
+    $path = $this->generator->getPathFromRoute(new Route('/test/one'));
+    $this->assertSame($this->generator->getPathFromRoute('test_1'), $path);
+    $this->expectDeprecation('Passing a route object to Drupal\Core\Routing\UrlGenerator::generateFromRoute() is deprecated in drupal:10.1.0 and will not be supported in drupal:11.0.0. Pass the route name instead. See https://www.drupal.org/node/3172280');
+    $url = $this->generator->generateFromRoute(new Route('/test/one'));
+    $this->assertSame($this->generator->generateFromRoute('test_1'), $url);
   }
 
   /**
@@ -368,8 +362,9 @@ class UrlGeneratorTest extends UnitTestCase {
 
   /**
    * Confirms that generated routes will have aliased paths with options.
+   *
+   * @dataProvider providerTestAliasGenerationWithOptions
    */
-  #[DataProvider('providerTestAliasGenerationWithOptions')]
   public function testAliasGenerationWithOptions($route_name, $route_parameters, $options, $expected): void {
     $this->assertGenerateFromRoute($route_name, $route_parameters, $options, $expected, (new BubbleableMetadata())->setCacheMaxAge(Cache::PERMANENT));
   }
@@ -377,7 +372,7 @@ class UrlGeneratorTest extends UnitTestCase {
   /**
    * Provides test data for testAliasGenerationWithOptions.
    */
-  public static function providerTestAliasGenerationWithOptions(): array {
+  public static function providerTestAliasGenerationWithOptions() {
     $data = [];
     // Extra parameters should appear in the query string.
     $data[] = [
@@ -486,6 +481,18 @@ class UrlGeneratorTest extends UnitTestCase {
   }
 
   /**
+   * Tests deprecated methods.
+   *
+   * @group legacy
+   */
+  public function testDeprecatedMethods(): void {
+    $this->expectDeprecation('Drupal\Core\Routing\UrlGenerator::getRouteDebugMessage() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Use the route name instead. See https://www.drupal.org/node/3172303');
+    $this->assertSame('test', $this->generator->getRouteDebugMessage('test'));
+    $this->expectDeprecation('Drupal\Core\Routing\UrlGenerator::supports() is deprecated in drupal:10.1.0 and is removed from drupal:11.0.0. Only string route names are supported. See https://www.drupal.org/node/3172303');
+    $this->assertTrue($this->generator->supports('test'));
+  }
+
+  /**
    * Tests the 'scheme' route requirement during URL generation.
    */
   public function testUrlGenerationWithHttpsRequirement(): void {
@@ -510,9 +517,10 @@ class UrlGeneratorTest extends UnitTestCase {
    * @param string $expected_url
    *   The expected relative URL.
    *
-   * @legacy-covers ::generateFromRoute
+   * @covers ::generateFromRoute
+   *
+   * @dataProvider providerTestNoPath
    */
-  #[DataProvider('providerTestNoPath')]
   public function testNoPath($options, $expected_url): void {
     $url = $this->generator->generateFromRoute('<none>', [], $options);
     $this->assertEquals($expected_url, $url);
@@ -521,7 +529,7 @@ class UrlGeneratorTest extends UnitTestCase {
   /**
    * Data provider for ::testNoPath().
    */
-  public static function providerTestNoPath(): array {
+  public static function providerTestNoPath() {
     return [
       // Empty options.
       [[], ''],
@@ -539,9 +547,10 @@ class UrlGeneratorTest extends UnitTestCase {
   }
 
   /**
-   * Tests generate with path processor changing options.
+   * @covers \Drupal\Core\Routing\UrlGenerator::generateFromRoute
    *
-   * @legacy-covers \Drupal\Core\Routing\UrlGenerator::generateFromRoute
+   * Note: We use absolute covers to let
+   * \Drupal\Tests\Core\Render\MetadataBubblingUrlGeneratorTest work.
    */
   public function testGenerateWithPathProcessorChangingOptions(): void {
     $path_processor = $this->createMock(OutboundPathProcessorInterface::CLASS);
@@ -552,15 +561,7 @@ class UrlGeneratorTest extends UnitTestCase {
         $options['fragment'] = 'foo';
         return $path;
       });
-
-    $alias_processor = new AliasPathProcessor($this->aliasManager);
-    $processor_manager = new PathProcessorManager([], [$alias_processor, $path_processor]);
-
-    $this->generator = new UrlGenerator($this->provider, $processor_manager, $this->routeProcessorManager, $this->requestStack, [
-      'http',
-      'https',
-    ]);
-    $this->generator->setContext($this->context);
+    $this->processorManager->addOutbound($path_processor);
 
     $options = [];
     $this->assertGenerateFromRoute('test_2', ['Lassie' => 5], $options, '/goodbye/cruel/world?zoo=5#foo', (new BubbleableMetadata())->setCacheMaxAge(Cache::PERMANENT));
@@ -603,40 +604,6 @@ class UrlGeneratorTest extends UnitTestCase {
     $generated_url = $this->generator->generateFromRoute($route_name, $route_parameters, $options, TRUE);
     $this->assertSame($expected_url, $generated_url->getGeneratedUrl());
     $this->assertEquals($expected_bubbleable_metadata, BubbleableMetadata::createFromObject($generated_url));
-  }
-
-  /**
-   * Tests that route name and parameters are passed to path processors.
-   *
-   * @legacy-covers ::generateFromRoute
-   */
-  public function testGenerateWithRouteNameInOptions(): void {
-    $path_processor = $this->createMock(OutboundPathProcessorInterface::class);
-
-    $path_processor->expects($this->atLeastOnce())
-      ->method('processOutbound')
-      ->willReturnCallback(function ($path, &$options = []) {
-        // Assert that 'route_name' exists in options and is the expected value.
-        $this->assertArrayHasKey('route_name', $options);
-        $this->assertEquals('test_1', $options['route_name']);
-
-        // Assert that 'route_parameters' exists in options and
-        // is the expected value.
-        $this->assertArrayHasKey('route_parameters', $options);
-        $this->assertEquals(['node' => 1], $options['route_parameters']);
-        return $path;
-      });
-
-    $this->processorManager = new PathProcessorManager([], [
-      $this->processorManager,
-      $path_processor,
-    ]);
-
-    $this->generator = new UrlGenerator($this->provider, $this->processorManager, $this->routeProcessorManager, $this->requestStack);
-    $this->generator->setContext($this->context);
-
-    $options = [];
-    $this->assertGenerateFromRoute('test_1', ['node' => 1], $options, '/hello/world?node=1', (new BubbleableMetadata())->setCacheMaxAge(Cache::PERMANENT));
   }
 
 }

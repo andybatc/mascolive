@@ -6,9 +6,6 @@ namespace Drupal\Tests\contact\Functional;
 
 use Drupal\contact\Entity\Message;
 use Drupal\user\RoleInterface;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests storing contact messages.
@@ -17,10 +14,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * this test. This is by design to ensure that regular contact.module functions
  * continue to work when a storage handler other than ContentEntityNullStorage
  * is enabled for contact Message entities.
+ *
+ * @group contact
  */
-#[Group('contact')]
-#[IgnoreDeprecations]
-#[RunTestsInSeparateProcesses]
 class ContactStorageTest extends ContactSitewideTest {
 
   /**

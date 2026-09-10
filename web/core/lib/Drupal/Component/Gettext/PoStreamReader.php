@@ -150,14 +150,13 @@ class PoStreamReader implements PoStreamInterface, PoReaderInterface {
    *   If the URI is not yet set.
    */
   public function open() {
-    if (empty($this->uri)) {
+    if (!empty($this->uri)) {
+      $this->fd = fopen($this->uri, 'rb');
+      $this->readHeader();
+    }
+    else {
       throw new \Exception('Cannot open stream without URI set.');
     }
-    $this->fd = @fopen($this->uri, 'rb');
-    if (!$this->fd) {
-      throw new \RuntimeException('Cannot open stream for uri ' . $this->uri);
-    }
-    $this->readHeader();
   }
 
   /**
@@ -338,8 +337,7 @@ class PoStreamReader implements PoStreamInterface, PoReaderInterface {
           $this->currentItem = [];
         }
         elseif ($this->context == 'MSGID') {
-          // We are currently already in the context, meaning we passed an id
-          // with no data.
+          // We are currently already in the context, meaning we passed an id with no data.
           $this->errors[] = new FormattableMarkup('The translation stream %uri contains an error: "msgid" is unexpected on line %line.', $log_vars);
           return FALSE;
         }
@@ -457,8 +455,7 @@ class PoStreamReader implements PoStreamInterface, PoReaderInterface {
         return;
       }
       elseif ($line != '') {
-        // Anything that is not a token may be a continuation of a previous
-        // token.
+        // Anything that is not a token may be a continuation of a previous token.
 
         $quoted = $this->parseQuoted($line);
         if ($quoted === FALSE) {
@@ -544,7 +541,7 @@ class PoStreamReader implements PoStreamInterface, PoReaderInterface {
   /**
    * Parses a string in quotes.
    *
-   * @param string $string
+   * @param $string
    *   A string specified with enclosing quotes.
    *
    * @return bool|string
@@ -575,7 +572,7 @@ class PoStreamReader implements PoStreamInterface, PoReaderInterface {
   /**
    * Generates a short, one-string version of the passed comment array.
    *
-   * @param string[] $comment
+   * @param $comment
    *   An array of strings containing a comment.
    *
    * @return string

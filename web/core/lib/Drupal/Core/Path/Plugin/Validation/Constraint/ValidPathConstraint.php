@@ -4,7 +4,6 @@ namespace Drupal\Core\Path\Plugin\Validation\Constraint;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Validation\Attribute\Constraint;
-use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint as SymfonyConstraint;
 
 /**
@@ -16,14 +15,11 @@ use Symfony\Component\Validator\Constraint as SymfonyConstraint;
 )]
 class ValidPathConstraint extends SymfonyConstraint {
 
-  #[HasNamedArguments]
-  public function __construct(
-    mixed $options = NULL,
-    public $message = "Either the path '%link_path' is invalid or you do not have access to it.",
-    ?array $groups = NULL,
-    mixed $payload = NULL,
-  ) {
-    parent::__construct($options, $groups, $payload);
-  }
+  /**
+   * The default violation message.
+   *
+   * @var string
+   */
+  public $message = "Either the path '%link_path' is invalid or you do not have access to it.";
 
 }

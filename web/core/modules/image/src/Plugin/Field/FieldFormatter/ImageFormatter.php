@@ -15,7 +15,6 @@ use Drupal\image\Entity\ImageStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Cache\Cache;
-use Drupal\image\ImageDerivativeUtilities;
 
 /**
  * Plugin implementation of the 'image' formatter.
@@ -29,24 +28,56 @@ use Drupal\image\ImageDerivativeUtilities;
 )]
 class ImageFormatter extends ImageFormatterBase {
 
-  public function __construct(
-    $plugin_id,
-    $plugin_definition,
-    FieldDefinitionInterface $field_definition,
-    array $settings,
-    $label,
-    $view_mode,
-    array $third_party_settings,
-    protected AccountInterface $currentUser,
-    protected EntityStorageInterface $imageStyleStorage,
-    protected FileUrlGeneratorInterface $fileUrlGenerator,
-    protected ?ImageDerivativeUtilities $imageDerivativeUtilities,
-  ) {
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The image style entity storage.
+   *
+   * @var \Drupal\image\ImageStyleStorageInterface
+   */
+  protected $imageStyleStorage;
+
+  /**
+   * The file URL generator.
+   *
+   * @var \Drupal\Core\File\FileUrlGeneratorInterface
+   */
+  protected $fileUrlGenerator;
+
+  /**
+   * Constructs an ImageFormatter object.
+   *
+   * @param string $plugin_id
+   *   The plugin ID for the formatter.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the formatter is associated.
+   * @param array $settings
+   *   The formatter settings.
+   * @param string $label
+   *   The formatter label display setting.
+   * @param string $view_mode
+   *   The view mode.
+   * @param array $third_party_settings
+   *   Any third party settings.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
+   * @param \Drupal\Core\Entity\EntityStorageInterface $image_style_storage
+   *   The image style storage.
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+   *   The file URL generator.
+   */
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, AccountInterface $current_user, EntityStorageInterface $image_style_storage, FileUrlGeneratorInterface $file_url_generator) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    if (!$imageDerivativeUtilities) {
-      @trigger_error('Calling ' . __METHOD__ . '() without the $imageDerivativeUtilities argument is deprecated in drupal:11.4.0 and it will be required in drupal:12.0.0. See https://www.drupal.org/node/3567619', E_USER_DEPRECATED);
-      $this->imageDerivativeUtilities = \Drupal::service(ImageDerivativeUtilities::class);
-    }
+    $this->currentUser = $current_user;
+    $this->imageStyleStorage = $image_style_storage;
+    $this->fileUrlGenerator = $file_url_generator;
   }
 
   /**
@@ -63,8 +94,7 @@ class ImageFormatter extends ImageFormatterBase {
       $configuration['third_party_settings'],
       $container->get('current_user'),
       $container->get('entity_type.manager')->getStorage('image_style'),
-      $container->get('file_url_generator'),
-      $container->get(ImageDerivativeUtilities::class)
+      $container->get('file_url_generator')
     );
   }
 
@@ -87,7 +117,7 @@ class ImageFormatter extends ImageFormatterBase {
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element = parent::settingsForm($form, $form_state);
 
-    $image_styles = $this->imageDerivativeUtilities->styleOptions(FALSE);
+    $image_styles = image_style_options(FALSE);
     $description_link = Link::fromTextAndUrl(
       $this->t('Configure Image Styles'),
       Url::fromRoute('entity.image_style.collection')
@@ -146,7 +176,7 @@ class ImageFormatter extends ImageFormatterBase {
   public function settingsSummary() {
     $summary = [];
 
-    $image_styles = $this->imageDerivativeUtilities->styleOptions(FALSE);
+    $image_styles = image_style_options(FALSE);
     // Unset possible 'No defined styles' option.
     unset($image_styles['']);
     // Styles could be lost because of enabled/disabled modules that defines
@@ -221,16 +251,16 @@ class ImageFormatter extends ImageFormatterBase {
       // Extract field item attributes for the theme function, and unset them
       // from the $item so that the field template does not re-render them.
       $item = $file->_referringItem;
-      $attributes = $item->_attributes;
+      $item_attributes = $item->_attributes;
       unset($item->_attributes);
 
       $image_loading_settings = $this->getSetting('image_loading');
-      $attributes['loading'] = $image_loading_settings['attribute'];
+      $item_attributes['loading'] = $image_loading_settings['attribute'];
 
       $elements[$delta] = [
         '#theme' => 'image_formatter',
         '#item' => $item,
-        '#attributes' => $attributes,
+        '#item_attributes' => $item_attributes,
         '#image_style' => $image_style_setting,
         '#url' => $url,
         '#cache' => [

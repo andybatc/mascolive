@@ -6,15 +6,12 @@ namespace Drupal\Tests\path\Functional;
 
 use Drupal\Tests\content_moderation\Traits\ContentModerationTestTrait;
 use Drupal\Tests\content_translation\Traits\ContentTranslationTestTrait;
-use Drupal\node\NodeAccessRebuild;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Confirm that paths work with node access grants implementations.
+ *
+ * @group path
  */
-#[Group('path')]
-#[RunTestsInSeparateProcesses]
 class PathWithNodeAccessGrantsTest extends PathTestBase {
 
   use ContentTranslationTestTrait;
@@ -77,7 +74,7 @@ class PathWithNodeAccessGrantsTest extends PathTestBase {
    */
   public function testAliasTranslation() : void {
     // Rebuild the permissions to update 'node_access' table.
-    \Drupal::service(NodeAccessRebuild::class)->rebuild();
+    node_access_rebuild();
     $alias = $this->randomMachineName();
     $permissions = [
       'access administration pages',

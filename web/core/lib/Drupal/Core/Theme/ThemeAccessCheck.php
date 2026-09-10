@@ -3,6 +3,7 @@
 namespace Drupal\Core\Theme;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Core\Routing\Access\AccessInterface;
 
 /**
@@ -11,16 +12,20 @@ use Drupal\Core\Routing\Access\AccessInterface;
 class ThemeAccessCheck implements AccessInterface {
 
   /**
+   * The theme handler.
+   *
+   * @var \Drupal\Core\Extension\ThemeHandlerInterface
+   */
+  protected $themeHandler;
+
+  /**
    * Constructs a \Drupal\Core\Theme\Registry object.
    *
-   * @param array $themes
-   *   Theme information from the container parameter.
+   * @param \Drupal\Core\Extension\ThemeHandlerInterface $theme_handler
+   *   The theme handler.
    */
-  public function __construct(protected $themes) {
-    if (!is_array($themes)) {
-      @trigger_error('Passing ThemeHandlerInterface to ' . __METHOD__ . '() is deprecated in drupal::11.4.0 and is removed from drupal:12.0.0. Pass theme info from the "container.themes" container parameter instead. See https://www.drupal.org/project/drupal/issues/2538970');
-      $this->themes = \Drupal::getContainer()->getParameter('container.themes');
-    }
+  public function __construct(ThemeHandlerInterface $theme_handler) {
+    $this->themeHandler = $theme_handler;
   }
 
   /**
@@ -47,7 +52,8 @@ class ThemeAccessCheck implements AccessInterface {
    *   TRUE if the theme is installed, FALSE otherwise.
    */
   public function checkAccess($theme) {
-    return isset($this->themes[$theme]);
+    $themes = $this->themeHandler->listInfo();
+    return !empty($themes[$theme]->status);
   }
 
 }

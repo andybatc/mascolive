@@ -69,8 +69,7 @@ abstract class StorableConfigBase extends ConfigBase {
    * @param bool $has_trusted_data
    *   Set to TRUE if the configuration data has already been checked to ensure
    *   it conforms to schema. Generally this is only used during module and
-   *   theme installation. This argument is deprecated in Drupal 11.4.0 and is
-   *   removed in Drupal 13.0.0.
+   *   theme installation.
    *
    * @return $this
    *
@@ -130,13 +129,13 @@ abstract class StorableConfigBase extends ConfigBase {
    * configuration storage before any changes. If this is a new configuration
    * object it will be an empty array.
    *
+   * @see \Drupal\Core\Config\Config::get()
+   *
    * @param string $key
    *   A string that maps to a key within the configuration data.
    *
    * @return mixed
    *   The data that was requested.
-   *
-   * @see \Drupal\Core\Config\Config::get()
    */
   public function getOriginal($key = '') {
     $original_data = $this->originalData;
@@ -172,7 +171,6 @@ abstract class StorableConfigBase extends ConfigBase {
    * should be reset.
    *
    * @return \Drupal\Core\Config\Schema\Element
-   *   A configuration element.
    */
   protected function getSchemaWrapper() {
     if (!isset($this->schemaWrapper)) {

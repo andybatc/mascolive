@@ -12,6 +12,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a shortcuts navigation block class.
@@ -45,6 +46,18 @@ final class NavigationShortcutsBlock extends BlockBase implements ContainerFacto
   /**
    * {@inheritdoc}
    */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('module_handler')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function blockAccess(AccountInterface $account): AccessResultInterface {
     return AccessResult::allowedIfHasPermission($account, 'access shortcuts');
   }
@@ -68,20 +81,7 @@ final class NavigationShortcutsBlock extends BlockBase implements ContainerFacto
           'contexts' => ['user'],
         ],
         '#lazy_builder_preview' => [
-          [
-            '#theme' => 'navigation_menu',
-            '#menu_name' => 'shortcuts',
-            '#title' => $this->configuration['label'],
-            '#items' => [
-              [
-                'title' => $this->configuration['label'],
-                'class' => 'shortcuts',
-                'icon' => [
-                  'icon_id' => 'shortcuts',
-                ],
-              ],
-            ],
-          ],
+          '#markup' => '<a href="#" class="toolbar-tray-lazy-placeholder-link">&nbsp;</a>',
         ],
       ],
     ];

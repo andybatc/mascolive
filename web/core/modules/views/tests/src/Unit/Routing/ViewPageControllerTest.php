@@ -5,21 +5,17 @@ declare(strict_types=1);
 namespace Drupal\Tests\views\Unit\Routing;
 
 use Drupal\Core\Routing\RouteMatch;
-use Drupal\Core\Routing\RouteObjectInterface;
 use Drupal\Tests\UnitTestCase;
-use Drupal\views\ContextualLinksHelper;
 use Drupal\views\Routing\ViewPageController;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
+use Drupal\Core\Routing\RouteObjectInterface;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
 /**
- * Tests Drupal\views\Routing\ViewPageController.
+ * @coversDefaultClass \Drupal\views\Routing\ViewPageController
+ * @group views
  */
-#[CoversClass(ViewPageController::class)]
-#[Group('views')]
 class ViewPageControllerTest extends UnitTestCase {
 
   /**
@@ -46,8 +42,8 @@ class ViewPageControllerTest extends UnitTestCase {
    */
   protected function setUp(): void {
     parent::setUp();
-    $contextual_links = $this->createStub(ContextualLinksHelper::class);
-    $this->pageController = new ViewPageController($contextual_links);
+
+    $this->pageController = new ViewPageController();
   }
 
   /**
@@ -71,11 +67,7 @@ class ViewPageControllerTest extends UnitTestCase {
     $options = [
       '_view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Page',
     ];
-    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route(
-      '/test',
-      ['view_id' => 'test_page_view', 'display_id' => 'default'],
-      [],
-      $options));
+    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route('/test', ['view_id' => 'test_page_view', 'display_id' => 'default'], [], $options));
     $route_match = RouteMatch::createFromRequest($request);
 
     $output = $this->pageController->handle($route_match->getParameter('view_id'), $route_match->getParameter('display_id'), $route_match);
@@ -96,11 +88,7 @@ class ViewPageControllerTest extends UnitTestCase {
       '_view_argument_map' => ['arg_0' => 'arg_0'],
       '_view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Page',
     ];
-    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route(
-      '/test/{arg_0}',
-      ['view_id' => 'test_page_view', 'display_id' => 'default'],
-      [],
-      $options));
+    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route('/test/{arg_0}', ['view_id' => 'test_page_view', 'display_id' => 'default'], [], $options));
     $route_match = RouteMatch::createFromRequest($request);
 
     $result = $this->pageController->handle($route_match->getParameter('view_id'), $route_match->getParameter('display_id'), $route_match);
@@ -136,11 +124,7 @@ class ViewPageControllerTest extends UnitTestCase {
       ],
       '_view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Page',
     ];
-    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route(
-      '/test/{parameter}',
-      ['view_id' => 'test_page_view', 'display_id' => 'default'],
-      [],
-      $options));
+    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route('/test/{parameter}', ['view_id' => 'test_page_view', 'display_id' => 'default'], [], $options));
     $route_match = RouteMatch::createFromRequest($request);
 
     $result = $this->pageController->handle($route_match->getParameter('view_id'), $route_match->getParameter('display_id'), $route_match);
@@ -179,11 +163,7 @@ class ViewPageControllerTest extends UnitTestCase {
       ],
       '_view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Page',
     ];
-    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route(
-      '/test/{test_entity}',
-      ['view_id' => 'test_page_view', 'display_id' => 'default'],
-      [],
-      $options));
+    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route('/test/{test_entity}', ['view_id' => 'test_page_view', 'display_id' => 'default'], [], $options));
     $route_match = RouteMatch::createFromRequest($request);
 
     $result = $this->pageController->handle($route_match->getParameter('view_id'), $route_match->getParameter('display_id'), $route_match);
@@ -200,6 +180,17 @@ class ViewPageControllerTest extends UnitTestCase {
     ] + $this->defaultRenderArray;
 
     $this->assertEquals($build, $result);
+  }
+
+}
+
+// @todo https://www.drupal.org/node/2571679 replace
+//   views_add_contextual_links().
+namespace Drupal\views\Routing;
+
+if (!function_exists('views_add_contextual_links')) {
+
+  function views_add_contextual_links(&$render_element, $location, $display_id, ?array $view_element = NULL) {
   }
 
 }

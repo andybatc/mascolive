@@ -11,14 +11,12 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\media\Entity\Media;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Basic display tests for Media.
+ *
+ * @group media
  */
-#[Group('media')]
-#[RunTestsInSeparateProcesses]
 class MediaDisplayTest extends MediaJavascriptTestBase {
 
   /**
@@ -44,7 +42,7 @@ class MediaDisplayTest extends MediaJavascriptTestBase {
     \Drupal::configFactory()
       ->getEditable('media.settings')
       ->set('standalone_url', TRUE)
-      ->save();
+      ->save(TRUE);
 
     $this->container->get('router.builder')->rebuild();
   }
@@ -72,7 +70,7 @@ class MediaDisplayTest extends MediaJavascriptTestBase {
     $assert_session->elementNotExists('css', 'h1 div');
 
     // Enable the field on the display and verify it becomes visible on the UI.
-    $this->drupalGet("/admin/structure/media/manage/{$media_type->id()}/display/default");
+    $this->drupalGet("/admin/structure/media/manage/{$media_type->id()}/display");
     $assert_session->buttonExists('Show row weights')->press();
     $this->assertSession()->waitForElementVisible('css', '[name="fields[name][region]"]');
     $page->selectFieldOption('fields[name][region]', 'content');

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Drupal\url_alter_test;
 
 use Drupal\Core\PathProcessor\InboundPathProcessorInterface;
@@ -21,11 +19,7 @@ class PathProcessorTest implements InboundPathProcessorInterface, OutboundPathPr
   public function processInbound($path, Request $request) {
     // Rewrite user/username to user/uid.
     if (preg_match('!^/user/([^/]+)(/.*)?!', $path, $matches)) {
-      $users = \Drupal::entityTypeManager()
-        ->getStorage('user')
-        ->loadByProperties(['name' => $matches[1]]);
-      $account = reset($users);
-      if ($account) {
+      if ($account = user_load_by_name($matches[1])) {
         $matches += [2 => ''];
         $path = '/user/' . $account->id() . $matches[2];
       }

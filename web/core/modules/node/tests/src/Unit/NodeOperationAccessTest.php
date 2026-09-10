@@ -17,15 +17,13 @@ use Drupal\node\NodeGrantDatabaseStorageInterface;
 use Drupal\node\NodeInterface;
 use Drupal\node\NodeStorageInterface;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests node operations.
+ *
+ * @coversDefaultClass \Drupal\node\NodeAccessControlHandler
+ * @group node
  */
-#[CoversClass(NodeAccessControlHandler::class)]
-#[Group('node')]
 class NodeOperationAccessTest extends UnitTestCase {
 
   /**
@@ -35,7 +33,9 @@ class NodeOperationAccessTest extends UnitTestCase {
     parent::setUp();
 
     // Cache utility calls container directly.
-    $cacheContextsManager = $this->createStub(CacheContextsManager::class);
+    $cacheContextsManager = $this->getMockBuilder(CacheContextsManager::class)
+      ->disableOriginalConstructor()
+      ->getMock();
     $cacheContextsManager->method('assertValidTokens')->willReturn(TRUE);
     $container = new ContainerBuilder();
     $container->set('cache_contexts_manager', $cacheContextsManager);
@@ -54,63 +54,66 @@ class NodeOperationAccessTest extends UnitTestCase {
    * @param bool|null $isDefaultRevision
    *   Whether the node should be default revision, or NULL if not to expect it
    *   to be called.
+   *
+   * @dataProvider providerTestRevisionOperations
    */
-  #[DataProvider('providerTestRevisionOperations')]
   public function testRevisionOperations($operation, array $hasPermissionMap, $assertAccess, $isDefaultRevision = NULL): void {
-    $account = $this->createStub(AccountInterface::class);
+    $account = $this->createMock(AccountInterface::class);
     $account->method('hasPermission')
       ->willReturnMap($hasPermissionMap);
-    $account->method('id')
-      ->willReturn(42);
 
-    $entityType = $this->createStub(EntityTypeInterface::class);
-    $grants = $this->createStub(NodeGrantDatabaseStorageInterface::class);
-    $grants
+    $entityType = $this->createMock(EntityTypeInterface::class);
+    $grants = $this->createMock(NodeGrantDatabaseStorageInterface::class);
+    $grants->expects($this->any())
       ->method('access')
       ->willReturn(AccessResult::neutral());
 
-    $language = $this->createStub(LanguageInterface::class);
-    $language
+    $language = $this->createMock(LanguageInterface::class);
+    $language->expects($this->any())
       ->method('getId')
       ->willReturn('de');
 
     $nid = 333;
     /** @var \Drupal\node\NodeInterface|\PHPUnit\Framework\MockObject\MockObject $node */
     $node = $this->createMock(NodeInterface::class);
-    $node
+    $node->expects($this->any())
       ->method('language')
       ->willReturn($language);
-    $node
+    $node->expects($this->any())
       ->method('id')
       ->willReturn($nid);
-    $node
+    $node->expects($this->any())
       ->method('getCacheContexts')
       ->willReturn([]);
-    $node
+    $node->expects($this->any())
       ->method('getCacheTags')
       ->willReturn([]);
-    $node
+    $node->expects($this->any())
       ->method('getCacheMaxAge')
       ->willReturn(-1);
-    $node
+    $node->expects($this->any())
       ->method('getEntityTypeId')
       ->willReturn('node');
 
-    $node->expects($this->atLeastOnce())
-      ->method('isDefaultRevision')
-      ->willReturn($isDefaultRevision);
+    if (isset($isDefaultRevision)) {
+      $node->expects($this->atLeastOnce())
+        ->method('isDefaultRevision')
+        ->willReturn($isDefaultRevision);
+    }
 
-    $nodeStorage = $this->createStub(NodeStorageInterface::class);
-    $nodeStorage
+    $nodeStorage = $this->createMock(NodeStorageInterface::class);
+    $nodeStorage->expects($this->any())
       ->method('load')
+      ->with($nid)
       ->willReturn($node);
-    $entityTypeManager = $this->createStub(EntityTypeManagerInterface::class);
-    $entityTypeManager
+    $entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
+    $entityTypeManager->expects($this->any())
       ->method('getStorage')
+      ->with('node')
       ->willReturn($nodeStorage);
 
-    $moduleHandler = $this->createStub(ModuleHandlerInterface::class);
-    $moduleHandler
+    $moduleHandler = $this->createMock(ModuleHandlerInterface::class);
+    $moduleHandler->expects($this->any())
       ->method('invokeAll')
       ->willReturn([]);
     $accessControl = new NodeAccessControlHandler($entityType, $grants, $entityTypeManager);

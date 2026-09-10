@@ -74,6 +74,13 @@ class BlockForm extends EntityForm {
   protected $pluginFormFactory;
 
   /**
+   * The block repository service.
+   *
+   * @var \Drupal\block\BlockRepositoryInterface
+   */
+  protected $blockRepository;
+
+  /**
    * Constructs a BlockForm object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -88,16 +95,21 @@ class BlockForm extends EntityForm {
    *   The theme handler.
    * @param \Drupal\Core\Plugin\PluginFormFactoryInterface $plugin_form_manager
    *   The plugin form manager.
-   * @param \Drupal\block\BlockRepositoryInterface $blockRepository
+   * @param \Drupal\block\BlockRepositoryInterface|null $block_repository
    *   The block repository service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ExecutableManagerInterface $manager, ContextRepositoryInterface $context_repository, LanguageManagerInterface $language, ThemeHandlerInterface $theme_handler, PluginFormFactoryInterface $plugin_form_manager, protected BlockRepositoryInterface $blockRepository) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ExecutableManagerInterface $manager, ContextRepositoryInterface $context_repository, LanguageManagerInterface $language, ThemeHandlerInterface $theme_handler, PluginFormFactoryInterface $plugin_form_manager, ?BlockRepositoryInterface $block_repository = NULL) {
+    if ($block_repository === NULL) {
+      @trigger_error('Calling ' . __METHOD__ . ' without the $block_repository argument is deprecated in drupal:10.2.0 and will be required in drupal:11.0.0. See https://www.drupal.org/node/3333575', E_USER_DEPRECATED);
+      $block_repository = \Drupal::service('block.repository');
+    }
     $this->storage = $entity_type_manager->getStorage('block');
     $this->manager = $manager;
     $this->contextRepository = $context_repository;
     $this->language = $language;
     $this->themeHandler = $theme_handler;
     $this->pluginFormFactory = $plugin_form_manager;
+    $this->blockRepository = $block_repository;
   }
 
   /**
@@ -139,9 +151,8 @@ class BlockForm extends EntityForm {
       '#default_value' => !$entity->isNew() ? $entity->id() : $this->getUniqueMachineName($entity),
       '#machine_name' => [
         'exists' => '\Drupal\block\Entity\Block::load',
-        'replace_pattern' => '[^a-z0-9_.]|(^\.)',
+        'replace_pattern' => '[^a-z0-9_.]+',
         'source' => ['settings', 'label'],
-        'error' => $this->t('The machine-readable name must contain only lowercase letters, numbers, underscores and periods, and must not begin with a period.'),
       ],
       '#required' => TRUE,
       '#disabled' => !$entity->isNew(),
@@ -175,7 +186,7 @@ class BlockForm extends EntityForm {
     }
 
     // Hidden weight setting.
-    $weight = $entity->isNew() ? $this->getRequest()->query->getInt('weight') : $entity->getWeight();
+    $weight = $entity->isNew() ? $this->getRequest()->query->get('weight', 0) : $entity->getWeight();
     $form['weight'] = [
       '#type' => 'hidden',
       '#default_value' => $weight,
@@ -190,7 +201,7 @@ class BlockForm extends EntityForm {
       '#description' => $this->t('Select the region where this block should be displayed.'),
       '#default_value' => $region,
       '#required' => TRUE,
-      '#options' => $this->themeHandler->getTheme($form_state->getValue('theme', $theme))->listVisibleRegions(),
+      '#options' => system_region_list($form_state->getValue('theme', $theme), REGIONS_VISIBLE),
       '#prefix' => '<div id="edit-block-region-wrapper">',
       '#suffix' => '</div>',
     ];

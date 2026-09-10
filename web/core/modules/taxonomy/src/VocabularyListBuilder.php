@@ -2,7 +2,6 @@
 
 namespace Drupal\taxonomy;
 
-use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Config\Entity\DraggableListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -106,10 +105,8 @@ class VocabularyListBuilder extends DraggableListBuilder {
   /**
    * {@inheritdoc}
    */
-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
-    $args = func_get_args();
-    $cacheability = $args[1] ?? new CacheableMetadata();
-    $operations = parent::getDefaultOperations($entity, $cacheability);
+  public function getDefaultOperations(EntityInterface $entity) {
+    $operations = parent::getDefaultOperations($entity);
 
     if (isset($operations['edit'])) {
       $operations['edit']['title'] = $this->t('Edit vocabulary');
@@ -118,9 +115,7 @@ class VocabularyListBuilder extends DraggableListBuilder {
       $operations['delete']['title'] = $this->t('Delete vocabulary');
     }
 
-    $overview_access = $entity->access('access taxonomy overview', return_as_object: TRUE);
-    $cacheability->addCacheableDependency($overview_access);
-    if ($overview_access->isAllowed()) {
+    if ($entity->access('access taxonomy overview')) {
       $operations['list'] = [
         'title' => $this->t('List terms'),
         'weight' => 0,
@@ -129,8 +124,7 @@ class VocabularyListBuilder extends DraggableListBuilder {
     }
 
     $taxonomy_term_access_control_handler = $this->entityTypeManager->getAccessControlHandler('taxonomy_term');
-    $create_access = $taxonomy_term_access_control_handler->createAccess($entity->id(), return_as_object: TRUE);
-    if ($create_access->isAllowed()) {
+    if ($taxonomy_term_access_control_handler->createAccess($entity->id())) {
       $operations['add'] = [
         'title' => $this->t('Add terms'),
         'weight' => 10,

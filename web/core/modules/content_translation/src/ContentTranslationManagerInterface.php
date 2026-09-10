@@ -2,7 +2,6 @@
 
 namespace Drupal\content_translation;
 
-use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
@@ -77,16 +76,5 @@ interface ContentTranslationManagerInterface {
    *   returns TRUE if at least one of the entity bundles is translatable.
    */
   public function isEnabled($entity_type_id, $bundle = NULL);
-
-  /**
-   * Access callback for the translation overview page.
-   *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity whose translation overview should be displayed.
-   *
-   * @return \Drupal\Core\Access\AccessResultInterface
-   *   The access result.
-   */
-  public function access(EntityInterface $entity): AccessResultInterface;
 
 }

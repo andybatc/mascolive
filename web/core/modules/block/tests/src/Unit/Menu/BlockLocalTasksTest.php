@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\block\Unit\Menu;
 
-use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\Tests\Core\Menu\LocalTaskIntegrationTestBase;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * Tests block local tasks.
+ *
+ * @group block
  */
-#[Group('block')]
 class BlockLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   /**
@@ -47,11 +45,11 @@ class BlockLocalTasksTest extends LocalTaskIntegrationTestBase {
         'name' => 'test_c',
       ],
     ];
-    $theme_handler = $this->createStub(ThemeHandlerInterface::class);
-    $theme_handler
+    $theme_handler = $this->createMock('Drupal\Core\Extension\ThemeHandlerInterface');
+    $theme_handler->expects($this->any())
       ->method('listInfo')
       ->willReturn($themes);
-    $theme_handler
+    $theme_handler->expects($this->any())
       ->method('hasUi')
       ->willReturnMap([
         ['test_a', FALSE],
@@ -75,8 +73,9 @@ class BlockLocalTasksTest extends LocalTaskIntegrationTestBase {
 
   /**
    * Tests the block admin display local tasks.
+   *
+   * @dataProvider providerTestBlockAdminDisplay
    */
-  #[DataProvider('providerTestBlockAdminDisplay')]
   public function testBlockAdminDisplay($route, $expected): void {
     $this->assertLocalTasks($route, $expected);
   }
@@ -86,26 +85,8 @@ class BlockLocalTasksTest extends LocalTaskIntegrationTestBase {
    */
   public static function providerTestBlockAdminDisplay() {
     return [
-      [
-        'block.admin_display',
-        [
-          ['block.admin_display'],
-          [
-            'block.admin_display_theme:test_b',
-            'block.admin_display_theme:test_c',
-          ],
-        ],
-      ],
-      [
-        'block.admin_display_theme',
-        [
-          ['block.admin_display'],
-          [
-            'block.admin_display_theme:test_b',
-            'block.admin_display_theme:test_c',
-          ],
-        ],
-      ],
+      ['block.admin_display', [['block.admin_display'], ['block.admin_display_theme:test_b', 'block.admin_display_theme:test_c']]],
+      ['block.admin_display_theme', [['block.admin_display'], ['block.admin_display_theme:test_b', 'block.admin_display_theme:test_c']]],
     ];
   }
 

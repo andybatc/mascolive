@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\node\FunctionalJavascript;
 
-use Drupal\filter\FilterFormatRepositoryInterface;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\Tests\contextual\FunctionalJavascript\ContextualLinkClickTrait;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Create a node with revisions and test contextual links.
+ *
+ * @group node
  */
-#[Group('node')]
-#[RunTestsInSeparateProcesses]
 class ContextualLinksTest extends WebDriverTestBase {
 
   use ContextualLinkClickTrait;
@@ -66,7 +63,7 @@ class ContextualLinksTest extends WebDriverTestBase {
       $node->title = $this->randomMachineName();
       $node->body = [
         'value' => $this->randomMachineName(32),
-        'format' => \Drupal::service(FilterFormatRepositoryInterface::class)->getDefaultFormat()->id(),
+        'format' => filter_default_format(),
       ];
       $node->setNewRevision();
 

@@ -42,7 +42,6 @@ class ConfigEntityUpdater implements ContainerInjectionInterface {
 
   /**
    * The number of entities to process in each batch.
-   *
    * @var int
    */
   protected $batchSize;
@@ -189,6 +188,7 @@ class ConfigEntityUpdater implements ContainerInjectionInterface {
    */
   protected function doOne(ConfigEntityInterface $entity, callable $callback) {
     if (call_user_func($callback, $entity)) {
+      $entity->trustData();
       $entity->save();
     }
   }

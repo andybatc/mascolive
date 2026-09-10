@@ -35,9 +35,7 @@ use Drupal\Core\Validation\Plugin\Validation\Constraint\AllowedValuesConstraint;
 #[FieldType(
   id: "entity_reference",
   label: new TranslatableMarkup("Entity reference"),
-  description: [
-    new TranslatableMarkup("Choose any content or configuration type to reference on the next screen"),
-  ],
+  description: new TranslatableMarkup("An entity field containing an entity reference."),
   category: "reference",
   default_widget: "entity_reference_autocomplete",
   default_formatter: "entity_reference_label",
@@ -77,7 +75,13 @@ class EntityReferenceItem extends EntityReferenceItemBase implements OptionsProv
       throw new FieldException('Entity type "' . $target_type_info->id() . '" has no ID key and cannot be targeted by entity reference field "' . $field_definition->getName() . '"');
     }
 
-    $target_id_data_type = $target_type_info->hasIntegerId() ? 'integer' : 'string';
+    $target_id_data_type = 'string';
+    if ($target_type_info->entityClassImplements(FieldableEntityInterface::class)) {
+      $id_definition = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions($settings['target_type'])[$target_type_info->getKey('id')];
+      if ($id_definition->getType() === 'integer') {
+        $target_id_data_type = 'integer';
+      }
+    }
 
     if ($target_id_data_type === 'integer') {
       $target_id_definition = DataReferenceTargetDefinition::create('integer')
@@ -101,7 +105,7 @@ class EntityReferenceItem extends EntityReferenceItemBase implements OptionsProv
       // We can add a constraint for the target entity type. The list of
       // referenceable bundles is a field setting, so the corresponding
       // constraint is added dynamically in ::getConstraints().
-      ->addConstraint('EntityType', ['type' => $settings['target_type']]);
+      ->addConstraint('EntityType', $settings['target_type']);
 
     return $properties;
   }
@@ -135,7 +139,8 @@ class EntityReferenceItem extends EntityReferenceItemBase implements OptionsProv
 
     /** @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_bundle_information */
     $entity_bundle_information = \Drupal::service('entity_type.bundle.info');
-    $bundles = array_intersect_key($entity_bundle_information->getBundleLabels($target_type), $handler_settings['target_bundles']);
+    $bundle_info = $entity_bundle_information->getBundleInfo($target_type);
+    $bundles = array_map(fn($bundle) => $bundle_info[$bundle]['label'], $handler_settings['target_bundles']);
     $bundle_label = \Drupal::entityTypeManager()->getDefinition($target_type)->getBundleLabel();
 
     if (!empty($bundles)) {
@@ -163,7 +168,7 @@ class EntityReferenceItem extends EntityReferenceItemBase implements OptionsProv
     try {
       $target_type_info = \Drupal::entityTypeManager()->getDefinition($target_type);
     }
-    catch (PluginNotFoundException) {
+    catch (PluginNotFoundException $e) {
       throw new FieldException(sprintf("Field '%s' on entity type '%s' references a target entity type '%s' which does not exist.",
         $field_definition->getName(),
         $field_definition->getTargetEntityTypeId(),
@@ -759,9 +764,6 @@ class EntityReferenceItem extends EntityReferenceItemBase implements OptionsProv
     foreach ($common_references as $entity_type) {
       $options[$entity_type->id()] = [
         'label' => $entity_type->getLabel(),
-        'description' => new TranslatableMarkup('A reference to a(n) @item', [
-          '@item' => $entity_type->getSingularLabel(),
-        ]),
         'field_storage_config' => [
           'settings' => [
             'target_type' => $entity_type->id(),

@@ -17,7 +17,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 #[FieldType(
   id: "email",
   label: new TranslatableMarkup("Email"),
-  description: new TranslatableMarkup("An email address, optionally displayed as an email link"),
+  description: new TranslatableMarkup("Field to store an email address."),
   default_widget: "email_default",
   default_formatter: "basic_string"
 )]
@@ -56,15 +56,13 @@ class EmailItem extends FieldItemBase {
     $constraints = parent::getConstraints();
 
     $constraints[] = $constraint_manager->create('ComplexData', [
-      'properties' => [
-        'value' => [
-          'Length' => [
-            'max' => Email::EMAIL_MAX_LENGTH,
-            'maxMessage' => $this->t('%name: the email address can not be longer than @max characters.', [
-              '%name' => $this->getFieldDefinition()->getLabel(),
-              '@max' => Email::EMAIL_MAX_LENGTH,
-            ]),
-          ],
+      'value' => [
+        'Length' => [
+          'max' => Email::EMAIL_MAX_LENGTH,
+          'maxMessage' => $this->t('%name: the email address can not be longer than @max characters.', [
+            '%name' => $this->getFieldDefinition()->getLabel(),
+            '@max' => Email::EMAIL_MAX_LENGTH,
+          ]),
         ],
       ],
     ]);

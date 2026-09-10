@@ -95,8 +95,7 @@ class FormErrorHandler extends CoreFormErrorHandler {
         unset($errors[$name]);
       }
       elseif ($is_visible_element && $has_title && $has_id) {
-        $url = Url::fromRoute('<none>', [], ['fragment' => $form_element['#id'], 'external' => TRUE]);
-        $error_links[] = Link::fromTextAndUrl($title, $url)->toRenderable();
+        $error_links[] = Link::fromTextAndUrl($title, Url::fromRoute('<none>', [], ['fragment' => $form_element['#id'], 'external' => TRUE]))->toRenderable();
         unset($errors[$name]);
       }
     }

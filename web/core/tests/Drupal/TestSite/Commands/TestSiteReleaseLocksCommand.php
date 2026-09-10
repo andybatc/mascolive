@@ -22,7 +22,7 @@ class TestSiteReleaseLocksCommand extends Command {
   /**
    * {@inheritdoc}
    */
-  protected function configure(): void {
+  protected function configure() {
     $this->setName('release-locks')
       ->setDescription('Releases all test site locks')
       ->setHelp('The locks ensure test site database prefixes are not reused.');

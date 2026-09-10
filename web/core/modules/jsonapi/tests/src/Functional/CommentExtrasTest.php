@@ -4,23 +4,18 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\jsonapi\Functional;
 
-use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Url;
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Serialization\Json;
 use GuzzleHttp\RequestOptions;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * JSON:API integration test for the "Comment" content entity type.
+ *
+ * @group jsonapi
  */
-#[Group('jsonapi')]
-#[RunTestsInSeparateProcesses]
 class CommentExtrasTest extends CommentTest {
 
-  /**
-   * {@inheritdoc}
-   */
   public function setUp(): void {
     // Don't run any test methods from CommentTest because those will get run
     // for CommentTest itself.
@@ -45,7 +40,7 @@ class CommentExtrasTest extends CommentTest {
    */
   public function testPostIndividualDxWithoutCriticalBaseFields(): void {
     $this->setUpAuthorization('POST');
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     $url = Url::fromRoute(sprintf('jsonapi.%s.collection.post', static::$resourceTypeName));
     $request_options = [];
@@ -85,7 +80,7 @@ class CommentExtrasTest extends CommentTest {
    */
   public function testPostIndividualSkipCommentApproval(): void {
     $this->setUpAuthorization('POST');
-    $this->config('jsonapi.settings')->set('read_only', FALSE)->save();
+    $this->config('jsonapi.settings')->set('read_only', FALSE)->save(TRUE);
 
     // Create request.
     $request_options = [];

@@ -8,20 +8,13 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\Entity\EntityFormMode;
 use Drupal\Core\Entity\EntityType;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\Exception\EntityTypeIdLengthException;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\TestWith;
 
 /**
- * Tests Drupal\Core\Entity\EntityType.
+ * @coversDefaultClass \Drupal\Core\Entity\EntityType
+ * @group Entity
  */
-#[CoversClass(EntityType::class)]
-#[Group('Entity')]
 class EntityTypeTest extends UnitTestCase {
 
   /**
@@ -31,9 +24,8 @@ class EntityTypeTest extends UnitTestCase {
    *   An array of values to use for the EntityType.
    *
    * @return \Drupal\Core\Entity\EntityTypeInterface
-   *   The EntityType object.
    */
-  protected function setUpEntityType($definition): EntityType {
+  protected function setUpEntityType($definition) {
     $definition += [
       'id' => 'example_entity_type',
     ];
@@ -41,21 +33,21 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get.
+   * @covers ::get
+   *
+   * @dataProvider providerTestGet
    */
-  #[DataProvider('providerTestGet')]
   public function testGet(array $definition, $key, $expected): void {
     $entity_type = $this->setUpEntityType($definition);
     $this->assertSame($expected, $entity_type->get($key));
   }
 
   /**
-   * Tests set.
+   * @covers ::set
+   * @covers ::get
    *
-   * @legacy-covers ::set
-   * @legacy-covers ::get
+   * @dataProvider providerTestSet
    */
-  #[DataProvider('providerTestSet')]
   public function testSet($key, $value): void {
     $entity_type = $this->setUpEntityType([]);
     $this->assertInstanceOf('Drupal\Core\Entity\EntityTypeInterface', $entity_type->set($key, $value));
@@ -65,8 +57,9 @@ class EntityTypeTest extends UnitTestCase {
 
   /**
    * Tests the getKeys() method.
+   *
+   * @dataProvider providerTestGetKeys
    */
-  #[DataProvider('providerTestGetKeys')]
   public function testGetKeys($entity_keys, $expected): void {
     $entity_type = $this->setUpEntityType(['entity_keys' => $entity_keys]);
     $expected += [
@@ -78,8 +71,9 @@ class EntityTypeTest extends UnitTestCase {
 
   /**
    * Tests the getKey() method.
+   *
+   * @dataProvider providerTestGetKeys
    */
-  #[DataProvider('providerTestGetKeys')]
   public function testGetKey($entity_keys, $expected): void {
     $entity_type = $this->setUpEntityType(['entity_keys' => $entity_keys]);
     $this->assertSame($expected['bundle'], $entity_type->getKey('bundle'));
@@ -88,8 +82,9 @@ class EntityTypeTest extends UnitTestCase {
 
   /**
    * Tests the hasKey() method.
+   *
+   * @dataProvider providerTestGetKeys
    */
-  #[DataProvider('providerTestGetKeys')]
   public function testHasKey($entity_keys, $expected): void {
     $entity_type = $this->setUpEntityType(['entity_keys' => $entity_keys]);
     $this->assertSame(!empty($expected['bundle']), $entity_type->hasKey('bundle'));
@@ -100,7 +95,7 @@ class EntityTypeTest extends UnitTestCase {
   /**
    * Provides test data for testGet.
    */
-  public static function providerTestGet(): array {
+  public static function providerTestGet() {
     return [
       [[], 'provider', NULL],
       [['provider' => ''], 'provider', ''],
@@ -114,7 +109,7 @@ class EntityTypeTest extends UnitTestCase {
   /**
    * Provides test data for testSet.
    */
-  public static function providerTestSet(): array {
+  public static function providerTestSet() {
     return [
       ['provider', NULL],
       ['provider', ''],
@@ -128,7 +123,7 @@ class EntityTypeTest extends UnitTestCase {
   /**
    * Provides test data.
    */
-  public static function providerTestGetKeys(): array {
+  public static function providerTestGetKeys() {
     return [
       [[], ['revision' => '', 'bundle' => '', 'langcode' => '']],
       [['id' => 'id'], ['id' => 'id', 'revision' => '', 'bundle' => '', 'langcode' => '']],
@@ -164,16 +159,17 @@ class EntityTypeTest extends UnitTestCase {
    * Tests the getHandler() method.
    */
   public function testGetHandler(): void {
+    $controller = $this->getTestHandlerClass();
     $entity_type = $this->setUpEntityType([
       'handlers' => [
-        'storage' => StubEntityHandlerBase::class,
+        'storage' => $controller,
         'form' => [
-          'default' => StubEntityHandlerBase::class,
+          'default' => $controller,
         ],
       ],
     ]);
-    $this->assertSame(StubEntityHandlerBase::class, $entity_type->getHandlerClass('storage'));
-    $this->assertSame(StubEntityHandlerBase::class, $entity_type->getHandlerClass('form', 'default'));
+    $this->assertSame($controller, $entity_type->getHandlerClass('storage'));
+    $this->assertSame($controller, $entity_type->getHandlerClass('form', 'default'));
     $this->assertNull($entity_type->getHandlerClass('foo'));
     $this->assertNull($entity_type->getHandlerClass('foo', 'bar'));
   }
@@ -182,70 +178,76 @@ class EntityTypeTest extends UnitTestCase {
    * Tests the getStorageClass() method.
    */
   public function testGetStorageClass(): void {
+    $controller = $this->getTestHandlerClass();
     $entity_type = $this->setUpEntityType([
       'handlers' => [
-        'storage' => StubEntityHandlerBase::class,
+        'storage' => $controller,
       ],
     ]);
-    $this->assertSame(StubEntityHandlerBase::class, $entity_type->getStorageClass());
+    $this->assertSame($controller, $entity_type->getStorageClass());
   }
 
   /**
    * Tests the setStorageClass() method.
    */
   public function testSetStorageClass(): void {
+    $controller = $this->getTestHandlerClass();
     $entity_type = $this->setUpEntityType([]);
-    $this->assertSame($entity_type, $entity_type->setStorageClass(StubEntityHandlerBase::class));
+    $this->assertSame($entity_type, $entity_type->setStorageClass($controller));
   }
 
   /**
    * Tests the getListBuilderClass() method.
    */
   public function testGetListBuilderClass(): void {
+    $controller = $this->getTestHandlerClass();
     $entity_type = $this->setUpEntityType([
       'handlers' => [
-        'list_builder' => StubEntityHandlerBase::class,
+        'list_builder' => $controller,
       ],
     ]);
-    $this->assertSame(StubEntityHandlerBase::class, $entity_type->getListBuilderClass());
+    $this->assertSame($controller, $entity_type->getListBuilderClass());
   }
 
   /**
    * Tests the getAccessControlClass() method.
    */
   public function testGetAccessControlClass(): void {
+    $controller = $this->getTestHandlerClass();
     $entity_type = $this->setUpEntityType([
       'handlers' => [
-        'access' => StubEntityHandlerBase::class,
+        'access' => $controller,
       ],
     ]);
-    $this->assertSame(StubEntityHandlerBase::class, $entity_type->getAccessControlClass());
+    $this->assertSame($controller, $entity_type->getAccessControlClass());
   }
 
   /**
    * Tests the getFormClass() method.
    */
   public function testGetFormClass(): void {
+    $controller = $this->getTestHandlerClass();
     $operation = 'default';
     $entity_type = $this->setUpEntityType([
       'handlers' => [
         'form' => [
-          $operation => StubEntityHandlerBase::class,
+          $operation => $controller,
         ],
       ],
     ]);
-    $this->assertSame(StubEntityHandlerBase::class, $entity_type->getFormClass($operation));
+    $this->assertSame($controller, $entity_type->getFormClass($operation));
   }
 
   /**
    * Tests the hasFormClasses() method.
    */
   public function testHasFormClasses(): void {
+    $controller = $this->getTestHandlerClass();
     $operation = 'default';
     $entity_type1 = $this->setUpEntityType([
       'handlers' => [
         'form' => [
-          $operation => StubEntityHandlerBase::class,
+          $operation => $controller,
         ],
       ],
     ]);
@@ -260,18 +262,17 @@ class EntityTypeTest extends UnitTestCase {
    * Tests the getViewBuilderClass() method.
    */
   public function testGetViewBuilderClass(): void {
+    $controller = $this->getTestHandlerClass();
     $entity_type = $this->setUpEntityType([
       'handlers' => [
-        'view_builder' => StubEntityHandlerBase::class,
+        'view_builder' => $controller,
       ],
     ]);
-    $this->assertSame(StubEntityHandlerBase::class, $entity_type->getViewBuilderClass());
+    $this->assertSame($controller, $entity_type->getViewBuilderClass());
   }
 
   /**
-   * Tests id exceeds max length.
-   *
-   * @legacy-covers ::__construct
+   * @covers ::__construct
    */
   public function testIdExceedsMaxLength(): void {
     $id = $this->randomMachineName(33);
@@ -282,66 +283,19 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests maxlength validation of ID when it is a derivative.
-   *
-   * Bundle class plugin IDs have derivative form of {entity type ID}:{bundle},
-   * and both the entity type ID and the bundle can be up to 32 characters. As
-   * long as each is 32 or less, the combined ID is valid.
-   *
-   * @param bool $invalid_entity_type
-   *   Whether the entity type ID is too long.
-   * @param bool $invalid_bundle
-   *   Whether the bundle is too long.
+   * @covers ::getOriginalClass
    */
-  #[TestWith([TRUE, TRUE])]
-  #[TestWith([TRUE, FALSE])]
-  #[TestWith([FALSE, TRUE])]
-  #[TestWith([FALSE, FALSE])]
-  public function testDerivativeIdMaxlength(bool $invalid_entity_type, bool $invalid_bundle): void {
-    $entity_type_id = $invalid_entity_type ? $this->randomMachineName(EntityTypeInterface::ID_MAX_LENGTH + 1) : $this->randomMachineName(EntityTypeInterface::ID_MAX_LENGTH);
-    $bundle = $invalid_bundle ? $this->randomMachineName(EntityTypeInterface::BUNDLE_MAX_LENGTH + 1) : $this->randomMachineName(EntityTypeInterface::BUNDLE_MAX_LENGTH);
-
-    try {
-      $t = NULL;
-      $entity_type = $this->setUpEntityType(['id' => "$entity_type_id:$bundle"]);
-    }
-    catch (\Throwable $t) {
-      $entity_type = NULL;
-    }
-    if ($invalid_bundle) {
-      $this->assertInstanceOf(EntityTypeIdLengthException::class, $t);
-      $this->assertSame('Attempt to create an entity type bundle class with an ID longer than ' . EntityTypeInterface::ID_MAX_LENGTH . " characters: $bundle.", $t->getMessage());
-    }
-    elseif ($invalid_entity_type) {
-      $this->assertInstanceOf(EntityTypeIdLengthException::class, $t);
-      $this->assertSame('Attempt to create an entity type with an ID longer than ' . EntityTypeInterface::ID_MAX_LENGTH . " characters: $entity_type_id.", $t->getMessage());
-    }
-    else {
-      $this->assertInstanceOf(EntityTypeInterface::class, $entity_type);
-    }
-
-  }
-
-  /**
-   * Tests get original class unchanged.
-   */
-  #[IgnoreDeprecations]
   public function testGetOriginalClassUnchanged(): void {
-    $this->expectUserDeprecationMessage('The "getOriginalClass" method is deprecated in drupal:11.4.0 and will be removed in drupal:12.0.0. Use getDecoratedClasses() instead. See https://www.drupal.org/node/3557464');
     $class = $this->randomMachineName();
     $entity_type = $this->setUpEntityType(['class' => $class]);
     $this->assertEquals($class, $entity_type->getOriginalClass());
   }
 
   /**
-   * Tests get original class changed.
-   *
-   * @legacy-covers ::setClass
-   * @legacy-covers ::getOriginalClass
+   * @covers ::setClass
+   * @covers ::getOriginalClass
    */
-  #[IgnoreDeprecations]
   public function testGetOriginalClassChanged(): void {
-    $this->expectUserDeprecationMessage('The "getOriginalClass" method is deprecated in drupal:11.4.0 and will be removed in drupal:12.0.0. Use getDecoratedClasses() instead. See https://www.drupal.org/node/3557464');
     $class = $this->randomMachineName();
     $entity_type = $this->setUpEntityType(['class' => $class]);
     $entity_type->setClass($this->randomMachineName());
@@ -349,66 +303,7 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get decorated classes through setClass.
-   *
-   * @legacy-covers ::setClass
-   * @legacy-covers ::getDecoratedClasses
-   */
-  public function testGetDecoratedClassesSetClass(): void {
-    $class_1 = $this->randomMachineName();
-    $entity_type = $this->setUpEntityType(['class' => $class_1]);
-    // No override: decoratedClasses is empty.
-    $expected = [];
-    $this->assertEquals($expected, $entity_type->getDecoratedClasses());
-
-    $class_2 = $this->randomMachineName();
-    $entity_type->setClass($class_2);
-    $expected = [
-      $class_1,
-    ];
-    $this->assertEquals($expected, $entity_type->getDecoratedClasses());
-
-    $class_3 = $this->randomMachineName();
-    $entity_type->setClass($class_3);
-    $expected = [
-      $class_1,
-      $class_2,
-    ];
-    $this->assertEquals($expected, $entity_type->getDecoratedClasses());
-  }
-
-  /**
-   * Tests get decorated classes through set.
-   *
-   * @legacy-covers ::set
-   * @legacy-covers ::setClass
-   * @legacy-covers ::getDecoratedClasses
-   */
-  public function testGetDecoratedClassesSet(): void {
-    $class_1 = $this->randomMachineName();
-    $entity_type = $this->setUpEntityType(['class' => $class_1]);
-    // No override: decoratedClasses is empty.
-    $expected = [];
-    $this->assertEquals($expected, $entity_type->getDecoratedClasses());
-
-    $class_2 = $this->randomMachineName();
-    $entity_type->set('class', $class_2);
-    $expected = [
-      $class_1,
-    ];
-    $this->assertEquals($expected, $entity_type->getDecoratedClasses());
-
-    $class_3 = $this->randomMachineName();
-    $entity_type->set('class', $class_3);
-    $expected = [
-      $class_1,
-      $class_2,
-    ];
-    $this->assertEquals($expected, $entity_type->getDecoratedClasses());
-  }
-
-  /**
-   * Tests id.
+   * @covers ::id
    */
   public function testId(): void {
     $id = $this->randomMachineName(32);
@@ -417,10 +312,9 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get label.
+   * @covers ::getLabel
    */
   public function testGetLabel(): void {
-    // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
     $translatable_label = new TranslatableMarkup($this->randomMachineName());
     $entity_type = $this->setUpEntityType(['label' => $translatable_label]);
     $this->assertSame($translatable_label, $entity_type->getLabel());
@@ -431,10 +325,9 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get group label.
+   * @covers ::getGroupLabel
    */
   public function testGetGroupLabel(): void {
-    // phpcs:ignore Drupal.Semantics.FunctionT.NotLiteralString
     $translatable_group_label = new TranslatableMarkup($this->randomMachineName());
     $entity_type = $this->setUpEntityType(['group_label' => $translatable_group_label]);
     $this->assertSame($translatable_group_label, $entity_type->getGroupLabel());
@@ -449,7 +342,7 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get collection label.
+   * @covers ::getCollectionLabel
    */
   public function testGetCollectionLabel(): void {
     $translatable_label = new TranslatableMarkup('Entity test collection', [], [], $this->getStringTranslationStub());
@@ -459,7 +352,7 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get singular label.
+   * @covers ::getSingularLabel
    */
   public function testGetSingularLabel(): void {
     $translatable_label = new TranslatableMarkup('entity test singular', [], [], $this->getStringTranslationStub());
@@ -469,7 +362,7 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get singular label default.
+   * @covers ::getSingularLabel
    */
   public function testGetSingularLabelDefault(): void {
     $entity_type = $this->setUpEntityType(['label' => 'Entity test Singular']);
@@ -478,7 +371,7 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get plural label.
+   * @covers ::getPluralLabel
    */
   public function testGetPluralLabel(): void {
     $translatable_label = new TranslatableMarkup('entity test plural', [], [], $this->getStringTranslationStub());
@@ -488,7 +381,7 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get plural label default.
+   * @covers ::getPluralLabel
    */
   public function testGetPluralLabelDefault(): void {
     $entity_type = $this->setUpEntityType(['label' => 'Entity test Plural']);
@@ -497,15 +390,10 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests get count label.
+   * @covers ::getCountLabel
    */
   public function testGetCountLabel(): void {
-    $entity_type = $this->setUpEntityType([
-      'label_count' => [
-        'singular' => 'one entity test',
-        'plural' => '@count entity test',
-      ],
-    ]);
+    $entity_type = $this->setUpEntityType(['label_count' => ['singular' => 'one entity test', 'plural' => '@count entity test']]);
     $entity_type->setStringTranslation($this->getStringTranslationStub());
     $this->assertEquals('one entity test', $entity_type->getCountLabel(1));
     $this->assertEquals('2 entity test', $entity_type->getCountLabel(2));
@@ -513,19 +401,13 @@ class EntityTypeTest extends UnitTestCase {
     $this->assertArrayNotHasKey('context', $entity_type->getCountLabel(1)->getOptions());
 
     // Test a custom context.
-    $entity_type = $this->setUpEntityType([
-      'label_count' => [
-        'singular' => 'one entity test',
-        'plural' => '@count entity test',
-        'context' => 'custom context',
-      ],
-    ]);
+    $entity_type = $this->setUpEntityType(['label_count' => ['singular' => 'one entity test', 'plural' => '@count entity test', 'context' => 'custom context']]);
     $entity_type->setStringTranslation($this->getStringTranslationStub());
     $this->assertSame('custom context', $entity_type->getCountLabel(1)->getOption('context'));
   }
 
   /**
-   * Tests get count label default.
+   * @covers ::getCountLabel
    */
   public function testGetCountLabelDefault(): void {
     $entity_type = $this->setUpEntityType(['label' => 'Entity test Plural']);
@@ -538,8 +420,10 @@ class EntityTypeTest extends UnitTestCase {
 
   /**
    * Tests the ::getBundleLabel() method.
+   *
+   * @covers ::getBundleLabel
+   * @dataProvider providerTestGetBundleLabel
    */
-  #[DataProvider('providerTestGetBundleLabel')]
   public function testGetBundleLabel($definition, $expected): void {
     $entity_type = $this->setUpEntityType($definition);
     $entity_type->setStringTranslation($this->getStringTranslationStub());
@@ -549,7 +433,7 @@ class EntityTypeTest extends UnitTestCase {
   /**
    * Provides test data for ::testGetBundleLabel().
    */
-  public static function providerTestGetBundleLabel(): array {
+  public static function providerTestGetBundleLabel() {
     return [
       [['label' => 'Entity Label Foo'], 'Entity Label Foo bundle'],
       [['bundle_label' => 'Bundle Label Bar'], 'Bundle Label Bar'],
@@ -557,7 +441,17 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests set link template with invalid path.
+   * Gets a mock controller class name.
+   *
+   * @return string
+   *   A mock controller class name.
+   */
+  protected function getTestHandlerClass(): string {
+    return get_class($this->getMockForAbstractClass('Drupal\Core\Entity\EntityHandlerBase'));
+  }
+
+  /**
+   * @covers ::setLinkTemplate
    */
   public function testSetLinkTemplateWithInvalidPath(): void {
     $entity_type = $this->setUpEntityType(['id' => $this->randomMachineName()]);
@@ -568,9 +462,9 @@ class EntityTypeTest extends UnitTestCase {
   /**
    * Tests the constraint methods.
    *
-   * @legacy-covers ::getConstraints
-   * @legacy-covers ::setConstraints
-   * @legacy-covers ::addConstraint
+   * @covers ::getConstraints
+   * @covers ::setConstraints
+   * @covers ::addConstraint
    */
   public function testConstraintMethods(): void {
     $definition = [
@@ -600,21 +494,12 @@ class EntityTypeTest extends UnitTestCase {
   }
 
   /**
-   * Tests entity class implements.
+   * @covers ::entityClassImplements
    */
   public function testEntityClassImplements(): void {
     $entity_type = $this->setUpEntityType(['class' => EntityFormMode::class]);
     $this->assertTrue($entity_type->entityClassImplements(ConfigEntityInterface::class));
     $this->assertFalse($entity_type->entityClassImplements(\DateTimeInterface::class));
-  }
-
-  /**
-   * Tests the ::getBundleListCacheTags() method.
-   */
-  public function testGetBundleListCacheTags(): void {
-    $entity_type = $this->setUpEntityType(['entity_keys' => ['id' => 'id']]);
-    $bundle = $this->randomMachineName();
-    $this->assertEquals([$entity_type->id() . '_list:' . $bundle], $entity_type->getBundleListCacheTags($bundle));
   }
 
 }

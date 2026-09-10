@@ -10,18 +10,12 @@ use Drupal\Core\Cache\Context\CacheContextsManager;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Plugin\Context\ContextInterface;
 use Drupal\Tests\UnitTestCase;
-use Drupal\views\ContextualLinksHelper;
 use Drupal\views\Plugin\Block\ViewsBlock;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\Stub;
 
 /**
- * Tests Drupal\views\Plugin\block\ViewsBlock.
+ * @coversDefaultClass \Drupal\views\Plugin\block\ViewsBlock
+ * @group views
  */
-#[CoversClass(ViewsBlock::class)]
-#[Group('views')]
 class ViewsBlockTest extends UnitTestCase {
 
   /**
@@ -65,11 +59,6 @@ class ViewsBlockTest extends UnitTestCase {
    * @var \Drupal\views\Plugin\views\display\Block|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $displayHandler;
-
-  /**
-   * The Views contextual links service.
-   */
-  protected ContextualLinksHelper|Stub $contextualLinks;
 
   /**
    * {@inheritdoc}
@@ -156,7 +145,6 @@ class ViewsBlockTest extends UnitTestCase {
       ->with('test_view')
       ->willReturn($this->view);
     $this->account = $this->createMock('Drupal\Core\Session\AccountInterface');
-    $this->contextualLinks = $this->createStub(ContextualLinksHelper::class);
   }
 
   /**
@@ -166,14 +154,7 @@ class ViewsBlockTest extends UnitTestCase {
    */
   public function testBuild(): void {
     $output = $this->randomMachineName(100);
-    $build = [
-      'view_build' => $output,
-      '#view_id' => 'test_view',
-      '#view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Block',
-      '#view_display_show_admin_links' => FALSE,
-      '#view_display_plugin_id' => 'block',
-      '#pre_rendered' => TRUE,
-    ];
+    $build = ['view_build' => $output, '#view_id' => 'test_view', '#view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Block', '#view_display_show_admin_links' => FALSE, '#view_display_plugin_id' => 'block', '#pre_rendered' => TRUE];
     $this->executable->expects($this->once())
       ->method('buildRenderable')
       ->with('block_1', [])
@@ -184,7 +165,7 @@ class ViewsBlockTest extends UnitTestCase {
     $definition = [];
 
     $definition['provider'] = 'views';
-    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account, $this->contextualLinks);
+    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account);
 
     $this->assertEquals($build, $plugin->build());
   }
@@ -192,9 +173,10 @@ class ViewsBlockTest extends UnitTestCase {
   /**
    * Tests that cacheable metadata is retrieved from the view and merged with block cacheable metadata.
    *
+   * @dataProvider providerTestCacheableMetadata
+   *
    * @see \Drupal\views\Plugin\block\ViewsBlock::build()
    */
-  #[DataProvider('providerTestCacheableMetadata')]
   public function testCacheableMetadata(int $blockCacheMaxAge, int $viewCacheMaxAge, int $expectedCacheMaxAge): void {
 
     $blockCacheTags = ['block-cachetag-1', 'block-cachetag-2'];
@@ -236,7 +218,7 @@ class ViewsBlockTest extends UnitTestCase {
     $definition = [
       'provider' => 'views',
     ];
-    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account, $this->contextualLinks);
+    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account);
     $plugin->setContext('context_name', $blockContext);
 
     // Assertions.
@@ -260,17 +242,11 @@ class ViewsBlockTest extends UnitTestCase {
 
   /**
    * Tests the build method.
+   *
+   * @covers ::build
    */
   public function testBuildEmpty(): void {
-    $build = [
-      'view_build' => [],
-      '#view_id' => 'test_view',
-      '#view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Block',
-      '#view_display_show_admin_links' => FALSE,
-      '#view_display_plugin_id' => 'block',
-      '#pre_rendered' => TRUE,
-      '#cache' => ['contexts' => ['user']],
-    ];
+    $build = ['view_build' => [], '#view_id' => 'test_view', '#view_display_plugin_class' => '\Drupal\views\Plugin\views\display\Block', '#view_display_show_admin_links' => FALSE, '#view_display_plugin_id' => 'block', '#pre_rendered' => TRUE, '#cache' => ['contexts' => ['user']]];
     $this->executable->expects($this->once())
       ->method('buildRenderable')
       ->with('block_1', [])
@@ -281,7 +257,7 @@ class ViewsBlockTest extends UnitTestCase {
     $definition = [];
 
     $definition['provider'] = 'views';
-    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account, $this->contextualLinks);
+    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account);
 
     $this->assertEquals(array_intersect_key($build, ['#cache' => TRUE]), $plugin->build());
   }
@@ -303,9 +279,20 @@ class ViewsBlockTest extends UnitTestCase {
     $definition = [];
 
     $definition['provider'] = 'views';
-    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account, $this->contextualLinks);
+    $plugin = new ViewsBlock($config, $block_id, $definition, $this->executableFactory, $this->storage, $this->account);
 
     $this->assertEquals([], $plugin->build());
+  }
+
+}
+
+// @todo https://www.drupal.org/node/2571679 replace
+//   views_add_contextual_links().
+namespace Drupal\views\Plugin\Block;
+
+if (!function_exists('views_add_contextual_links')) {
+
+  function views_add_contextual_links(&$render_element, $location, $display_id, ?array $view_element = NULL) {
   }
 
 }

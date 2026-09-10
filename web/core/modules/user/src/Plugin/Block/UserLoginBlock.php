@@ -16,6 +16,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\user\Form\UserLoginForm;
 use Drupal\user\UserInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'User login' block.
@@ -58,11 +59,28 @@ class UserLoginBlock extends BlockBase implements ContainerFactoryPluginInterfac
     $plugin_id,
     $plugin_definition,
     RouteMatchInterface $route_match,
-    protected FormBuilderInterface $formBuilder,
+    protected ?FormBuilderInterface $formBuilder = NULL,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->routeMatch = $route_match;
+    if (!$formBuilder) {
+      @trigger_error('Calling ' . __METHOD__ . ' without the $formBuilder argument is deprecated in drupal:10.3.0 and it will be required in drupal:11.0.0. See https://www.drupal.org/node/3159776', E_USER_DEPRECATED);
+      $this->formBuilder = \Drupal::service('form_builder');
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('current_route_match'),
+      $container->get('form_builder')
+    );
   }
 
   /**
@@ -138,9 +156,7 @@ class UserLoginBlock extends BlockBase implements ContainerFactoryPluginInterfac
   }
 
   /**
-   * Render API callback: Renders a form action URL including destination.
-   *
-   * This function is assigned as a #lazy_builder callback.
+   * #lazy_builder callback; renders a form action URL including destination.
    *
    * @return array
    *   A renderable array representing the form action.
@@ -150,8 +166,7 @@ class UserLoginBlock extends BlockBase implements ContainerFactoryPluginInterfac
   public static function renderPlaceholderFormAction() {
     return [
       '#type' => 'markup',
-      '#markup' => UrlHelper::filterBadProtocol(
-        Url::fromRoute('<current>', [], ['query' => \Drupal::destination()->getAsArray(), 'external' => FALSE])->toString()),
+      '#markup' => UrlHelper::filterBadProtocol(Url::fromRoute('<current>', [], ['query' => \Drupal::destination()->getAsArray(), 'external' => FALSE])->toString()),
       '#cache' => ['contexts' => ['url.path', 'url.query_args']],
     ];
   }

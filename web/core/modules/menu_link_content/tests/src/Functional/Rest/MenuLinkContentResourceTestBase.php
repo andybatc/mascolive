@@ -8,7 +8,7 @@ use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\Tests\rest\Functional\EntityResource\EntityResourceTestBase;
 
 /**
- * Resource test base for MenuLinkContent entity.
+ * ResourceTestBase for MenuLinkContent entity.
  */
 abstract class MenuLinkContentResourceTestBase extends EntityResourceTestBase {
 
@@ -60,7 +60,6 @@ abstract class MenuLinkContentResourceTestBase extends EntityResourceTestBase {
       'description' => 'Llama Gabilondo',
       'link' => [
         'uri' => 'https://nl.wikipedia.org/wiki/Llama',
-        'resolvable_uri' => 'https://nl.wikipedia.org/wiki/Llama#a-fragment',
         'options' => [
           'fragment' => 'a-fragment',
           'attributes' => [
@@ -89,7 +88,6 @@ abstract class MenuLinkContentResourceTestBase extends EntityResourceTestBase {
       'link' => [
         [
           'uri' => 'http://www.urbandictionary.com/define.php?term=drama%20llama',
-          'resolvable_uri' => 'http://www.urbandictionary.com/define.php?term=drama%20llama#a-fragment',
           'options' => [
             'fragment' => 'a-fragment',
             'attributes' => [
@@ -134,7 +132,6 @@ abstract class MenuLinkContentResourceTestBase extends EntityResourceTestBase {
       'link' => [
         [
           'uri' => 'https://nl.wikipedia.org/wiki/Llama',
-          'resolvable_uri' => 'https://nl.wikipedia.org/wiki/Llama#a-fragment',
           'title' => NULL,
           'options' => [
             'fragment' => 'a-fragment',

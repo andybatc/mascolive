@@ -9,6 +9,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface;
@@ -25,22 +26,19 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\BooleanItem;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
+use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\TypedData\TypedDataManagerInterface;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use Prophecy\Argument;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Tests Drupal\Core\Entity\EntityFieldManager.
+ * @coversDefaultClass \Drupal\Core\Entity\EntityFieldManager
+ * @group Entity
  */
-#[CoversClass(EntityFieldManager::class)]
-#[Group('Entity')]
 class EntityFieldManagerTest extends UnitTestCase {
 
   /**
@@ -192,11 +190,11 @@ class EntityFieldManagerTest extends UnitTestCase {
    * @param \Drupal\Core\Entity\EntityTypeInterface[]|\Prophecy\Prophecy\ProphecyInterface[] $definitions
    *   (optional) An array of entity type definitions.
    */
-  protected function setUpEntityTypeDefinitions($definitions = []): void {
+  protected function setUpEntityTypeDefinitions($definitions = []) {
     foreach ($definitions as $key => $entity_type) {
       // \Drupal\Core\Entity\EntityTypeInterface::getLinkTemplates() is called
-      // by \Drupal\Core\Entity\EntityTypeManager::processDefinition() so it
-      // must always be mocked.
+      // by \Drupal\Core\Entity\EntityTypeManager::processDefinition() so it must
+      // always be mocked.
       $entity_type->getLinkTemplates()->willReturn([]);
 
       $definitions[$key] = $entity_type->reveal();
@@ -222,8 +220,8 @@ class EntityFieldManagerTest extends UnitTestCase {
   /**
    * Tests the getBaseFieldDefinitions() method.
    *
-   * @legacy-covers ::getBaseFieldDefinitions
-   * @legacy-covers ::buildBaseFieldDefinitions
+   * @covers ::getBaseFieldDefinitions
+   * @covers ::buildBaseFieldDefinitions
    */
   public function testGetBaseFieldDefinitions(): void {
     $field_definition = $this->setUpEntityWithFieldDefinition();
@@ -235,15 +233,10 @@ class EntityFieldManagerTest extends UnitTestCase {
   /**
    * Tests the getFieldDefinitions() method.
    *
-   * @legacy-covers ::getFieldDefinitions
-   * @legacy-covers ::buildBundleFieldDefinitions
+   * @covers ::getFieldDefinitions
+   * @covers ::buildBundleFieldDefinitions
    */
   public function testGetFieldDefinitions(): void {
-    $this->entityTypeBundleInfo->getBundleInfo('test_entity_type')->willReturn([
-      'test_entity_bundle' => 'test_entity_bundle',
-      'test_entity_bundle_class' => 'test_entity_bundle_class',
-      'some_other_bundle' => 'some_other_bundle',
-    ])->shouldBeCalled();
     $field_definition = $this->setUpEntityWithFieldDefinition();
 
     $bundle_field_definition = $this->prophesize()
@@ -287,7 +280,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $this->assertSame($expected, $this->entityFieldManager->getFieldDefinitions('test_entity_type', 'test_entity_bundle'));
 
     // Test that base fields and bundle fields from the bundle class and
-    // entity class are retrieved.
+    // entity class are retrieved
     $expected = [
       'id' => $field_definition,
       'some_extra_field' => $bundle_fields['the_entity_id']['test_entity_bundle_class']['some_extra_field'],
@@ -299,8 +292,8 @@ class EntityFieldManagerTest extends UnitTestCase {
   /**
    * Tests the getFieldStorageDefinitions() method.
    *
-   * @legacy-covers ::getFieldStorageDefinitions
-   * @legacy-covers ::buildFieldStorageDefinitions
+   * @covers ::getFieldStorageDefinitions
+   * @covers ::buildFieldStorageDefinitions
    */
   public function testGetFieldStorageDefinitions(): void {
     $field_definition = $this->setUpEntityWithFieldDefinition(TRUE);
@@ -319,8 +312,8 @@ class EntityFieldManagerTest extends UnitTestCase {
 
     $this->moduleHandler->invokeAllWith('entity_base_field_info', Argument::any());
     $this->moduleHandler->invokeAllWith('entity_field_storage_info', Argument::any())
-      ->will(function ($arguments) use ($definitions): void {
-        [, $callback] = $arguments;
+      ->will(function ($arguments) use ($definitions) {
+        [$hook, $callback] = $arguments;
         $callback(
           function () use ($definitions) {
             return $definitions;
@@ -341,15 +334,13 @@ class EntityFieldManagerTest extends UnitTestCase {
   /**
    * Tests the getBaseFieldDefinitions() method with a translatable entity type.
    *
-   * @legacy-covers ::getBaseFieldDefinitions
-   * @legacy-covers ::buildBaseFieldDefinitions
+   * @covers ::getBaseFieldDefinitions
+   * @covers ::buildBaseFieldDefinitions
+   *
+   * @dataProvider providerTestGetBaseFieldDefinitionsTranslatableEntityTypeDefaultLangcode
    */
-  #[DataProvider('providerTestGetBaseFieldDefinitionsTranslatableEntityTypeDefaultLangcode')]
   public function testGetBaseFieldDefinitionsTranslatableEntityTypeDefaultLangcode($default_langcode_key): void {
-    $this->setUpEntityWithFieldDefinition(FALSE, 'id', [
-      'langcode' => 'langcode',
-      'default_langcode' => $default_langcode_key,
-    ]);
+    $this->setUpEntityWithFieldDefinition(FALSE, 'id', ['langcode' => 'langcode', 'default_langcode' => $default_langcode_key]);
 
     $field_definition = $this->prophesize()->willImplement(FieldDefinitionInterface::class)->willImplement(FieldStorageDefinitionInterface::class);
     $field_definition->isTranslatable()->willReturn(TRUE);
@@ -370,7 +361,7 @@ class EntityFieldManagerTest extends UnitTestCase {
    * @return array
    *   Test data.
    */
-  public static function providerTestGetBaseFieldDefinitionsTranslatableEntityTypeDefaultLangcode(): array {
+  public static function providerTestGetBaseFieldDefinitionsTranslatableEntityTypeDefaultLangcode() {
     return [
       ['default_langcode'],
       ['custom_default_langcode_key'],
@@ -380,10 +371,11 @@ class EntityFieldManagerTest extends UnitTestCase {
   /**
    * Tests the getBaseFieldDefinitions() method with a translatable entity type.
    *
-   * @legacy-covers ::getBaseFieldDefinitions
-   * @legacy-covers ::buildBaseFieldDefinitions
+   * @covers ::getBaseFieldDefinitions
+   * @covers ::buildBaseFieldDefinitions
+   *
+   * @dataProvider providerTestGetBaseFieldDefinitionsTranslatableEntityTypeLangcode
    */
-  #[DataProvider('providerTestGetBaseFieldDefinitionsTranslatableEntityTypeLangcode')]
   public function testGetBaseFieldDefinitionsTranslatableEntityTypeLangcode($provide_key, $provide_field, $translatable): void {
     $keys = $provide_key ? ['langcode' => 'langcode'] : [];
     $this->setUpEntityWithFieldDefinition(FALSE, 'id', $keys);
@@ -413,7 +405,7 @@ class EntityFieldManagerTest extends UnitTestCase {
    * @return array
    *   Test data.
    */
-  public static function providerTestGetBaseFieldDefinitionsTranslatableEntityTypeLangcode(): array {
+  public static function providerTestGetBaseFieldDefinitionsTranslatableEntityTypeLangcode() {
     return [
       [FALSE, TRUE, TRUE],
       [TRUE, FALSE, TRUE],
@@ -423,6 +415,8 @@ class EntityFieldManagerTest extends UnitTestCase {
 
   /**
    * Tests the getBaseFieldDefinitions() method with caching.
+   *
+   * @covers ::getBaseFieldDefinitions
    */
   public function testGetBaseFieldDefinitionsWithCaching(): void {
     $field_definition = $this->setUpEntityWithFieldDefinition();
@@ -433,11 +427,8 @@ class EntityFieldManagerTest extends UnitTestCase {
     $this->cacheBackend->get('entity_base_field_definitions:test_entity_type:en')
       ->willReturn(FALSE)
       ->shouldBeCalled();
-    $this->cacheBackend->set('entity_base_field_definitions:test_entity_type:en', Argument::any(), Cache::PERMANENT, [
-      'entity_types',
-      'entity_field_info',
-    ])
-      ->will(function (array $args) use ($cacheBackend): void {
+    $this->cacheBackend->set('entity_base_field_definitions:test_entity_type:en', Argument::any(), Cache::PERMANENT, ['entity_types', 'entity_field_info'])
+      ->will(function (array $args) use ($cacheBackend) {
         $data = (object) ['data' => $args[1]];
         $cacheBackend->get('entity_base_field_definitions:test_entity_type:en')
           ->willReturn($data)
@@ -452,30 +443,29 @@ class EntityFieldManagerTest extends UnitTestCase {
 
   /**
    * Tests the getFieldDefinitions() method with caching.
+   *
+   * @covers ::getFieldDefinitions
    */
   public function testGetFieldDefinitionsWithCaching(): void {
-    $this->entityTypeBundleInfo->getBundleInfo('test_entity_type')->willReturn([
-      'test_bundle' => 'test_bundle',
-    ])->shouldBeCalled();
     $field_definition = $this->setUpEntityWithFieldDefinition(FALSE, 'id');
 
     $expected = ['id' => $field_definition];
 
+    $cacheBackend = $this->cacheBackend;
     $this->cacheBackend->get('entity_base_field_definitions:test_entity_type:en')
       ->willReturn((object) ['data' => $expected])
       ->shouldBeCalledTimes(2);
     $this->cacheBackend->get('entity_bundle_field_definitions:test_entity_type:test_bundle:en')
       ->willReturn(FALSE)
-      ->shouldBeCalledTimes(2);
-    $this->cacheBackend->setMultiple([
-      'entity_bundle_field_definitions:test_entity_type:test_bundle:en' => [
-        'data' => [],
-        'tags' => [
-          'entity_types',
-          'entity_field_info',
-        ],
-      ],
-    ])->shouldBeCalledTimes(2);
+      ->shouldBeCalledTimes(1);
+    $this->cacheBackend->set('entity_bundle_field_definitions:test_entity_type:test_bundle:en', Argument::any(), Cache::PERMANENT, ['entity_types', 'entity_field_info'])
+      ->will(function (array $args) use ($cacheBackend) {
+        $data = (object) ['data' => $args[1]];
+        $cacheBackend->get('entity_bundle_field_definitions:test_entity_type:test_bundle:en')
+          ->willReturn($data)
+          ->shouldBeCalled();
+      })
+      ->shouldBeCalled();
 
     $this->assertSame($expected, $this->entityFieldManager->getFieldDefinitions('test_entity_type', 'test_bundle'));
     $this->entityFieldManager->testClearEntityFieldInfo();
@@ -484,6 +474,8 @@ class EntityFieldManagerTest extends UnitTestCase {
 
   /**
    * Tests the getFieldStorageDefinitions() method with caching.
+   *
+   * @covers ::getFieldStorageDefinitions
    */
   public function testGetFieldStorageDefinitionsWithCaching(): void {
     $field_definition = $this->setUpEntityWithFieldDefinition(TRUE, 'id');
@@ -493,8 +485,8 @@ class EntityFieldManagerTest extends UnitTestCase {
     $definitions = ['field_storage' => $field_storage_definition->reveal()];
 
     $this->moduleHandler->invokeAllWith('entity_field_storage_info', Argument::any())
-      ->will(function ($arguments) use ($definitions): void {
-        [, $callback] = $arguments;
+      ->will(function ($arguments) use ($definitions) {
+        [$hook, $callback] = $arguments;
         $callback(
           function () use ($definitions) {
             return $definitions;
@@ -515,11 +507,8 @@ class EntityFieldManagerTest extends UnitTestCase {
       ->shouldBeCalledTimes(2);
     $this->cacheBackend->get('entity_field_storage_definitions:test_entity_type:en')->willReturn(FALSE);
 
-    $this->cacheBackend->set('entity_field_storage_definitions:test_entity_type:en', Argument::any(), Cache::PERMANENT, [
-      'entity_types',
-      'entity_field_info',
-    ])
-      ->will(function () use ($expected, $cacheBackend): void {
+    $this->cacheBackend->set('entity_field_storage_definitions:test_entity_type:en', Argument::any(), Cache::PERMANENT, ['entity_types', 'entity_field_info'])
+      ->will(function () use ($expected, $cacheBackend) {
         $cacheBackend->get('entity_field_storage_definitions:test_entity_type:en')
           ->willReturn((object) ['data' => $expected])
           ->shouldBeCalled();
@@ -534,8 +523,8 @@ class EntityFieldManagerTest extends UnitTestCase {
   /**
    * Tests the getBaseFieldDefinitions() method with an invalid definition.
    *
-   * @legacy-covers ::getBaseFieldDefinitions
-   * @legacy-covers ::buildBaseFieldDefinitions
+   * @covers ::getBaseFieldDefinitions
+   * @covers ::buildBaseFieldDefinitions
    */
   public function testGetBaseFieldDefinitionsInvalidDefinition(): void {
     $this->setUpEntityWithFieldDefinition(FALSE, 'langcode', ['langcode' => 'langcode']);
@@ -550,13 +539,10 @@ class EntityFieldManagerTest extends UnitTestCase {
   /**
    * Tests that getFieldDefinitions() method sets the 'provider' definition key.
    *
-   * @legacy-covers ::getFieldDefinitions
-   * @legacy-covers ::buildBundleFieldDefinitions
+   * @covers ::getFieldDefinitions
+   * @covers ::buildBundleFieldDefinitions
    */
   public function testGetFieldDefinitionsProvider(): void {
-    $this->entityTypeBundleInfo->getBundleInfo('test_entity_type')->willReturn([
-      'test_bundle' => 'test_bundle',
-    ])->shouldBeCalled();
     $this->setUpEntityWithFieldDefinition(TRUE);
 
     $module = 'entity_field_manager_test_module';
@@ -575,8 +561,8 @@ class EntityFieldManagerTest extends UnitTestCase {
     $field_definition->setTargetBundle('test_bundle')->shouldBeCalled();
 
     $this->moduleHandler->invokeAllWith(Argument::type('string'), Argument::any())
-      ->will(function ($arguments) use ($field_definition, $module): void {
-        [, $callback] = $arguments;
+      ->will(function ($arguments) use ($field_definition, $module) {
+        [$hook, $callback] = $arguments;
         $callback(
           function () use ($field_definition) {
             return [$field_definition->reveal()];
@@ -628,20 +614,17 @@ class EntityFieldManagerTest extends UnitTestCase {
     $override_entity_type = $this->prophesize(EntityTypeInterface::class);
 
     $this->entityType = $this->prophesize(EntityTypeInterface::class);
-    $this->setUpEntityTypeDefinitions([
-      'test_entity_type' => $this->entityType,
-      'base_field_override' => $override_entity_type,
-    ]);
+    $this->setUpEntityTypeDefinitions(['test_entity_type' => $this->entityType, 'base_field_override' => $override_entity_type]);
 
     $storage = $this->prophesize(EntityStorageInterface::class);
-    $storage->loadMultiple()->willReturn([]);
+    $storage->loadMultiple(Argument::type('array'))->willReturn([]);
 
     // By default, make the storage entity class lookup return the
-    // EntityTypeManagerTestEntity class.
+    // EntityTypeManagerTestEntity class
     $storage->getEntityClass(NULL)->willReturn(EntityTypeManagerTestEntity::class);
     $storage->getEntityClass(Argument::type('string'))->willReturn(EntityTypeManagerTestEntity::class);
     // When using the "test_entity_bundle_class" bundle, return the
-    // EntityTypeManagerTestEntityBundle class.
+    // EntityTypeManagerTestEntityBundle class
     $storage->getEntityClass('test_entity_bundle_class')->willReturn(EntityTypeManagerTestEntityBundle::class);
 
     $this->entityTypeManager->getStorage('test_entity_type')->willReturn($storage->reveal());
@@ -660,6 +643,8 @@ class EntityFieldManagerTest extends UnitTestCase {
 
   /**
    * Tests the clearCachedFieldDefinitions() method.
+   *
+   * @covers ::clearCachedFieldDefinitions
    */
   public function testClearCachedFieldDefinitions(): void {
     $this->setUpEntityTypeDefinitions();
@@ -673,7 +658,7 @@ class EntityFieldManagerTest extends UnitTestCase {
   }
 
   /**
-   * Tests get extra fields.
+   * @covers ::getExtraFields
    */
   public function testGetExtraFields(): void {
     $this->setUpEntityTypeDefinitions();
@@ -714,7 +699,83 @@ class EntityFieldManagerTest extends UnitTestCase {
   }
 
   /**
-   * Tests get field map from cache.
+   * @covers ::getFieldMap
+   */
+  public function testGetFieldMap(): void {
+    $this->entityTypeBundleInfo->getBundleInfo('test_entity_type')->willReturn([])->shouldBeCalled();
+
+    // Set up a content entity type.
+    $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_class = EntityTypeManagerTestEntity::class;
+
+    // Define an ID field definition as a base field.
+    $id_definition = $this->prophesize(FieldDefinitionInterface::class);
+    $id_definition->getType()->willReturn('integer');
+    $base_field_definitions = [
+      'id' => $id_definition->reveal(),
+    ];
+    $entity_class::$baseFieldDefinitions = $base_field_definitions;
+
+    // Set up the stored bundle field map.
+    $key_value_store = $this->prophesize(KeyValueStoreInterface::class);
+    $this->keyValueFactory->get('entity.definitions.bundle_field_map')->willReturn($key_value_store->reveal());
+    $key_value_store->getAll()->willReturn([
+      'test_entity_type' => [
+        'by_bundle' => [
+          'type' => 'string',
+          'bundles' => ['second_bundle' => 'second_bundle'],
+        ],
+      ],
+    ]);
+
+    // Set up a non-content entity type.
+    $non_content_entity_type = $this->prophesize(EntityTypeInterface::class);
+
+    // Mock the base field definition override.
+    $override_entity_type = $this->prophesize(EntityTypeInterface::class);
+
+    $this->setUpEntityTypeDefinitions([
+      'test_entity_type' => $entity_type,
+      'non_fieldable' => $non_content_entity_type,
+      'base_field_override' => $override_entity_type,
+    ]);
+
+    $entity_type->getClass()->willReturn($entity_class);
+    $entity_type->getKeys()->willReturn(['default_langcode' => 'default_langcode']);
+    $entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(TRUE);
+    $entity_type->isTranslatable()->shouldBeCalled();
+    $entity_type->isRevisionable()->shouldBeCalled();
+    $entity_type->getProvider()->shouldBeCalled();
+
+    $non_content_entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(FALSE);
+
+    $override_entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(FALSE);
+
+    // Set up the entity type bundle info to return two bundles for the
+    // fieldable entity type.
+    $this->entityTypeBundleInfo->getBundleInfo('test_entity_type')->willReturn([
+      'first_bundle' => 'first_bundle',
+      'second_bundle' => 'second_bundle',
+    ])->shouldBeCalled();
+    $this->moduleHandler->invokeAllWith('entity_base_field_info', Argument::any());
+
+    $expected = [
+      'test_entity_type' => [
+        'id' => [
+          'type' => 'integer',
+          'bundles' => ['first_bundle' => 'first_bundle', 'second_bundle' => 'second_bundle'],
+        ],
+        'by_bundle' => [
+          'type' => 'string',
+          'bundles' => ['second_bundle' => 'second_bundle'],
+        ],
+      ],
+    ];
+    $this->assertEquals($expected, $this->entityFieldManager->getFieldMap());
+  }
+
+  /**
+   * @covers ::getFieldMap
    */
   public function testGetFieldMapFromCache(): void {
     $expected = [
@@ -737,11 +798,74 @@ class EntityFieldManagerTest extends UnitTestCase {
     $this->assertEquals($expected, $this->entityFieldManager->getFieldMap());
   }
 
+  /**
+   * @covers ::getFieldMapByFieldType
+   */
+  public function testGetFieldMapByFieldType(): void {
+    // Set up a content entity type.
+    $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
+    $entity_class = EntityTypeManagerTestEntity::class;
+
+    // Set up the entity type bundle info to return two bundles for the
+    // fieldable entity type.
+    $this->entityTypeBundleInfo->getBundleInfo('test_entity_type')->willReturn([
+      'first_bundle' => 'first_bundle',
+      'second_bundle' => 'second_bundle',
+    ])->shouldBeCalled();
+    $this->moduleHandler->invokeAllWith('entity_base_field_info', Argument::any())->shouldBeCalled();
+
+    // Define an ID field definition as a base field.
+    $id_definition = $this->prophesize(FieldDefinitionInterface::class);
+    $id_definition->getType()->willReturn('integer')->shouldBeCalled();
+    $base_field_definitions = [
+      'id' => $id_definition->reveal(),
+    ];
+    $entity_class::$baseFieldDefinitions = $base_field_definitions;
+
+    // Set up the stored bundle field map.
+    $key_value_store = $this->prophesize(KeyValueStoreInterface::class);
+    $this->keyValueFactory->get('entity.definitions.bundle_field_map')->willReturn($key_value_store->reveal())->shouldBeCalled();
+    $key_value_store->getAll()->willReturn([
+      'test_entity_type' => [
+        'by_bundle' => [
+          'type' => 'string',
+          'bundles' => ['second_bundle' => 'second_bundle'],
+        ],
+      ],
+    ])->shouldBeCalled();
+
+    // Mock the base field definition override.
+    $override_entity_type = $this->prophesize(EntityTypeInterface::class);
+
+    $this->setUpEntityTypeDefinitions([
+      'test_entity_type' => $entity_type,
+      'base_field_override' => $override_entity_type,
+    ]);
+
+    $entity_type->getClass()->willReturn($entity_class)->shouldBeCalled();
+    $entity_type->getKeys()->willReturn(['default_langcode' => 'default_langcode'])->shouldBeCalled();
+    $entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(TRUE)->shouldBeCalled();
+    $entity_type->isTranslatable()->shouldBeCalled();
+    $entity_type->isRevisionable()->shouldBeCalled();
+    $entity_type->getProvider()->shouldBeCalled();
+
+    $override_entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(FALSE)->shouldBeCalled();
+
+    $integerFields = $this->entityFieldManager->getFieldMapByFieldType('integer');
+    $this->assertCount(1, $integerFields['test_entity_type']);
+    $this->assertArrayNotHasKey('non_fieldable', $integerFields);
+    $this->assertArrayHasKey('id', $integerFields['test_entity_type']);
+    $this->assertArrayNotHasKey('by_bundle', $integerFields['test_entity_type']);
+
+    $stringFields = $this->entityFieldManager->getFieldMapByFieldType('string');
+    $this->assertCount(1, $stringFields['test_entity_type']);
+    $this->assertArrayNotHasKey('non_fieldable', $stringFields);
+    $this->assertArrayHasKey('by_bundle', $stringFields['test_entity_type']);
+    $this->assertArrayNotHasKey('id', $stringFields['test_entity_type']);
+  }
+
 }
 
-/**
- * Stub class for testing EntityFieldManager.
- */
 class TestEntityFieldManager extends EntityFieldManager {
 
   /**

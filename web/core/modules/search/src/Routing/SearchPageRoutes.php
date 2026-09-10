@@ -2,7 +2,6 @@
 
 namespace Drupal\search\Routing;
 
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\search\SearchPageRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -111,16 +110,7 @@ class SearchPageRoutes implements ContainerInjectionInterface {
           ],
         ]
       );
-
-      // Use a try/catch because during an update the provider of the plugin
-      // may not be installed.
-      try {
-        $uses_admin_theme = $entity->getPlugin()->usesAdminTheme();
-      }
-      catch (PluginNotFoundException) {
-        $uses_admin_theme = FALSE;
-      }
-      if ($uses_admin_theme) {
+      if ($entity->getPlugin()->usesAdminTheme()) {
         $routes["search.view_$entity_id"]->setOption('_admin_route', TRUE);
         $routes["search.help_$entity_id"]->setOption('_admin_route', TRUE);
       }

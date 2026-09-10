@@ -2,33 +2,24 @@
 
 namespace Drupal\block;
 
-/**
- * Provides an interface for the block repository.
- */
 interface BlockRepositoryInterface {
 
   /**
    * Return only visible regions.
    *
-   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. Instead,
-   *   use \Drupal\Core\Extension\Theme::listVisibleRegions().
-   *
-   * @see https://www.drupal.org/node/3015925
+   * @see system_region_list()
    */
   const REGIONS_VISIBLE = 'visible';
 
   /**
    * Return all regions.
    *
-   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. Instead,
-   *   use \Drupal\Core\Extension\Theme::listAllRegions().
-   *
-   * @see https://www.drupal.org/node/3015925
+   * @see system_region_list()
    */
   const REGIONS_ALL = 'all';
 
   /**
-   * Returns an array of regions and their block entities for the active theme.
+   * Returns an array of regions and their block entities.
    *
    * @param \Drupal\Core\Cache\CacheableMetadata[] $cacheable_metadata
    *   (optional) List of CacheableMetadata objects, keyed by region. This is

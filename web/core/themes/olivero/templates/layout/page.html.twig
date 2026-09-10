@@ -41,7 +41,7 @@
  * - page.breadcrumb: Items for the breadcrumb region.
  * - page.social: Items for the social region.
  *
- * @see \Drupal\Core\Theme\ThemePreprocess::preprocessPage()
+ * @see template_preprocess_page()
  * @see html.html.twig
  */
 #}
@@ -50,7 +50,7 @@
   <div id="page">
 
     {% if page.header or page.primary_menu or page.secondary_menu %}
-      <header id="header" class="site-header" data-drupal-selector="site-header">
+      <header id="header" class="site-header" data-drupal-selector="site-header" role="banner">
 
         {# Gets fixed by JavaScript at wide widths. #}
         <div class="site-header__fixable" data-drupal-selector="site-header-fixable">
@@ -100,7 +100,7 @@
 
             {% if page.sidebar %}
               <div class="sidebar-grid grid-full">
-                <main class="site-main">
+                <main role="main" class="site-main">
                   {{ page.content_above }}
                   {{ page.content }}
                 </main>
@@ -108,7 +108,7 @@
                 {{ page.sidebar }}
               </div>
             {% else %}
-              <main>
+              <main role="main">
                 {{ page.content_above }}
                 {{ page.content }}
               </main>

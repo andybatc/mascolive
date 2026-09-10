@@ -3,13 +3,11 @@
 namespace Drupal\system\Controller;
 
 use Drupal\Core\Site\Settings;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\system\SystemManager;
-use Symfony\Component\Routing\Attribute\Route;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Returns responses for System Info routes.
@@ -51,12 +49,6 @@ class SystemInfoController implements ContainerInjectionInterface {
    *   A render array containing a list of system requirements for the Drupal
    *   installation and whether this installation meets the requirements.
    */
-  #[Route(
-    path: '/admin/reports/status',
-    name: 'system.status',
-    requirements: ['_permission' => 'administer site configuration'],
-    defaults: ['_title' => new TranslatableMarkup('Status report')],
-  )]
   public function status() {
     $requirements = $this->systemManager->listRequirements();
     return ['#type' => 'status_report_page', '#requirements' => $requirements];
@@ -68,14 +60,6 @@ class SystemInfoController implements ContainerInjectionInterface {
    * @return \Symfony\Component\HttpFoundation\Response
    *   A response object to be sent to the client.
    */
-  #[Route(
-    path: '/admin/reports/status/php',
-    name: 'system.php',
-    requirements: ['_permission' => 'administer site configuration'],
-    // This page should not be treated as administrative since it outputs its
-    // own content (outside of any administration theme).
-    options: ['_admin_route' => FALSE],
-  )]
   public function php() {
     if (function_exists('phpinfo')) {
       ob_start();
@@ -84,7 +68,7 @@ class SystemInfoController implements ContainerInjectionInterface {
       $output = ob_get_clean();
     }
     else {
-      $output = $this->t('The phpinfo() function is disabled. See <a href=":url" target="_blank">PHP documentation</a>.', [':url' => 'https://www.php.net/manual/function.phpinfo.php']);
+      $output = $this->t('The phpinfo() function is disabled. For more information, visit the <a href=":phpinfo">Enabling and disabling phpinfo()</a> handbook page.', [':phpinfo' => 'https://www.drupal.org/node/243993']);
     }
     return new Response($output);
   }

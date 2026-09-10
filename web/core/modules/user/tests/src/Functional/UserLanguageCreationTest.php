@@ -6,14 +6,12 @@ namespace Drupal\Tests\user\Functional;
 
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\Tests\BrowserTestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests preferred language configuration and language selector access.
+ *
+ * @group user
  */
-#[Group('user')]
-#[RunTestsInSeparateProcesses]
 class UserLanguageCreationTest extends BrowserTestBase {
 
   /**
@@ -68,11 +66,7 @@ class UserLanguageCreationTest extends BrowserTestBase {
     $this->drupalGet($langcode . '/admin/people/create');
     $this->submitForm($edit, 'Create new account');
 
-    $users = \Drupal::entityTypeManager()
-      ->getStorage('user')
-      ->loadByProperties(['name' => $username]);
-    $user = reset($users);
-
+    $user = user_load_by_name($username);
     $this->assertEquals($langcode, $user->getPreferredLangcode(), 'New user has correct preferred language set.');
     $this->assertEquals($langcode, $user->language()->getId(), 'New user has correct profile language set.');
 
@@ -91,11 +85,7 @@ class UserLanguageCreationTest extends BrowserTestBase {
     $this->drupalGet($langcode . '/user/register');
     $this->submitForm($edit, 'Create new account');
 
-    $users = \Drupal::entityTypeManager()
-      ->getStorage('user')
-      ->loadByProperties(['name' => $username]);
-    $user = reset($users);
-
+    $user = user_load_by_name($username);
     $this->assertEquals($langcode, $user->getPreferredLangcode(), 'New user has correct preferred language set.');
     $this->assertEquals($langcode, $user->language()->getId(), 'New user has correct profile language set.');
 

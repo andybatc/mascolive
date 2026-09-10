@@ -10,8 +10,6 @@ use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the behavior of the linkset controller.
@@ -19,10 +17,10 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * The purpose of this test is to validate that the a typical menu can be
  * correctly serialized as using the application/linkset+json media type.
  *
+ * @group decoupled_menus
+ *
  * @see https://tools.ietf.org/html/draft-ietf-httpapi-linkset-00
  */
-#[Group('decoupled_menus')]
-#[RunTestsInSeparateProcesses]
 final class LinksetControllerTest extends LinksetControllerTestBase {
 
   /**
@@ -299,12 +297,6 @@ final class LinksetControllerTest extends LinksetControllerTestBase {
       'config:system.menu.account',
       'http_response',
     ]);
-    // The account menu surfaces the CSRF-protected /user/logout URL for
-    // authenticated users; URL generation bubbles the 'session' cache context
-    // so the response can vary by session. The response header lists contexts
-    // alphabetically — re-set them in that order so optimizeTokens() yields a
-    // matching expectation.
-    $expected_cacheability->setCacheContexts(['session', 'user.roles:authenticated']);
     // Authenticated requests do not use the page cache, so a "HIT" or "MISS"
     // isn't expected either.
     $this->assertDrupalResponseCacheability(FALSE, $expected_cacheability, $response);

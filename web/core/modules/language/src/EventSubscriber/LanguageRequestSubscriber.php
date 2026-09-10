@@ -105,10 +105,7 @@ class LanguageRequestSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents(): array {
     $events[KernelEvents::REQUEST][] = ['onKernelRequestLanguage', 255];
-    $events[DrupalKernelInterface::CONTAINER_INITIALIZE_SUBREQUEST_FINISHED][] = [
-      'onContainerInitializeSubrequestFinished',
-      255,
-    ];
+    $events[DrupalKernelInterface::CONTAINER_INITIALIZE_SUBREQUEST_FINISHED][] = ['onContainerInitializeSubrequestFinished', 255];
 
     return $events;
   }

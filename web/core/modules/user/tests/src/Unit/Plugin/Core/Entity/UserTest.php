@@ -4,29 +4,24 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\user\Unit\Plugin\Core\Entity;
 
-use Drupal\Tests\UnitTestCase;
-use Drupal\user\Entity\User;
+use Drupal\Tests\Core\Session\UserSessionTest;
 use Drupal\user\RoleInterface;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Tests Drupal\user\Entity\User.
+ * @coversDefaultClass \Drupal\user\Entity\User
+ * @group user
  */
-#[CoversClass(User::class)]
-#[Group('user')]
-class UserTest extends UnitTestCase {
+class UserTest extends UserSessionTest {
 
   /**
    * {@inheritdoc}
    */
-  protected function createUserSession(array $rids = [], $authenticated = FALSE): User&MockObject {
+  protected function createUserSession(array $rids = [], $authenticated = FALSE) {
     $user = $this->getMockBuilder('Drupal\user\Entity\User')
       ->disableOriginalConstructor()
       ->onlyMethods(['get', 'id'])
       ->getMock();
-    $user->expects($this->once())
+    $user->expects($this->any())
       ->method('id')
       // @todo Also test the uid = 1 handling.
       ->willReturn($authenticated ? 2 : 0);
@@ -36,7 +31,7 @@ class UserTest extends UnitTestCase {
         'target_id' => $rid,
       ];
     }
-    $user->expects($this->atLeastOnce())
+    $user->expects($this->any())
       ->method('get')
       ->with('roles')
       ->willReturn($roles);
@@ -47,7 +42,7 @@ class UserTest extends UnitTestCase {
    * Tests the method getRoles exclude or include locked roles based in param.
    *
    * @see \Drupal\user\Entity\User::getRoles()
-   * @legacy-covers ::getRoles
+   * @covers ::getRoles
    */
   public function testUserGetRoles(): void {
     // Anonymous user.

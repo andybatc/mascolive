@@ -4,14 +4,13 @@ namespace Drupal\path\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Form\WorkspaceSafeFormInterface;
 
 /**
  * Provides the path admin overview filter form.
  *
  * @internal
  */
-class PathFilterForm extends FormBase implements WorkspaceSafeFormInterface {
+class PathFilterForm extends FormBase {
 
   /**
    * {@inheritdoc}

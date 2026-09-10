@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Drupal\config_import_test;
 
 use Drupal\Core\Config\ConfigCrudEvent;
@@ -103,7 +101,7 @@ class EventSubscriber implements EventSubscriberInterface {
       $data = $config->get('module');
       $install = array_diff_key($data, $original);
       if (!empty($install)) {
-        $installed = array_merge($installed, $install);
+        $installed[] = key($install);
       }
       $uninstall = array_diff_key($original, $data);
       if (!empty($uninstall)) {
@@ -139,10 +137,7 @@ class EventSubscriber implements EventSubscriberInterface {
     $events[ConfigEvents::SAVE][] = ['onConfigSave', 40];
     $events[ConfigEvents::DELETE][] = ['onConfigDelete', 40];
     $events[ConfigEvents::IMPORT_VALIDATE] = ['onConfigImporterValidate'];
-    $events[ConfigEvents::IMPORT_MISSING_CONTENT] = [
-      ['onConfigImporterMissingContentOne'],
-      ['onConfigImporterMissingContentTwo', -100],
-    ];
+    $events[ConfigEvents::IMPORT_MISSING_CONTENT] = [['onConfigImporterMissingContentOne'], ['onConfigImporterMissingContentTwo', -100]];
     return $events;
   }
 

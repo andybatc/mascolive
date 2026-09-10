@@ -6,9 +6,7 @@ use Drupal\Core\Entity\Controller\EntityViewController;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\node\Form\NodePreviewForm;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -17,19 +15,25 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class NodePreviewController extends EntityViewController {
 
   /**
-   * Creates a NodePreviewController object.
+   * The entity repository service.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
    */
-  public function __construct(
-    EntityTypeManagerInterface $entity_type_manager,
-    RendererInterface $renderer,
-    protected readonly EntityRepositoryInterface $entityRepository,
-    protected ?FormBuilderInterface $formBuilder = NULL,
-  ) {
+  protected $entityRepository;
+
+  /**
+   * Creates a NodeViewController object.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
+   *   The entity repository.
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, RendererInterface $renderer, EntityRepositoryInterface $entity_repository) {
     parent::__construct($entity_type_manager, $renderer);
-    if ($this->formBuilder === NULL) {
-      @trigger_error('Calling ' . __CLASS__ . ' constructor without the $formBuilder argument is deprecated in drupal:11.4.0 and it will be required in drupal:12.0.0. See https://www.drupal.org/project/drupal/issues/3339905', E_USER_DEPRECATED);
-      $this->formBuilder = \Drupal::service('form_builder');
-    }
+    $this->entityRepository = $entity_repository;
   }
 
   /**
@@ -39,8 +43,7 @@ class NodePreviewController extends EntityViewController {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('renderer'),
-      $container->get('entity.repository'),
-      $container->get('form_builder'),
+      $container->get('entity.repository')
     );
   }
 
@@ -52,16 +55,7 @@ class NodePreviewController extends EntityViewController {
     $build = parent::view($node_preview, $view_mode_id);
 
     $build['#attached']['library'][] = 'node/drupal.node.preview';
-    $build['#attached']['page_top']['node_preview'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => [
-          'node-preview-container',
-          'container-inline',
-        ],
-      ],
-      'view_mode' => $this->formBuilder->getForm(NodePreviewForm::class, $node_preview),
-    ];
+
     // Don't render cache previews.
     unset($build['#cache']);
 
@@ -76,13 +70,8 @@ class NodePreviewController extends EntityViewController {
    *
    * @return string
    *   The page title.
-   *
-   * @deprecated in drupal:11.2.0 and is removed from drupal:12.0.0. There is no
-   * replacement.
-   * @see https://www.drupal.org/project/drupal/issues/3024386
    */
   public function title(EntityInterface $node_preview) {
-    @trigger_error(__METHOD__ . '() is deprecated in drupal:11.2.0 and is removed from drupal:12.0.0. There is no replacement. See https://www.drupal.org/project/drupal/issues/3024386', E_USER_DEPRECATED);
     return $this->entityRepository->getTranslationFromContext($node_preview)->label();
   }
 

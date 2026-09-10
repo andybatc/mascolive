@@ -2,7 +2,6 @@
 
 namespace Drupal\views\Plugin\views\field;
 
-use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -11,6 +10,7 @@ use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\views\Attribute\ViewsField;
 use Drupal\views\Entity\Render\EntityTranslationRenderTrait;
 use Drupal\views\ResultRow;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Renders all operations links for an entity.
@@ -78,6 +78,20 @@ class EntityOperations extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager'),
+      $container->get('language_manager'),
+      $container->get('entity.repository')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function usesGroupBy() {
     return FALSE;
   }
@@ -121,8 +135,7 @@ class EntityOperations extends FieldPluginBase {
     }
 
     $entity = $this->getEntityTranslationByRelationship($entity, $values);
-    $cacheability = new CacheableMetadata();
-    $operations = $this->entityTypeManager->getListBuilder($entity->getEntityTypeId())->getOperations($entity, $cacheability);
+    $operations = $this->entityTypeManager->getListBuilder($entity->getEntityTypeId())->getOperations($entity);
     if ($this->options['destination']) {
       foreach ($operations as &$operation) {
         if (!isset($operation['query'])) {
@@ -134,12 +147,8 @@ class EntityOperations extends FieldPluginBase {
     $build = [
       '#type' => 'operations',
       '#links' => $operations,
-      // Allow links to use modals.
-      '#attached' => [
-        'library' => ['core/drupal.dialog.ajax'],
-      ],
     ];
-    $cacheability->applyTo($build);
+
     return $build;
   }
 

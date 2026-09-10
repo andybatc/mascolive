@@ -4,7 +4,6 @@ namespace Drupal\file\Plugin\Validation\Constraint;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Validation\Attribute\Constraint;
-use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint as SymfonyConstraint;
 
 /**
@@ -16,6 +15,20 @@ use Symfony\Component\Validator\Constraint as SymfonyConstraint;
   type: 'file'
 )]
 class FileSizeLimitConstraint extends SymfonyConstraint {
+
+  /**
+   * The message for when file size limit is exceeded.
+   *
+   * @var string
+   */
+  public string $maxFileSizeMessage = 'The file is %filesize exceeding the maximum file size of %maxsize.';
+
+  /**
+   * The message for when disk quota is exceeded.
+   *
+   * @var string
+   */
+  public string $diskQuotaMessage = 'The file is %filesize which would exceed your disk quota of %quota.';
 
   /**
    * The file limit.
@@ -30,21 +43,6 @@ class FileSizeLimitConstraint extends SymfonyConstraint {
    * @var int
    */
   public int $userLimit = 0;
-
-  #[HasNamedArguments]
-  public function __construct(
-    mixed $options = NULL,
-    ?int $fileLimit = NULL,
-    ?int $userLimit = NULL,
-    public string $maxFileSizeMessage = 'The file is %filesize exceeding the maximum file size of %maxsize.',
-    public string $diskQuotaMessage = 'The file is %filesize which would exceed your disk quota of %quota.',
-    ?array $groups = NULL,
-    mixed $payload = NULL,
-  ) {
-    parent::__construct($options, $groups, $payload);
-    $this->fileLimit = $fileLimit ?? $this->fileLimit;
-    $this->userLimit = $userLimit ?? $this->userLimit;
-  }
 
   /**
    * {@inheritdoc}

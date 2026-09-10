@@ -4,26 +4,25 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\jsonapi\Functional;
 
-use Drupal\comment\CommentingStatus;
 use Drupal\comment\Entity\Comment;
+use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
-use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\shortcut\Entity\Shortcut;
 use Drupal\taxonomy\Entity\Term;
 use GuzzleHttp\RequestOptions;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 // cspell:ignore llamalovers catcuddlers Cuddlers
+
 /**
  * JSON:API regression tests.
  *
+ * @group jsonapi
+ *
  * @internal
  */
-#[Group('jsonapi')]
-#[RunTestsInSeparateProcesses]
 class JsonApiFilterRegressionTest extends JsonApiFunctionalTestBase {
 
   use CommentTestTrait;
@@ -48,7 +47,7 @@ class JsonApiFilterRegressionTest extends JsonApiFunctionalTestBase {
   public function testBundleSpecificTargetEntityTypeFromIssue2953207(): void {
     // Set up data model.
     $this->assertTrue($this->container->get('module_installer')->install(['comment'], TRUE), 'Installed modules.');
-    $this->addDefaultCommentField('taxonomy_term', 'tags', 'comment', CommentingStatus::Open, 'test_comment_type');
+    $this->addDefaultCommentField('taxonomy_term', 'tags', 'comment', CommentItemInterface::OPEN, 'tcomment');
     $this->rebuildAll();
 
     // Create data.
@@ -67,7 +66,7 @@ class JsonApiFilterRegressionTest extends JsonApiFunctionalTestBase {
     $user = $this->drupalCreateUser([
       'access comments',
     ]);
-    $response = $this->request('GET', Url::fromUri('internal:/jsonapi/comment/test_comment_type?include=entity_id&filter[entity_id.name]=foobar'), [
+    $response = $this->request('GET', Url::fromUri('internal:/jsonapi/comment/tcomment?include=entity_id&filter[entity_id.name]=foobar'), [
       RequestOptions::AUTH => [
         $user->getAccountName(),
         $user->pass_raw,
@@ -83,22 +82,26 @@ class JsonApiFilterRegressionTest extends JsonApiFunctionalTestBase {
    */
   public function testFilterByIdFromIssue3015759(): void {
     // Set up data model.
-    $this->assertTrue($this->container->get('module_installer')->install(['menu_link_content'], TRUE), 'Installed modules.');
+    $this->assertTrue($this->container->get('module_installer')->install(['shortcut'], TRUE), 'Installed modules.');
     $this->rebuildAll();
 
     // Create data.
-    $menu_link = MenuLinkContent::create([
+    $shortcut = Shortcut::create([
+      'shortcut_set' => 'default',
       'title' => $this->randomMachineName(),
-      'link' => ['uri' => 'internal:/user/login'],
-      'menu_name' => 'main',
+      'weight' => -20,
+      'link' => [
+        'uri' => 'internal:/user/logout',
+      ],
     ]);
-    $menu_link->save();
+    $shortcut->save();
 
     // Test.
     $user = $this->drupalCreateUser([
-      'administer menu',
+      'access shortcuts',
+      'customize shortcut links',
     ]);
-    $response = $this->request('GET', Url::fromUri('internal:/jsonapi/menu_link_content/menu_link_content?filter[drupal_internal__id]=' . $menu_link->id()), [
+    $response = $this->request('GET', Url::fromUri('internal:/jsonapi/shortcut/default?filter[drupal_internal__id]=' . $shortcut->id()), [
       RequestOptions::AUTH => [
         $user->getAccountName(),
         $user->pass_raw,
@@ -107,9 +110,9 @@ class JsonApiFilterRegressionTest extends JsonApiFunctionalTestBase {
     $doc = $this->getDocumentFromResponse($response);
     $this->assertSame(200, $response->getStatusCode());
     $this->assertNotEmpty($doc['data']);
-    $this->assertSame($doc['data'][0]['id'], $menu_link->uuid());
-    $this->assertSame($doc['data'][0]['attributes']['drupal_internal__id'], (int) $menu_link->id());
-    $this->assertSame($doc['data'][0]['attributes']['title'], $menu_link->label());
+    $this->assertSame($doc['data'][0]['id'], $shortcut->uuid());
+    $this->assertSame($doc['data'][0]['attributes']['drupal_internal__id'], (int) $shortcut->id());
+    $this->assertSame($doc['data'][0]['attributes']['title'], $shortcut->label());
   }
 
   /**
@@ -124,7 +127,7 @@ class JsonApiFilterRegressionTest extends JsonApiFunctionalTestBase {
       'node',
       'folder',
       'field_parent_folder',
-      'Parent folder',
+      NULL,
       'node',
       'default',
       [

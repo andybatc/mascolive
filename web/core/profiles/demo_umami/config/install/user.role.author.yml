@@ -16,20 +16,20 @@ dependencies:
     - contextual
     - file
     - layout_builder
-    - navigation
     - node
     - path
     - system
     - taxonomy
+    - toolbar
 id: author
 label: Author
 weight: 3
-is_admin: false
+is_admin: null
 permissions:
   - 'access content overview'
   - 'access contextual links'
   - 'access files overview'
-  - 'access navigation'
+  - 'access toolbar'
   - 'cancel account'
   - 'change own username'
   - 'configure editable article node layout overrides'

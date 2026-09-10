@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Drupal\FunctionalTests\Asset;
 
 use Drupal\Tests\BrowserTestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests asset aggregation.
+ *
+ * @group asset
  */
-#[Group('asset')]
-#[RunTestsInSeparateProcesses]
 class UnversionedAssetTest extends BrowserTestBase {
 
   /**
@@ -22,8 +20,6 @@ class UnversionedAssetTest extends BrowserTestBase {
 
   /**
    * The file assets path settings value.
-   *
-   * @var string
    */
   protected $fileAssetsPath;
 
@@ -41,11 +37,11 @@ class UnversionedAssetTest extends BrowserTestBase {
     // Test aggregation with a custom file_assets_path.
     $this->config('system.performance')->set('css', [
       'preprocess' => TRUE,
-      'compress' => TRUE,
+      'gzip' => TRUE,
     ])->save();
     $this->config('system.performance')->set('js', [
       'preprocess' => TRUE,
-      'compress' => TRUE,
+      'gzip' => TRUE,
     ])->save();
 
     // Ensure that the library discovery cache is empty before the page is

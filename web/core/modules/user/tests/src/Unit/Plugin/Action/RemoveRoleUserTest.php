@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Drupal\Tests\user\Unit\Plugin\Action;
 
 use Drupal\user\Plugin\Action\RemoveRoleUser;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests Drupal\user\Plugin\Action\RemoveRoleUser.
+ * @coversDefaultClass \Drupal\user\Plugin\Action\RemoveRoleUser
+ * @group user
  */
-#[CoversClass(RemoveRoleUser::class)]
-#[Group('user')]
 class RemoveRoleUserTest extends RoleUserTestBase {
 
   /**
@@ -23,7 +20,7 @@ class RemoveRoleUserTest extends RoleUserTestBase {
       ->method('removeRole')
       ->willReturn($this->account);
 
-    $this->account
+    $this->account->expects($this->any())
       ->method('hasRole')
       ->with($this->equalTo('test_role_1'))
       ->willReturn(TRUE);
@@ -42,7 +39,7 @@ class RemoveRoleUserTest extends RoleUserTestBase {
       ->method('removeRole')
       ->willReturn($this->account);
 
-    $this->account
+    $this->account->expects($this->any())
       ->method('hasRole')
       ->with($this->equalTo('test_role_1'))
       ->willReturn(FALSE);

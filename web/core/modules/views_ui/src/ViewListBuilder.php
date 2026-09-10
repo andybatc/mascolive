@@ -3,7 +3,6 @@
 namespace Drupal\views_ui;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
-use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -156,10 +155,8 @@ class ViewListBuilder extends ConfigEntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  protected function getDefaultOperations(EntityInterface $entity/* , ?CacheableMetadata $cacheability = NULL */) {
-    $args = func_get_args();
-    $cacheability = $args[1] ?? new CacheableMetadata();
-    $operations = parent::getDefaultOperations($entity, $cacheability);
+  public function getDefaultOperations(EntityInterface $entity) {
+    $operations = parent::getDefaultOperations($entity);
     // Remove destination redirect for Edit operation.
     $operations['edit']['url'] = $entity->toUrl('edit-form');
 
@@ -272,7 +269,7 @@ class ViewListBuilder extends ConfigEntityListBuilder {
               //   https://www.drupal.org/node/2423913
               $rendered_path = Link::fromTextAndUrl('/' . $path, Url::fromUserInput('/' . $path))->toString();
             }
-            catch (BadRequestException | NotAcceptableHttpException) {
+            catch (BadRequestException | NotAcceptableHttpException $e) {
               $rendered_path = '/' . $path;
             }
           }

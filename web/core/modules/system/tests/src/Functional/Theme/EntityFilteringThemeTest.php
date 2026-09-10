@@ -4,27 +4,24 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\system\Functional\Theme;
 
-use Drupal\comment\CommentingStatus;
-use Drupal\comment\CommentInterface;
-use Drupal\comment\Entity\Comment;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\Core\Extension\ExtensionDiscovery;
+use Drupal\comment\CommentInterface;
+use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\Core\Extension\ExtensionLifecycle;
 use Drupal\node\NodeInterface;
+use Drupal\comment\Entity\Comment;
+use Drupal\taxonomy\Entity\Term;
 use Drupal\Tests\BrowserTestBase;
-use Drupal\Tests\taxonomy\Traits\TaxonomyTestTrait;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests XSS filtering for themed output for each entity type in all themes.
+ *
+ * @group Theme
  */
-#[Group('Theme')]
-#[RunTestsInSeparateProcesses]
 class EntityFilteringThemeTest extends BrowserTestBase {
 
   use CommentTestTrait;
-  use TaxonomyTestTrait;
 
   /**
    * {@inheritdoc}
@@ -111,12 +108,15 @@ class EntityFilteringThemeTest extends BrowserTestBase {
     $this->drupalLogin($this->user);
 
     // Create a test term.
-    $vocabulary = $this->createVocabulary();
-    $this->term = $this->createTerm($vocabulary, ['name' => $this->xssLabel]);
+    $this->term = Term::create([
+      'name' => $this->xssLabel,
+      'vid' => 1,
+    ]);
+    $this->term->save();
 
     $this->createContentType(['type' => 'article']);
     // Add a comment field.
-    $this->addDefaultCommentField('node', 'article', 'comment', CommentingStatus::Open);
+    $this->addDefaultCommentField('node', 'article', 'comment', CommentItemInterface::OPEN);
     // Create a test node tagged with the test term.
     $this->node = $this->drupalCreateNode([
       'title' => $this->xssLabel,

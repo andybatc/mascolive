@@ -2,14 +2,10 @@
 
 namespace Drupal\serialization\Normalizer;
 
-use Drupal\Core\Serialization\Attribute\JsonSchema;
-
 /**
  * Null normalizer.
  */
 class NullNormalizer extends NormalizerBase {
-
-  use SchematicNormalizerTrait;
 
   /**
    * The interface or class that this Normalizer supports.
@@ -29,28 +25,10 @@ class NullNormalizer extends NormalizerBase {
   }
 
   /**
-   * Normalizes data into a set of arrays/scalars.
-   *
-   * @param object $object
-   *   Data to normalize.
-   * @param string|null $format
-   *   Format the normalization result will be encoded as.
-   * @param array<string, mixed> $context
-   *   Context options for the normalizer.
-   *
-   * @return null
-   *   The normalized data.
-   */
-  #[JsonSchema(['type' => 'null'])]
-  public function doNormalize($object, $format = NULL, array $context = []): NULL {
-    return NULL;
-  }
-
-  /**
    * {@inheritdoc}
    */
-  protected function getNormalizationSchema(mixed $object, array $context = []): array {
-    return ['type' => 'null'];
+  public function normalize($object, $format = NULL, array $context = []): array|string|int|float|bool|\ArrayObject|NULL {
+    return NULL;
   }
 
   /**

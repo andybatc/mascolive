@@ -6,12 +6,12 @@
  * All available variables are mirrored in page.html.twig.
  * Some may be blank but they are provided for consistency.
  *
- * @see \Drupal\Core\Theme\ThemePreprocess::preprocessInstallPage()
+ * @see template_preprocess_install_page()
  */
 #}
 <div class="layout-container">
 
-  <header>
+  <header role="banner">
     {% if site_name %}
       <h1 class="site-name">
         {{ site_name }}
@@ -23,12 +23,12 @@
   </header>
 
   {% if page.sidebar_first %}
-    <aside class="layout-sidebar-first">
+    <aside class="layout-sidebar-first" role="complementary">
       {{ page.sidebar_first }}
     </aside>{# /.layout-sidebar-first #}
   {% endif %}
 
-  <main class="main-content">
+  <main role="main" class="main-content">
     {% if title %}
       <h2 class="heading-c">{{ title }}</h2>
     {% endif %}
@@ -37,13 +37,13 @@
   </main>
 
   {% if page.sidebar_second %}
-    <aside class="layout-sidebar-second" >
+    <aside class="layout-sidebar-second" role="complementary">
       {{ page.sidebar_second }}
     </aside>{# /.layout-sidebar-second #}
   {% endif %}
 
   {% if page.page_bottom %}
-    <footer>
+    <footer role="contentinfo">
       {{ page.page_bottom }}
     </footer>
   {% endif %}

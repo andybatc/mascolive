@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\views\Attribute\ViewsFilter;
 use Drupal\views\Plugin\DependentWithRemovalPluginInterface;
 use Drupal\views\Plugin\views\filter\InOperator;
+use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -152,7 +153,7 @@ class ModerationStateFilter extends InOperator implements DependentWithRemovalPl
             'type' => 'INNER',
           ];
 
-          $join = \Drupal::service('plugin.manager.views.join')->createInstance('standard', $configuration);
+          $join = Views::pluginManager('join')->createInstance('standard', $configuration);
           $entity_base_table_alias = $this->query->addRelationship($entity_base_table, $join, $entity_revision_base_table_alias);
         }
 

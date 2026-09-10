@@ -5,20 +5,13 @@ declare(strict_types=1);
 namespace Drupal\Tests\olivero\Functional\Update;
 
 use Drupal\FunctionalTests\Update\UpdatePathTestBase;
-use PHPUnit\Framework\Attributes\CoversFunction;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests the update path for Olivero.
+ *
+ * @group Update
+ * @group #slow
  */
-#[Group('olivero')]
-#[Group('Update')]
-#[Group('#slow')]
-#[IgnoreDeprecations]
-#[RunTestsInSeparateProcesses]
-#[CoversFunction('olivero_post_update_remove_shortcut_settings_if_not_installed')]
 class OliveroPostUpdateTest extends UpdatePathTestBase {
 
   /**
@@ -29,24 +22,24 @@ class OliveroPostUpdateTest extends UpdatePathTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setDatabaseDumpFiles(): void {
+  protected function setDatabaseDumpFiles() {
     $this->databaseDumpFiles = [
-      __DIR__ . '/../../../../../../modules/system/tests/fixtures/update/drupal-11.3.0.bare.standard.php.gz',
+      __DIR__ . '/../../../../../../modules/system/tests/fixtures/update/drupal-9.4.0.filled.standard.php.gz',
     ];
   }
 
   /**
-   * Tests update olivero third party settings without shortcut installed.
+   * Tests update hook setting base primary color.
    */
-  public function testOliveroThirdPartySettingsWithoutShortcut(): void {
+  public function testOliveroPrimaryColorUpdate(): void {
     $config = $this->config('olivero.settings');
-    $this->assertNotEmpty($config->get('third_party_settings'));
+    $this->assertEmpty($config->get('base_primary_color'));
 
     // Run updates.
     $this->runUpdates();
 
     $config = $this->config('olivero.settings');
-    $this->assertNull($config->get('third_party_settings'));
+    $this->assertSame('#1b9ae4', $config->get('base_primary_color'));
   }
 
 }

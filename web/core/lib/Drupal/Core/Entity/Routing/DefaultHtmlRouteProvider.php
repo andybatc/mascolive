@@ -154,7 +154,11 @@ class DefaultHtmlRouteProvider implements EntityRouteProviderInterface, EntityHa
 
       // If the entity has bundles, we can provide a bundle-specific title
       // and access requirements.
-      if ($bundle_key = $entity_type->getKey('bundle')) {
+      $expected_parameter = $entity_type->getBundleEntityType() ?: $entity_type->getKey('bundle');
+      // @todo We have to check if a route contains a bundle in its path as
+      //   test entities have inconsistent usage of "add-form" link templates.
+      //   Fix it in https://www.drupal.org/node/2699959.
+      if (($bundle_key = $entity_type->getKey('bundle')) && str_contains($route->getPath(), '{' . $expected_parameter . '}')) {
         $route->setDefault('_title_callback', EntityController::class . '::addBundleTitle');
         // If the bundles are entities themselves, we can add parameter
         // information to the route options.
@@ -169,7 +173,7 @@ class DefaultHtmlRouteProvider implements EntityRouteProviderInterface, EntityHa
 
           // Entity types with serial IDs can specify this in their route
           // requirements, improving the matching process.
-          if ($bundle_entity_type->hasIntegerId()) {
+          if ($this->getEntityTypeIdKeyType($bundle_entity_type) === 'integer') {
             $route->setRequirement($entity_type_id, '\d+');
           }
 
@@ -226,7 +230,7 @@ class DefaultHtmlRouteProvider implements EntityRouteProviderInterface, EntityHa
 
       // Entity types with serial IDs can specify this in their route
       // requirements, improving the matching process.
-      if ($entity_type->hasIntegerId()) {
+      if ($this->getEntityTypeIdKeyType($entity_type) === 'integer') {
         $route->setRequirement($entity_type_id, '\d+');
       }
       return $route;
@@ -263,7 +267,7 @@ class DefaultHtmlRouteProvider implements EntityRouteProviderInterface, EntityHa
 
       // Entity types with serial IDs can specify this in their route
       // requirements, improving the matching process.
-      if ($entity_type->hasIntegerId()) {
+      if ($this->getEntityTypeIdKeyType($entity_type) === 'integer') {
         $route->setRequirement($entity_type_id, '\d+');
       }
       return $route;
@@ -295,7 +299,7 @@ class DefaultHtmlRouteProvider implements EntityRouteProviderInterface, EntityHa
 
       // Entity types with serial IDs can specify this in their route
       // requirements, improving the matching process.
-      if ($entity_type->hasIntegerId()) {
+      if ($this->getEntityTypeIdKeyType($entity_type) === 'integer') {
         $route->setRequirement($entity_type_id, '\d+');
       }
       return $route;
@@ -346,15 +350,8 @@ class DefaultHtmlRouteProvider implements EntityRouteProviderInterface, EntityHa
    * @return string|null
    *   The type of the ID key for a given entity type, or NULL if the entity
    *   type does not support fields.
-   *
-   * @deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. To
-   *   determine if an entity type has an integer ID key, use
-   *   \Drupal\Core\Entity\EntityTypeInterface::hasIntegerId().
-   *
-   * @see https://www.drupal.org/node/3566814
    */
   protected function getEntityTypeIdKeyType(EntityTypeInterface $entity_type) {
-    @trigger_error(__METHOD__ . "() is deprecated in drupal:11.4.0 and is removed from drupal:13.0.0. To determine if an entity type has an integer ID key, use \Drupal\Core\Entity\EntityTypeInterface::hasIntegerId(). See https://www.drupal.org/node/3566814", E_USER_DEPRECATED);
     if (!$entity_type->entityClassImplements(FieldableEntityInterface::class)) {
       return NULL;
     }

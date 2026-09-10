@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Drupal\FunctionalJavascriptTests;
 
 use PHPUnit\Framework\AssertionFailedError;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\PostCondition;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests that Drupal.throwError will cause a test failure.
+ *
+ * @group javascript
  */
-#[Group('javascript')]
-#[RunTestsInSeparateProcesses]
 class JavascriptErrorsTest extends WebDriverTestBase {
 
   /**
@@ -37,7 +34,7 @@ class JavascriptErrorsTest extends WebDriverTestBase {
     $this->drupalGet('user');
 
     $this->expectException(AssertionFailedError::class);
-    $this->expectExceptionMessageMatches('#/js_errors_test|Error: A manually thrown error#');
+    $this->expectExceptionMessageMatches('/^Error: A manually thrown error/');
 
     // Manually call the method under test, as it cannot be caught by PHPUnit
     // when triggered from assertPostConditions().
@@ -54,7 +51,7 @@ class JavascriptErrorsTest extends WebDriverTestBase {
     $this->drupalGet('user');
 
     $this->expectException(AssertionFailedError::class);
-    $this->expectExceptionMessageMatches('#/js_errors_async_test|Error: An error thrown in async context.#');
+    $this->expectExceptionMessageMatches('/^Error: An error thrown in async context./');
 
     // Manually call the method under test, as it cannot be caught by PHPUnit
     // when triggered from assertPostConditions().
@@ -63,9 +60,10 @@ class JavascriptErrorsTest extends WebDriverTestBase {
 
   /**
    * Clear the JavaScript error log to prevent this test failing for real.
+   *
+   * @postCondition
    */
-  #[PostCondition]
-  public function clearErrorLog(): void {
+  public function clearErrorLog() {
     $this->getSession()->executeScript("sessionStorage.removeItem('js_testing_log_test.errors')");
   }
 

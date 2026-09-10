@@ -7,17 +7,14 @@ namespace Drupal\Tests\node\Kernel;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\node\NodeAccessRebuild;
 use Drupal\language\Entity\ConfigurableLanguage;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Drupal\field\Entity\FieldStorageConfig;
 
 /**
  * Tests multilingual node access with a language-aware module.
+ *
+ * @group node
  */
-#[Group('node')]
-#[RunTestsInSeparateProcesses]
 class NodeAccessLanguageAwareTest extends NodeAccessTestBase {
 
   /**
@@ -77,7 +74,7 @@ class NodeAccessLanguageAwareTest extends NodeAccessTestBase {
     ])->save();
 
     // After enabling a node access module, the access table has to be rebuild.
-    \Drupal::service(NodeAccessRebuild::class)->rebuild();
+    node_access_rebuild();
 
     // Create a normal authenticated user.
     $this->webUser = $this->drupalCreateUser(['access content']);

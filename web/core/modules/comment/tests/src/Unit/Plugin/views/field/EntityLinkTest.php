@@ -10,14 +10,11 @@ use Drupal\Tests\views\Traits\ViewsLoggerTestTrait;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Tests Drupal\comment\Plugin\views\field\EntityLink.
+ * @coversDefaultClass \Drupal\comment\Plugin\views\field\EntityLink
+ * @group comment
  */
-#[CoversClass(EntityLink::class)]
-#[Group('comment')]
 class EntityLinkTest extends UnitTestCase {
 
   use ViewsLoggerTestTrait;
@@ -32,12 +29,14 @@ class EntityLinkTest extends UnitTestCase {
 
   /**
    * Test the render method when getEntity returns NULL.
+   *
+   * @covers ::render
    */
   public function testRenderNullEntity(): void {
     $row = new ResultRow();
     $field = new EntityLink(['entity_type' => 'foo', 'entity field' => 'bar'], '', []);
-    $view = $this->createStub(ViewExecutable::class);
-    $display = $this->createStub(DisplayPluginBase::class);
+    $view = $this->createMock(ViewExecutable::class);
+    $display = $this->createMock(DisplayPluginBase::class);
     $field->init($view, $display);
     $this->assertEmpty($field->render($row));
   }

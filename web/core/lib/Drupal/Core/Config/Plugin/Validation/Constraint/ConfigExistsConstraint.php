@@ -6,7 +6,6 @@ namespace Drupal\Core\Config\Plugin\Validation\Constraint;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Validation\Attribute\Constraint;
-use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint as SymfonyConstraint;
 
 /**
@@ -19,6 +18,13 @@ use Symfony\Component\Validator\Constraint as SymfonyConstraint;
 class ConfigExistsConstraint extends SymfonyConstraint {
 
   /**
+   * The error message.
+   *
+   * @var string
+   */
+  public string $message = "The '@name' config does not exist.";
+
+  /**
    * Optional prefix, to be specified when this contains a config entity ID.
    *
    * Every config entity type can have multiple instances, all with unique IDs
@@ -28,17 +34,5 @@ class ConfigExistsConstraint extends SymfonyConstraint {
    * @var string
    */
   public string $prefix = '';
-
-  #[HasNamedArguments]
-  public function __construct(
-    mixed $options = NULL,
-    ?string $prefix = NULL,
-    public string $message = "The '@name' config does not exist.",
-    ?array $groups = NULL,
-    mixed $payload = NULL,
-  ) {
-    parent::__construct($options, $groups, $payload);
-    $this->prefix = $prefix ?? $this->prefix;
-  }
 
 }

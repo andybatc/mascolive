@@ -6,22 +6,19 @@ namespace Drupal\Tests\taxonomy\Functional\Views;
 
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\filter\FilterFormatRepositoryInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
-use Drupal\taxonomy\Entity\Term;
-use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\Tests\views\Functional\ViewTestBase;
 use Drupal\views\Tests\ViewTestData;
 use Drupal\views\Views;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * Tests taxonomy field filters with translations.
+ *
+ * @group taxonomy
  */
-#[Group('taxonomy')]
-#[RunTestsInSeparateProcesses]
 class TaxonomyFieldFilterTest extends ViewTestBase {
 
   /**
@@ -101,12 +98,7 @@ class TaxonomyFieldFilterTest extends ViewTestBase {
     ])->save();
 
     // Create term with translations.
-    $taxonomy = $this->createTermWithProperties([
-      'name' => $this->termNames['en'],
-      'langcode' => 'en',
-      'description' => $this->termNames['en'],
-      'field_foo' => $this->termNames['en'],
-    ]);
+    $taxonomy = $this->createTermWithProperties(['name' => $this->termNames['en'], 'langcode' => 'en', 'description' => $this->termNames['en'], 'field_foo' => $this->termNames['en']]);
     foreach (['es', 'fr'] as $langcode) {
       $translation = $taxonomy->addTranslation($langcode, ['name' => $this->termNames[$langcode]]);
       $translation->description->value = $this->termNames[$langcode];
@@ -186,7 +178,7 @@ class TaxonomyFieldFilterTest extends ViewTestBase {
    */
   protected function createTermWithProperties($properties) {
     // Use the first available text format.
-    $filter_formats = \Drupal::service(FilterFormatRepositoryInterface::class)->getAllFormats();
+    $filter_formats = filter_formats();
     $format = array_pop($filter_formats);
 
     $properties += [

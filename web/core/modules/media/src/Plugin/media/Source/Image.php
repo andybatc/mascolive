@@ -13,6 +13,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\media\Attribute\MediaSource;
 use Drupal\media\MediaInterface;
 use Drupal\media\MediaTypeInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Image entity media source.
@@ -22,7 +23,7 @@ use Drupal\media\MediaTypeInterface;
 #[MediaSource(
   id: "image",
   label: new TranslatableMarkup("Image"),
-  description: new TranslatableMarkup("A locally hosted image file."),
+  description: new TranslatableMarkup("Use local images for reusable media."),
   allowed_field_types: ["image"],
   default_thumbnail_filename: "no-thumbnail.png",
   thumbnail_alt_metadata_attribute: "thumbnail_alt_value"
@@ -84,6 +85,23 @@ class Image extends File {
 
     $this->imageFactory = $image_factory;
     $this->fileSystem = $file_system;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager'),
+      $container->get('entity_field.manager'),
+      $container->get('plugin.manager.field.field_type'),
+      $container->get('config.factory'),
+      $container->get('image.factory'),
+      $container->get('file_system')
+    );
   }
 
   /**

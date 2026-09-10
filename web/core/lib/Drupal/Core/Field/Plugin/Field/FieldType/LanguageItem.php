@@ -25,10 +25,8 @@ use Drupal\Core\TypedData\OptionsProviderInterface;
   no_ui: TRUE,
   constraints: [
     "ComplexData" => [
-      "properties" => [
-        "value" => [
-          "Length" => ["max" => 12],
-        ],
+      "value" => [
+        "Length" => ["max" => 12],
       ],
     ],
   ]
@@ -114,8 +112,7 @@ class LanguageItem extends FieldItemBase implements OptionsProviderInterface {
    */
   public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
     // Defer to the callback in the item definition as it can be overridden.
-    $complex_data_constraint = $field_definition->getItemDefinition()->getConstraint('ComplexData') ?: [];
-    $constraint = $complex_data_constraint['properties'] ?? $complex_data_constraint;
+    $constraint = $field_definition->getItemDefinition()->getConstraint('ComplexData');
     if (isset($constraint['value']['AllowedValues']['callback'])) {
       $languages = call_user_func($constraint['value']['AllowedValues']['callback']);
     }

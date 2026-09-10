@@ -5,16 +5,10 @@ declare(strict_types=1);
 namespace Drupal\Tests\contact\Functional\Rest;
 
 use Drupal\Tests\rest\Functional\BasicAuthResourceTestTrait;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
- * Tests Contact Form Json Basic Auth.
+ * @group rest
  */
-#[Group('rest')]
-#[IgnoreDeprecations]
-#[RunTestsInSeparateProcesses]
 class ContactFormJsonBasicAuthTest extends ContactFormResourceTestBase {
 
   use BasicAuthResourceTestTrait;
