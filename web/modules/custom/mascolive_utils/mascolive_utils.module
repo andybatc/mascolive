@@ -121,20 +121,58 @@ function mascolive_utils_preprocess_views_view(&$vars) {
 /**
  * Implements hook_form_FORM_ID_alter().
  *
- * Tras el login, redirige siempre al front page (página pública) en vez de
- * al perfil de usuario o a /admin/content-planner/dashboard.
+ * Tras el login, redirige al portal del rol del usuario (nodo tipo page)
+ * o al front page si el rol no tiene portal.
  */
 function mascolive_utils_form_user_login_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // Corre tras user_login_finalize() (que setea destination o user.page)
-  // y lo sobreescribe: todo login aterriza en la home pública.
+  // Corre tras user_login_finalize() y sobreescribe destination.
   $form['#submit'][] = 'mascolive_utils_login_redirect';
 }
 
 /**
- * Submit handler: redirige al <front>.
+ * Submit handler: redirige al portal del rol.
  */
 function mascolive_utils_login_redirect(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  // user_login_finalize() aún no carga roles en currentUser() del mismo request.
+  // Cargamos el user entity completo desde la DB por nombre.
+  $name = $form_state->getValue('name');
+  if ($name) {
+    $account = user_load_by_name($name);
+    if ($account) {
+      $portal = mascolive_utils_role_portal($account);
+      if ($portal) {
+        $form_state->setRedirectUrl(Url::fromRoute('entity.node.canonical', ['node' => $portal]));
+        return;
+      }
+    }
+  }
   $form_state->setRedirect('<front>');
+}
+
+/**
+ * Primer rol del usuario que tiene portal: devuelve su nid o NULL.
+ *
+ * Roles sin portal (tutor, conductor) caen en <front>. La prioridad la da el
+ * orden del mapa (admin > clínica > veterinario > vendedor).
+ */
+function mascolive_utils_role_portal($user) {
+  $map = [
+    // Rol (machine name) => nid del portal.
+    'administrator' => 16, // Panel de Administración
+    'clinica_admin' => 15, // Portal Admin de Clínica
+    'veterinario' => 13,   // Portal Veterinario
+    'vendedor' => 14,      // Portal Vendedor
+  ];
+  foreach ($map as $role => $nid) {
+    if ($user->hasRole($role)) {
+      $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+      if ($node && $node->isPublished()) {
+        return $node->id();
+      }
+      return NULL;
+    }
+  }
+  return NULL;
 }
 
 /**
