@@ -1,0 +1,20 @@
+uuid: 72d5bc83-85f4-4920-9880-fdfae6536f06
+langcode: es
+status: true
+dependencies:
+  module:
+    - mascolive_utils
+  theme:
+    - gin
+id: mascolive_auth_status
+theme: gin
+region: header
+weight: -10
+provider: mascolive_utils
+plugin: mascolive_auth_status
+settings:
+  id: mascolive_auth_status
+  label: 'Estado de autenticación MascoLive'
+  label_display: '0'
+  provider: mascolive_utils
+visibility: {  }

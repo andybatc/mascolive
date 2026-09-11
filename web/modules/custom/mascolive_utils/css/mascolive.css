@@ -41,3 +41,22 @@
   border-top: 1px solid #eee;
   padding-top: .5rem;
 }
+
+/* Bloque auth status: botón login y barra de usuario. */
+.mascolive-auth--login {
+  display: inline-block;
+  background: #146a4d;
+  color: #fff;
+  padding: .4rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.mascolive-auth--login:hover { background: #0e4d37; }
+.mascolive-auth { font-size: .9rem; }
+
+/* Ocultar toggle "Back to site/administration" en páginas públicas. */
+body:not(.path-admin) .toolbar-icon-escape-admin,
+body:not(.path-admin) .home-toolbar-tab.toolbar-tab:has(.toolbar-icon-escape-admin) {
+  display: none !important;
+}
