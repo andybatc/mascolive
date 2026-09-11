@@ -7,6 +7,7 @@ dependencies:
     - node.type.wallet
   module:
     - commerce_product
+    - commerce_store
     - node
     - system
 id: vendedor
@@ -16,6 +17,7 @@ is_admin: null
 permissions:
   - 'access administration pages'
   - 'access commerce_product overview'
+  - 'access commerce_store overview'
   - 'access content'
   - 'access content overview'
   - 'create pet_product commerce_product'

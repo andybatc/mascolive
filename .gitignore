@@ -16,3 +16,6 @@
 
 # --- Junk local de testing ---
 /.playwright-mcp/
+# --- Python cache ---
+__pycache__/
+*.pyc
