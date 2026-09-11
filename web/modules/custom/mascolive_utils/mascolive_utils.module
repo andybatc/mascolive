@@ -150,6 +150,25 @@ function mascolive_utils_login_redirect(array &$form, \Drupal\Core\Form\FormStat
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * El logout de core (UserLogoutConfirm) redirige a <front>, lo que parece que
+ * la sesión no se cerró. Tras cerrar sesión volvemos al login para poder
+ * entrar con otro rol.
+ */
+function mascolive_utils_form_user_logout_confirm_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Corre tras UserLogoutConfirm::submitForm() y sobreescribe su redirect.
+  $form['#submit'][] = 'mascolive_utils_logout_redirect';
+}
+
+/**
+ * Submit handler: tras el logout, vuelve al formulario de login.
+ */
+function mascolive_utils_logout_redirect(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  $form_state->setRedirect('user.login');
+}
+
+/**
  * Primer rol del usuario que tiene portal: devuelve su nid o NULL.
  *
  * Roles sin portal (tutor, conductor) caen en <front>. La prioridad la da el
